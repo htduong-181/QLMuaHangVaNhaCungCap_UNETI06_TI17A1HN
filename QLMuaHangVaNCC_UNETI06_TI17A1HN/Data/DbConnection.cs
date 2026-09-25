@@ -50,10 +50,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
 
 
 
-            // ===============================
-            // MAP TEN BANG SQL SERVER
-            // ===============================
-
             modelBuilder.Entity<TaiKhoan>()
                 .ToTable("TaiKhoan");
 
@@ -101,10 +97,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
 
 
 
-            // ===============================
-            // TAI KHOAN
-            // ===============================
-
             modelBuilder.Entity<YeuCauMuaHang>()
                 .HasOne(x => x.NguoiLapNavigation)
                 .WithMany(x => x.YeuCauMuaHangs)
@@ -151,13 +143,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-
-
-
-            // ===============================
-            // HANG HOA
-            // ===============================
-
             modelBuilder.Entity<HangHoa>()
                 .HasOne(x => x.LoaiHang)
                 .WithMany(x => x.HangHoas)
@@ -172,13 +157,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
                 .HasForeignKey(x => x.MaDonViTinh)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-
-
-
-            // ===============================
-            // YEU CAU MUA HANG
-            // ===============================
 
             modelBuilder.Entity<YeuCauMuaHang>()
                 .HasOne(x => x.BoPhanDeNghi)
@@ -202,13 +180,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
                 .HasForeignKey(x => x.MaHang)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-
-
-
-            // ===============================
-            // DON MUA HANG
-            // ===============================
 
             modelBuilder.Entity<DonMuaHang>()
                 .HasOne(x => x.YeuCauMuaHang)
@@ -250,12 +221,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
 
 
 
-
-
-            // ===============================
-            // GIAO HANG
-            // ===============================
-
             modelBuilder.Entity<LanGiaoHang>()
                 .HasOne(x => x.DonMuaHang)
                 .WithMany(x => x.LanGiaoHangs)
@@ -281,11 +246,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
 
 
 
-
-            // ===============================
-            // THANH TOAN
-            // ===============================
-
             modelBuilder.Entity<ThanhToanDonMua>()
                 .HasOne(x => x.DonMuaHang)
                 .WithMany(x => x.ThanhToanDonMuas)
@@ -293,12 +253,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-
-
-
-            // ===============================
-            // NCC - HANG HOA
-            // ===============================
 
             modelBuilder.Entity<NhaCungCapHangHoa>()
                 .HasIndex(x => new
