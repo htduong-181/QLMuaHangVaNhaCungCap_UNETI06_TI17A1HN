@@ -16,7 +16,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
 
         public bool TrangThai { get; set; } = true;
 
-        // ===== Navigation =====
-        public virtual ICollection<HangHoa> HangHoas { get; set; } = new List<HangHoa>();
+
+        public virtual ICollection<HangHoa> HangHoas { get; set; }
+            = new List<HangHoa>();
     }
 }

@@ -24,19 +24,26 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
         [StringLength(150)]
         public string Email { get; set; } = string.Empty;
 
-        // "Admin" | "NhanVienMuaHang" | "NhanVienDeNghi"
         [Required]
         [StringLength(30)]
         public string VaiTro { get; set; } = "NhanVienDeNghi";
 
-        // true = Hoạt động, false = Khóa
         public bool TrangThai { get; set; } = true;
 
-        // ===== Navigation =====
-        public virtual ICollection<YeuCauMuaHang> YeuCauMuaHangs { get; set; } = new List<YeuCauMuaHang>();
-        public virtual ICollection<DonMuaHang> DonMuaHangs { get; set; } = new List<DonMuaHang>();
-        public virtual ICollection<LanGiaoHang> LanGiaoHangs { get; set; } = new List<LanGiaoHang>();
-        public virtual ICollection<ThanhToanDonMua> ThanhToanDonMuas { get; set; } = new List<ThanhToanDonMua>();
-        public virtual ICollection<LichSuTrangThai> LichSuTrangThais { get; set; } = new List<LichSuTrangThai>();
+
+        public virtual ICollection<YeuCauMuaHang> YeuCauMuaHangs { get; set; }
+            = new List<YeuCauMuaHang>();
+
+        public virtual ICollection<DonMuaHang> DonMuaHangs { get; set; }
+            = new List<DonMuaHang>();
+
+        public virtual ICollection<LanGiaoHang> LanGiaoHangs { get; set; }
+            = new List<LanGiaoHang>();
+
+        public virtual ICollection<ThanhToanDonMua> ThanhToanDonMuas { get; set; }
+            = new List<ThanhToanDonMua>();
+
+        public virtual ICollection<LichSuTrangThai> LichSuTrangThais { get; set; }
+            = new List<LichSuTrangThai>();
     }
 }
