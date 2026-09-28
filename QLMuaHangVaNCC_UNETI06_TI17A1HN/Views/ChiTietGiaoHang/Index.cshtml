@@ -1,0 +1,71 @@
+@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietGiaoHang>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MaLanGiao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MaChiTietDon)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SoLuongNhan)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SoLuongDatChatLuong)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GhiChu)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LanGiaoHang)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ChiTietDonMua)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.MaLanGiao)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.MaChiTietDon)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.SoLuongNhan)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.SoLuongDatChatLuong)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.GhiChu)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.LanGiaoHang)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.ChiTietDonMua)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MaChiTietGiao">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.MaChiTietGiao">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.MaChiTietGiao">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

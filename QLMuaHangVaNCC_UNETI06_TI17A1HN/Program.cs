@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-using QLMuaHangVaNCC_UNETI06_TI17A1HN.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("QLMuaHangVaNCC_UNETI06_TI17A1HNContext") ?? throw new InvalidOperationException("Connection string 'QLMuaHangVaNCC_UNETI06_TI17A1HNContext' not found.");
+
+builder.Services.AddDbContext<QLMuaHangVaNCC_UNETI06_TI17A1HNContext>(options => options.UseSqlServer(connectionString));
 
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 
-builder.Services.AddDbContext<DbConnection>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+
 
 
 var app = builder.Build();
