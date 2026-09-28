@@ -31,9 +31,11 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
         public bool TrangThai { get; set; } = true;
 
 
-        public virtual ICollection<YeuCauMuaHang> YeuCauMuaHangs { get; set; }
-            = new List<YeuCauMuaHang>();
+        public virtual ICollection<YeuCauMuaHang> YeuCauMuaHangsNguoiLap { get; set; }
+    = new List<YeuCauMuaHang>();
 
+        public virtual ICollection<YeuCauMuaHang> YeuCauMuaHangsNguoiDuyet { get; set; }
+            = new List<YeuCauMuaHang>();
         public virtual ICollection<DonMuaHang> DonMuaHangs { get; set; }
             = new List<DonMuaHang>();
 

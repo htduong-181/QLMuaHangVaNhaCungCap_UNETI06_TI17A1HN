@@ -47,7 +47,7 @@ public class TaiKhoansController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaTaiKhoan,TenDangNhap,MatKhau,HoTen,Email,VaiTro,TrangThai,YeuCauMuaHangs,DonMuaHangs,LanGiaoHangs,ThanhToanDonMuas,LichSuTrangThais")] TaiKhoan taikhoan)
+    public async Task<IActionResult> Create([Bind("MaTaiKhoan,TenDangNhap,MatKhau,HoTen,Email,VaiTro,TrangThai,YeuCauMuaHangsNguoiLap,YeuCauMuaHangsNguoiDuyet,DonMuaHangs,LanGiaoHangs,ThanhToanDonMuas,LichSuTrangThais")] TaiKhoan taikhoan)
     {
         if (ModelState.IsValid)
         {
@@ -79,7 +79,7 @@ public class TaiKhoansController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? mataikhoan, [Bind("MaTaiKhoan,TenDangNhap,MatKhau,HoTen,Email,VaiTro,TrangThai,YeuCauMuaHangs,DonMuaHangs,LanGiaoHangs,ThanhToanDonMuas,LichSuTrangThais")] TaiKhoan taikhoan)
+    public async Task<IActionResult> Edit(int? mataikhoan, [Bind("MaTaiKhoan,TenDangNhap,MatKhau,HoTen,Email,VaiTro,TrangThai,YeuCauMuaHangsNguoiLap,YeuCauMuaHangsNguoiDuyet,DonMuaHangs,LanGiaoHangs,ThanhToanDonMuas,LichSuTrangThais")] TaiKhoan taikhoan)
     {
         if (mataikhoan != taikhoan.MaTaiKhoan)
         {
