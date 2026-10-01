@@ -1,0 +1,19 @@
+﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.DonViTinh
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<input type="hidden" asp-for="MaDonViTinh" />
+
+<div class="mb-3">
+    <label asp-for="TenDonViTinh" class="form-label"></label>
+    <input asp-for="TenDonViTinh" class="form-control" />
+    <span asp-validation-for="TenDonViTinh" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="MoTa" class="form-label"></label>
+    <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+    <span asp-validation-for="MoTa" class="text-danger"></span>
+</div>
+<div class="form-check mb-3">
+    <input asp-for="TrangThai" class="form-check-input" />
+    <label asp-for="TrangThai" class="form-check-label"></label>
+</div>
