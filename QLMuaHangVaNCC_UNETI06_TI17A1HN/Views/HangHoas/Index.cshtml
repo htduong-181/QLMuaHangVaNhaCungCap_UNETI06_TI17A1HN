@@ -85,9 +85,9 @@
                 @Html.DisplayFor(model => item.NhaCungCapHangHoas)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.MaHang">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaHang">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaHang">Delete</a>
+                    <a asp-action="Edit" asp-route-mahang="@item.MaHang">Edit</a> |
+                    <a asp-action="Details" asp-route-mahang="@item.MaHang">Details</a> |
+                    <a asp-action="Delete" asp-route-mahang="@item.MaHang">Delete</a>
             </td>
         </tr>
 }
