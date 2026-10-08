@@ -439,6 +439,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                 column: "NguoiLap");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DonViTinh_TenDonViTinh",
+                table: "DonViTinh",
+                column: "TenDonViTinh",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_HangHoa_MaDonViTinh",
                 table: "HangHoa",
                 column: "MaDonViTinh");
@@ -464,14 +470,40 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                 column: "NguoiThucHien");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LoaiHang_TenLoaiHang",
+                table: "LoaiHang",
+                column: "TenLoaiHang",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NhaCungCap_MaSoThue",
+                table: "NhaCungCap",
+                column: "MaSoThue",
+                unique: true,
+                filter: "[MaSoThue] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_NhaCungCapHangHoa_MaHang",
                 table: "NhaCungCapHangHoa",
                 column: "MaHang");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NhaCungCapHangHoa_MaNhaCungCap",
+                name: "IX_NhaCungCapHangHoa_MaNhaCungCap_MaHang",
                 table: "NhaCungCapHangHoa",
-                column: "MaNhaCungCap");
+                columns: new[] { "MaNhaCungCap", "MaHang" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaiKhoan_Email",
+                table: "TaiKhoan",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaiKhoan_TenDangNhap",
+                table: "TaiKhoan",
+                column: "TenDangNhap",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ThanhToanDonMua_MaDonMua",

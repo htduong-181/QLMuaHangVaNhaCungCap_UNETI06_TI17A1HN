@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
-    
 
-//____TRUONG HUY DONG____
+
+// Họ và tên: Trương Huy Đồng
+// Mã sinh viên: 23103100036
+// Nội dung thực hiện: Module 5 - Quản Lý Thanh Toán & Công Nợ
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 {
     public class DonMuaThanhToanVM

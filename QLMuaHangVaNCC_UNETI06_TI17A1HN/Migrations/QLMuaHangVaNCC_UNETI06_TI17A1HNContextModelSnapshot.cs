@@ -219,6 +219,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaDonViTinh");
 
+                    b.HasIndex("TenDonViTinh")
+                        .IsUnique();
+
                     b.ToTable("DonViTinh");
                 });
 
@@ -361,6 +364,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaLoaiHang");
 
+                    b.HasIndex("TenLoaiHang")
+                        .IsUnique();
+
                     b.ToTable("LoaiHang");
                 });
 
@@ -403,6 +409,10 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaNhaCungCap");
 
+                    b.HasIndex("MaSoThue")
+                        .IsUnique()
+                        .HasFilter("[MaSoThue] IS NOT NULL");
+
                     b.ToTable("NhaCungCap");
                 });
 
@@ -436,7 +446,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasIndex("MaHang");
 
-                    b.HasIndex("MaNhaCungCap");
+                    b.HasIndex("MaNhaCungCap", "MaHang")
+                        .IsUnique();
 
                     b.ToTable("NhaCungCapHangHoa");
                 });
@@ -478,6 +489,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("MaTaiKhoan");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("TenDangNhap")
+                        .IsUnique();
 
                     b.ToTable("TaiKhoan");
                 });

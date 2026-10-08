@@ -11,11 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     [DbContext(typeof(QLMuaHangVaNCC_UNETI06_TI17A1HNContext))]
-<<<<<<<< HEAD:QLMuaHangVaNCC_UNETI06_TI17A1HN/Migrations/20260929052603_InitialCreate.Designer.cs
-    [Migration("20260929052603_InitialCreate")]
-========
-    [Migration("20261001005819_InitialCreate")]
->>>>>>>> origin/thdong:QLMuaHangVaNCC_UNETI06_TI17A1HN/Migrations/20261001005819_InitialCreate.Designer.cs
+    [Migration("20261008024122_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -226,6 +222,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaDonViTinh");
 
+                    b.HasIndex("TenDonViTinh")
+                        .IsUnique();
+
                     b.ToTable("DonViTinh");
                 });
 
@@ -368,6 +367,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaLoaiHang");
 
+                    b.HasIndex("TenLoaiHang")
+                        .IsUnique();
+
                     b.ToTable("LoaiHang");
                 });
 
@@ -410,6 +412,10 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaNhaCungCap");
 
+                    b.HasIndex("MaSoThue")
+                        .IsUnique()
+                        .HasFilter("[MaSoThue] IS NOT NULL");
+
                     b.ToTable("NhaCungCap");
                 });
 
@@ -443,7 +449,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasIndex("MaHang");
 
-                    b.HasIndex("MaNhaCungCap");
+                    b.HasIndex("MaNhaCungCap", "MaHang")
+                        .IsUnique();
 
                     b.ToTable("NhaCungCapHangHoa");
                 });
@@ -485,6 +492,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("MaTaiKhoan");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("TenDangNhap")
+                        .IsUnique();
 
                     b.ToTable("TaiKhoan");
                 });

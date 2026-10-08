@@ -1,0 +1,165 @@
+﻿@* Họ và tên: Trương Huy Đồng *@
+@* Mã sinh viên: 23103100036 *@
+@* Nội dung thực hiện: Module 5 - Báo cáo thống kê tổng hợp bằng LINQ *@
+
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers.ThongKeTongHopVM
+@{
+    ViewData["Title"] = "Thống Kê Bằng LINQ";
+}
+
+<div class="container-fluid mt-4">
+    <h3 class="fw-bold text-primary mb-3"><i class="bi bi-bar-chart-line"></i> BÁO CÁO THỐNG KÊ HOẠT ĐỘNG MUA HÀNG</h3>
+
+    <!-- BỘ LỌC THỜI GIAN -->
+    <form method="get" class="card card-body bg-light mb-4 border-0 shadow-sm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Từ ngày</label>
+                <input type="date" name="tuNgay" value="@Model.TuNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Đến ngày</label>
+                <input type="date" name="denNgay" value="@Model.DenNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary me-2 px-4">Lọc dữ liệu</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- CÁC KỶ LỤC NỔI BẬT -->
+    <div class="row g-3 mb-4 text-center">
+        <div class="col-md-4">
+            <div class="alert alert-primary h-100 mb-0 shadow-sm border-0">
+                <div class="text-uppercase fw-bold small mb-1">NCC Có Số Đơn Nhiều Nhất</div>
+                <h5 class="fw-bold mb-0 text-dark">@(Model.NCCNhieuDonNhat?.TenNhaCungCap ?? "Chưa có")</h5>
+                <small>@(Model.NCCNhieuDonNhat != null ? $"{Model.NCCNhieuDonNhat.SoLuongDon} đơn hàng" : "")</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert alert-success h-100 mb-0 shadow-sm border-0">
+                <div class="text-uppercase fw-bold small mb-1">NCC Có Tổng Giá Trị Lớn Nhất</div>
+                <h5 class="fw-bold mb-0 text-dark">@(Model.NCCGiaTriLonNhat?.TenNhaCungCap ?? "Chưa có")</h5>
+                <small>@(Model.NCCGiaTriLonNhat != null ? $"{Model.NCCGiaTriLonNhat.TongGiaTriMua:N0} đ" : "")</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert alert-warning h-100 mb-0 shadow-sm border-0">
+                <div class="text-uppercase fw-bold small mb-1">Mặt Hàng Được Yêu Cầu Nhiều Nhất</div>
+                <h5 class="fw-bold mb-0 text-dark">@(Model.MatHangYeuCauNhieuNhat?.TenHang ?? "Chưa có")</h5>
+                <small>@(Model.MatHangYeuCauNhieuNhat != null ? $"{Model.MatHangYeuCauNhieuNhat.TongSoLuongYeuCau} đơn vị" : "")</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- THỐNG KÊ THEO NHÀ CUNG CẤP -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-dark text-white fw-bold">1. Thống Kê Theo Nhà Cung Cấp</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>Nhà cung cấp</th>
+                        <th>Tổng số đơn mua</th>
+                        <th>Tổng giá trị mua</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ThongKeTheoNCC)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.TenNhaCungCap</td>
+                            <td class="text-center">@item.SoLuongDon</td>
+                            <td class="text-end fw-bold text-success">@item.TongGiaTriMua.ToString("N0") đ</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- THỐNG KÊ THEO HÀNG HÓA -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-secondary text-white fw-bold">2. Thống Kê Theo Mặt Hàng</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>Tên mặt hàng</th>
+                        <th>Tổng SL Yêu cầu</th>
+                        <th>Tổng SL Đặt mua</th>
+                        <th>Giá mua trung bình</th>
+                        <th>Tổng thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model.ThongKeTheoHangHoa)
+                    {
+                        <tr>
+                            <td class="fw-bold">@h.TenHang</td>
+                            <td class="text-center">@h.TongSoLuongYeuCau</td>
+                            <td class="text-center fw-bold">@h.TongSoLuongMua</td>
+                            <td class="text-end text-primary">@h.GiaMuaTrungBinh.ToString("N0") đ</td>
+                            <td class="text-end fw-bold text-danger">@h.TongThanhTien.ToString("N0") đ</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- BÁO CÁO GROUP BY -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-header bg-light fw-bold text-center">3. Số Yêu Cầu Theo Bộ Phận</div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var bp in Model.SoYeuCauTheoBoPhan)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @bp.Key
+                            <span class="badge bg-primary rounded-pill">@bp.Value</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-header bg-light fw-bold text-center">4. Phân Bổ Đơn Mua Theo Trạng Thái</div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var tt in Model.SoDonTheoTrangThai)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @tt.Key
+                            <span class="badge bg-dark rounded-pill">@tt.Value</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0">
+                <div class="card-header bg-light fw-bold text-center">5. Giá Trị Mua Theo Thời Gian</div>
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Tháng/Quý</th>
+                            <th>Tổng giá trị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tg in Model.GiaTriTheoThangQuyNam)
+                        {
+                            <tr>
+                                <td>Tháng @tg.Thang/@tg.Nam <br/><small class="text-muted">(Quý @tg.Quy)</small></td>
+                                <td class="text-end fw-bold text-success">@tg.TongGiaTriMua.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
