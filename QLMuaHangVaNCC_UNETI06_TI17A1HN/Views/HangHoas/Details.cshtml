@@ -1,94 +1,10 @@
 @model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.HangHoa
-
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
-
-<div>
-    <h4>HangHoa</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenHang)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaLoaiHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaLoaiHang)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaDonViTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaDonViTinh)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GiaThamKhao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GiaThamKhao)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoTa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoTa)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LoaiHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LoaiHang)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DonViTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DonViTinh)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ChiTietYeuCaus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ChiTietYeuCaus)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ChiTietDonMuas)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ChiTietDonMuas)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NhaCungCapHangHoas)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NhaCungCapHangHoas)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaHang">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+@{ ViewData["Title"] = "Chi tiết Hàng hóa"; }
+<h2>@ViewData["Title"]</h2>
+<div class="card card-body"><dl class="row">
+<dt class="col-sm-3">Mã</dt><dd class="col-sm-9">@Model.MaHang</dd>
+<dt class="col-sm-3">Tên hàng</dt><dd class="col-sm-9">@Model.TenHang</dd>
+<dt class="col-sm-3">Loại hàng</dt><dd class="col-sm-9">@Model.LoaiHang.TenLoaiHang</dd>
+<dt class="col-sm-3">Đơn vị tính</dt><dd class="col-sm-9">@Model.DonViTinh.TenDonViTinh</dd>
+<dt class="col-sm-3">Giá</dt><dd class="col-sm-9">@Model.GiaThamKhao</dd>
+</dl><p>Trạng thái: @(Model.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</p><a asp-action="Index" class="btn btn-secondary">Quay lại</a></div>
