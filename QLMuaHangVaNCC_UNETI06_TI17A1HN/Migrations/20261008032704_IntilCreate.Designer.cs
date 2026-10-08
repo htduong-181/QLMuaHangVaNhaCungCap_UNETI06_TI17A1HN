@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     [DbContext(typeof(QLMuaHangVaNCC_UNETI06_TI17A1HNContext))]
-    [Migration("20261008024122_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261008032704_IntilCreate")]
+    partial class IntilCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -178,6 +178,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                     b.Property<DateTime>("NgayDat")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("NgayGiaoDuKien")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("NguoiLap")
                         .HasColumnType("int");
 
@@ -186,8 +189,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.Property<string>("TrangThai")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("MaDonMua");
 
