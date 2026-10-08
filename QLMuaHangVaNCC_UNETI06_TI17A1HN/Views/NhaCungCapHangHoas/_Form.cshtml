@@ -1,0 +1,17 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.CungUngFormVm
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="MaNhaCungCap" class="form-label">Nhà cung cấp</label>
+<select asp-for="MaNhaCungCap" class="form-select"><option value="0">-- Chọn --</option>
+@foreach (var x in Model.NhaCungCaps) { <option value="@x.MaNhaCungCap">@x.TenNhaCungCap</option> }</select>
+<span asp-validation-for="MaNhaCungCap" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MaHang" class="form-label">Hàng hóa</label>
+<select asp-for="MaHang" class="form-select"><option value="0">-- Chọn --</option>
+@foreach (var x in Model.HangHoas) { <option value="@x.MaHang">@x.TenHang</option> }</select>
+<span asp-validation-for="MaHang" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="DonGiaBao" class="form-label">Đơn giá báo</label>
+<input asp-for="DonGiaBao" type="number" step="0.01" min="0" class="form-control" />
+<span asp-validation-for="DonGiaBao" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="ThoiGianGiaoDuKien" class="form-label">Thời gian giao dự kiến (ngày)</label>
+<input asp-for="ThoiGianGiaoDuKien" type="number" step="0.01" min="0" class="form-control" />
+<span asp-validation-for="ThoiGianGiaoDuKien" class="text-danger"></span></div>
+<div class="mb-3 form-check"><input asp-for="TrangThai" class="form-check-input" /><label asp-for="TrangThai" class="form-check-label">Đang cung ứng</label></div>

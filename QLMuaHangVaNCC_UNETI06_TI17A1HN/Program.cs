@@ -18,17 +18,6 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(o =>
-{
-    o.IdleTimeout = TimeSpan.FromMinutes(30);
-    o.Cookie.HttpOnly = true;
-    o.Cookie.IsEssential = true;
-});
-builder.Services.AddScoped<QLMuaHangVaNCC_UNETI06_TI17A1HN.Services.IYeuCauMuaHangService,
-                           QLMuaHangVaNCC_UNETI06_TI17A1HN.Services.YeuCauMuaHangService>();
-
-
 
 var app = builder.Build();
 
@@ -45,8 +34,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseSession();
-
+app.UseSession();          // phải đặt SAU UseRouting, TRƯỚC UseAuthorization
 app.UseAuthorization();
 
 

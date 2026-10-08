@@ -1,0 +1,20 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.HangHoaFormVm
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="TenHang" class="form-label">Tên hàng</label>
+<input asp-for="TenHang" type="text"  class="form-control" />
+<span asp-validation-for="TenHang" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MaLoaiHang" class="form-label">Loại hàng</label>
+<select asp-for="MaLoaiHang" class="form-select"><option value="0">-- Chọn --</option>
+@foreach (var x in Model.LoaiHangs) { <option value="@x.MaLoaiHang">@x.TenLoaiHang</option> }</select>
+<span asp-validation-for="MaLoaiHang" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MaDonViTinh" class="form-label">Đơn vị tính</label>
+<select asp-for="MaDonViTinh" class="form-select"><option value="0">-- Chọn --</option>
+@foreach (var x in Model.DonViTinhs) { <option value="@x.MaDonViTinh">@x.TenDonViTinh</option> }</select>
+<span asp-validation-for="MaDonViTinh" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="GiaThamKhao" class="form-label">Giá tham khảo</label>
+<input asp-for="GiaThamKhao" type="number" step="0.01" min="0" class="form-control" />
+<span asp-validation-for="GiaThamKhao" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MoTa" class="form-label">Mô tả</label>
+<textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+<span asp-validation-for="MoTa" class="text-danger"></span></div>
+<div class="mb-3 form-check"><input asp-for="TrangThai" class="form-check-input" /><label asp-for="TrangThai" class="form-check-label">Đang hoạt động</label></div>

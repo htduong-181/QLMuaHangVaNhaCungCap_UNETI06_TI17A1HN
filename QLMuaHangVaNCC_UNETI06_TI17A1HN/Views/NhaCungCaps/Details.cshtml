@@ -1,0 +1,10 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.NhaCungCap
+@{ ViewData["Title"] = "Chi tiết Nhà cung cấp"; }
+<h2>@ViewData["Title"]</h2>
+<div class="card card-body"><dl class="row">
+<dt class="col-sm-3">Mã</dt><dd class="col-sm-9">@Model.MaNhaCungCap</dd>
+<dt class="col-sm-3">Nhà cung cấp</dt><dd class="col-sm-9">@Model.TenNhaCungCap</dd>
+<dt class="col-sm-3">Mã số thuế</dt><dd class="col-sm-9">@Model.MaSoThue</dd>
+<dt class="col-sm-3">Điện thoại</dt><dd class="col-sm-9">@Model.SoDienThoai</dd>
+<dt class="col-sm-3">Người liên hệ</dt><dd class="col-sm-9">@Model.NguoiLienHe</dd>
+</dl><p>Trạng thái: @(Model.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</p><a asp-action="Index" class="btn btn-secondary">Quay lại</a></div>

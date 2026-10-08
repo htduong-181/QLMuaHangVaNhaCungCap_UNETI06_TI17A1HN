@@ -1,0 +1,86 @@
+﻿@* Họ và tên: Trương Huy Đồng *@
+@* Mã sinh viên: 23103100036 *@
+@* Nội dung thực hiện: Module 5 - Form tạo mới bản ghi thanh toán, validate số tiền không vượt quá công nợ *@
+
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ThanhToanDonMua
+@{
+    ViewData["Title"] = "Ghi nhận thanh toán";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="card shadow border-0 col-md-8 mx-auto">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-wallet2"></i> Lập Phiếu Thanh Toán Đơn Mua</h4>
+        </div>
+        <div class="card-body bg-light">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- CHỌN ĐƠN MUA HÀNG -->
+                <div class="mb-3">
+                    <label asp-for="MaDonMua" class="form-label fw-bold text-primary"></label>
+                    <select asp-for="MaDonMua" class="form-select form-select-lg shadow-sm" asp-items="ViewBag.MaDonMua" onchange="this.form.submit()"></select>
+                    <span asp-validation-for="MaDonMua" class="text-danger"></span>
+                    <small class="text-muted d-block mt-1">* Hệ thống chỉ hiển thị những đơn chưa thanh toán xong (Không ở trạng thái Nháp/Hủy).</small>
+                </div>
+
+                <!-- HIỂN THỊ SỐ TIỀN CÒN LẠI -->
+                @if (ViewBag.SoTienConLai != null)
+                {
+                    <div class="alert alert-warning border-warning border-2 py-2 fs-5">
+                        <i class="bi bi-info-circle-fill"></i> Số tiền công nợ tối đa có thể thanh toán:
+                        <strong class="text-danger">@(((decimal)ViewBag.SoTienConLai).ToString("N0")) VNĐ</strong>
+                    </div>
+                }
+
+                <div class="row bg-white p-3 border rounded shadow-sm mx-0 mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NgayThanhToan" class="form-label fw-bold"></label>
+                        <input asp-for="NgayThanhToan" type="date" class="form-control" />
+                        <span asp-validation-for="NgayThanhToan" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SoTienThanhToan" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <input asp-for="SoTienThanhToan" type="number" step="1" min="1" class="form-control text-end fw-bold text-success" placeholder="Nhập số tiền..." />
+                            <span class="input-group-text fw-bold">VNĐ</span>
+                        </div>
+                        <span asp-validation-for="SoTienThanhToan" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PhuongThuc" class="form-label fw-bold"></label>
+                        <select asp-for="PhuongThuc" class="form-select">
+                            <option value="ChuyenKhoan">Chuyển khoản qua ngân hàng</option>
+                            <option value="TienMat">Thanh toán bằng Tiền mặt</option>
+                            <option value="UyNhiemChi">Thanh toán qua Ủy nhiệm chi</option>
+                        </select>
+                        <span asp-validation-for="PhuongThuc" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NguoiThucHien" class="form-label fw-bold"></label>
+                        <select asp-for="NguoiThucHien" class="form-select" asp-items="ViewBag.NguoiThucHien"></select>
+                        <span asp-validation-for="NguoiThucHien" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="GhiChu" class="form-label fw-bold"></label>
+                        <textarea asp-for="GhiChu" rows="3" class="form-control" placeholder="Nhập mã giao dịch ngân hàng, số UNC hoặc các ghi chú khác..."></textarea>
+                        <span asp-validation-for="GhiChu" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-secondary px-4"><i class="bi bi-arrow-left"></i> Quay lại</a>
+                    <button type="submit" class="btn btn-success px-5 fw-bold"><i class="bi bi-save"></i> Xác Nhận Thanh Toán</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

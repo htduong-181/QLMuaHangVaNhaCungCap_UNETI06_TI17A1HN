@@ -1,0 +1,181 @@
+﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietGiaoHang
+
+@{
+    ViewData["Title"] = "Chi tiết giao hàng";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Chi tiết giao hàng #@Model.MaChiTietGiao</h2>
+            <p class="text-muted mb-0">
+                Thông tin chi tiết mặt hàng được tiếp nhận
+            </p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            ← Quay lại
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <strong>Thông tin lần giao</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Mã lần giao</div>
+                        <div class="fw-bold">
+                            #@Model.MaLanGiao
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Ngày giao</div>
+                        <div>
+                            @(Model.LanGiaoHang?.NgayGiao.ToString("dd/MM/yyyy") ?? "-")
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Người nhận</div>
+                        <div>
+                            @(Model.LanGiaoHang?.NguoiNhanNavigation?.HoTen ?? "-")
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Số chứng từ</div>
+                        <div>
+                            @(Model.LanGiaoHang?.SoChungTu ?? "-")
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-muted small">Ghi chú lần giao</div>
+                        <div>
+                            @(Model.LanGiaoHang?.GhiChu ?? "-")
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <strong>Thông tin đơn mua</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Mã đơn mua</div>
+                        <div class="fw-bold">
+                            #@(Model.LanGiaoHang?.MaDonMua)
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Mặt hàng</div>
+                        <div class="fw-bold">
+                            @(Model.ChiTietDonMua?.HangHoa?.TenHang ?? "-")
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Số lượng đặt</div>
+                        <div>
+                            @(Model.ChiTietDonMua?.SoLuongDat ?? 0)
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-muted small">Đơn giá mua</div>
+                        <div>
+                            @((Model.ChiTietDonMua?.DonGiaMua ?? 0).ToString("N0")) đ
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-muted small">Thành tiền</div>
+                        <div class="fw-bold text-success">
+                            @((Model.ChiTietDonMua?.ThanhTien ?? 0).ToString("N0")) đ
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm mt-4">
+
+        <div class="card-header">
+            <strong>Kết quả tiếp nhận</strong>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row text-center g-3">
+
+                <div class="col-md-4">
+                    <div class="border rounded p-4">
+                        <div class="text-muted">
+                            Số lượng đã đặt
+                        </div>
+
+                        <div class="fs-3 fw-bold">
+                            @(Model.ChiTietDonMua?.SoLuongDat ?? 0)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="border rounded p-4">
+                        <div class="text-muted">
+                            Số lượng nhận
+                        </div>
+
+                        <div class="fs-3 fw-bold text-primary">
+                            @Model.SoLuongNhan
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="border rounded p-4">
+                        <div class="text-muted">
+                            Đạt chất lượng
+                        </div>
+
+                        <div class="fs-3 fw-bold text-success">
+                            @(Model.SoLuongDatChatLuong ?? Model.SoLuongNhan)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-4">
+                <div class="text-muted small">
+                    Ghi chú
+                </div>
+
+                <div class="mt-1">
+                    @(Model.GhiChu ?? "Không có ghi chú")
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

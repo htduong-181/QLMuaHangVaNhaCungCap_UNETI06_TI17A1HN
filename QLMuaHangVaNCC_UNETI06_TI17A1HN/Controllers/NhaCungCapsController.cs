@@ -1,149 +1,161 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
+using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels;
 
 public class NhaCungCapsController : Controller
 {
     private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
+    public NhaCungCapsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context) => _context = context;
 
-    public NhaCungCapsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context)
+    // Index
+    public async Task<IActionResult> Index(string? search, bool? status, int? maHang,
+        bool? coCungUng, string? sort, int page = 1)
     {
-        _context = context;
+        page = Math.Max(1, page);
+        const int pageSize = 10;
+        var query = _context.NhaCungCap.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.Trim();
+            query = query.Where(x => x.TenNhaCungCap.Contains(search)
+                || x.MaNhaCungCap.ToString().Contains(search)
+                || (x.MaSoThue != null && x.MaSoThue.Contains(search))
+                || (x.NguoiLienHe != null && x.NguoiLienHe.Contains(search)));
+        }
+        if (status.HasValue) query = query.Where(x => x.TrangThai == status.Value);
+        if (maHang.HasValue && coCungUng.HasValue)
+        {
+            query = coCungUng.Value
+                ? query.Where(x => x.NhaCungCapHangHoas.Any(y => y.MaHang == maHang.Value))
+                : query.Where(x => !x.NhaCungCapHangHoas.Any(y => y.MaHang == maHang.Value));
+        }
+        query = sort == "name_desc"
+            ? query.OrderByDescending(x => x.TenNhaCungCap).ThenBy(x => x.MaNhaCungCap)
+            : query.OrderBy(x => x.TenNhaCungCap).ThenBy(x => x.MaNhaCungCap);
+        var total = await query.CountAsync();
+        var pages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
+        page = Math.Min(page, pages);
+        return View(new PagedListVm<NhaCungCap>
+        {
+            Items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(),
+            Page = page, PageSize = pageSize, TotalItems = total,
+            Search = search, Status = status, MaHang = maHang, CoCungUng = coCungUng, Sort = sort,
+            HangHoas = await _context.HangHoa.AsNoTracking().OrderBy(x => x.TenHang).ToListAsync()
+        });
     }
 
-    // GET: NHACUNGCAPS
-    public async Task<IActionResult> Index()    
+    // Details
+    public async Task<IActionResult> Details(int? id)
     {
-        return View(await _context.NhaCungCap.ToListAsync());
+        if (id == null) return NotFound();
+        var x = await _context.NhaCungCap.AsNoTracking().FirstOrDefaultAsync(y => y.MaNhaCungCap == id);
+        return x == null ? NotFound() : View(x);
     }
 
-    // GET: NHACUNGCAPS/Details/5
-    public async Task<IActionResult> Details(int? manhacungcap)
+    private async Task CheckTax(NhaCungCapFormVm vm, int? excludedId = null)
     {
-        if (manhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        var nhacungcap = await _context.NhaCungCap
-            .FirstOrDefaultAsync(m => m.MaNhaCungCap == manhacungcap);
-        if (nhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        return View(nhacungcap);
+        vm.MaSoThue = string.IsNullOrWhiteSpace(vm.MaSoThue) ? null : vm.MaSoThue.Trim();
+        if (vm.MaSoThue != null && await _context.NhaCungCap.AnyAsync(x =>
+            x.MaSoThue == vm.MaSoThue && (!excludedId.HasValue || x.MaNhaCungCap != excludedId.Value)))
+            ModelState.AddModelError(nameof(vm.MaSoThue), "Mã số thuế đã tồn tại.");
     }
 
-    // GET: NHACUNGCAPS/Create
-    public IActionResult Create()
+    // Create
+    public IActionResult Create() => View(new NhaCungCapFormVm());
+
+    // Create POST
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(NhaCungCapFormVm vm)
     {
-        return View();
-    }
-
-    // POST: NHACUNGCAPS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaNhaCungCap,TenNhaCungCap,MaSoThue,SoDienThoai,Email,DiaChi,NguoiLienHe,TrangThai,DonMuaHangs,NhaCungCapHangHoas")] NhaCungCap nhacungcap)
-    {
-        if (ModelState.IsValid)
+        await CheckTax(vm);
+        if (!ModelState.IsValid) return View(vm);
+        _context.NhaCungCap.Add(new NhaCungCap
         {
-            _context.Add(nhacungcap);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        return View(nhacungcap);
-    }
-
-    // GET: NHACUNGCAPS/Edit/5
-    public async Task<IActionResult> Edit(int? manhacungcap)
-    {
-        if (manhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        var nhacungcap = await _context.NhaCungCap.FindAsync(manhacungcap);
-        if (nhacungcap == null)
-        {
-            return NotFound();
-        }
-        return View(nhacungcap);
-    }
-
-    // POST: NHACUNGCAPS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? manhacungcap, [Bind("MaNhaCungCap,TenNhaCungCap,MaSoThue,SoDienThoai,Email,DiaChi,NguoiLienHe,TrangThai,DonMuaHangs,NhaCungCapHangHoas")] NhaCungCap nhacungcap)
-    {
-        if (manhacungcap != nhacungcap.MaNhaCungCap)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                _context.Update(nhacungcap);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!NhaCungCapExists(nhacungcap.MaNhaCungCap))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        return View(nhacungcap);
-    }
-
-    // GET: NHACUNGCAPS/Delete/5
-    public async Task<IActionResult> Delete(int? manhacungcap)
-    {
-        if (manhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        var nhacungcap = await _context.NhaCungCap
-            .FirstOrDefaultAsync(m => m.MaNhaCungCap == manhacungcap);
-        if (nhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        return View(nhacungcap);
-    }
-
-    // POST: NHACUNGCAPS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? manhacungcap)
-    {
-        var nhacungcap = await _context.NhaCungCap.FindAsync(manhacungcap);
-        if (nhacungcap != null)
-        {
-            _context.NhaCungCap.Remove(nhacungcap);
-        }
-
+            TenNhaCungCap = vm.TenNhaCungCap.Trim(), MaSoThue = vm.MaSoThue,
+            SoDienThoai = vm.SoDienThoai.Trim(), Email = vm.Email,
+            DiaChi = vm.DiaChi, NguoiLienHe = vm.NguoiLienHe, TrangThai = vm.TrangThai
+        });
         await _context.SaveChangesAsync();
+        TempData["Success"] = "Đã thêm nhà cung cấp.";
         return RedirectToAction(nameof(Index));
     }
 
-    private bool NhaCungCapExists(int? manhacungcap)
+    // Edit
+    public async Task<IActionResult> Edit(int? id)
     {
-        return _context.NhaCungCap.Any(e => e.MaNhaCungCap == manhacungcap);
+        if (id == null) return NotFound();
+        var x = await _context.NhaCungCap.FindAsync(id);
+        if (x == null) return NotFound();
+        return View(new NhaCungCapFormVm
+        {
+            MaNhaCungCap = x.MaNhaCungCap, TenNhaCungCap = x.TenNhaCungCap,
+            MaSoThue = x.MaSoThue, SoDienThoai = x.SoDienThoai, Email = x.Email,
+            DiaChi = x.DiaChi, NguoiLienHe = x.NguoiLienHe, TrangThai = x.TrangThai
+        });
+    }
+
+    // Edit POST
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, NhaCungCapFormVm vm)
+    {
+        if (id != vm.MaNhaCungCap) return NotFound();
+        var x = await _context.NhaCungCap.FindAsync(id);
+        if (x == null) return NotFound();
+        await CheckTax(vm, id);
+        if (!ModelState.IsValid) return View(vm);
+        x.TenNhaCungCap = vm.TenNhaCungCap.Trim();
+        x.MaSoThue = vm.MaSoThue;
+        x.SoDienThoai = vm.SoDienThoai.Trim();
+        x.Email = vm.Email;
+        x.DiaChi = vm.DiaChi;
+        x.NguoiLienHe = vm.NguoiLienHe;
+        x.TrangThai = vm.TrangThai;
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Đã cập nhật nhà cung cấp.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // ChangeStatus POST
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeStatus(int id)
+    {
+        var x = await _context.NhaCungCap.FindAsync(id);
+        if (x == null) return NotFound();
+        x.TrangThai = !x.TrangThai;
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Đã cập nhật trạng thái nhà cung cấp.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // Delete
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null) return NotFound();
+        var x = await _context.NhaCungCap.AsNoTracking().FirstOrDefaultAsync(y => y.MaNhaCungCap == id);
+        return x == null ? NotFound() : View(x);
+    }
+
+    // Delete POST
+    [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var x = await _context.NhaCungCap.FindAsync(id);
+        if (x == null) return NotFound();
+        var used = await _context.DonMuaHang.AnyAsync(y => y.MaNhaCungCap == id);
+        var linked = await _context.NhaCungCapHangHoa.AnyAsync(y => y.MaNhaCungCap == id);
+        if (used || linked)
+        {
+            x.TrangThai = false;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Nhà cung cấp có dữ liệu liên quan; đã ngừng hoạt động.";
+        }
+        else
+        {
+            _context.NhaCungCap.Remove(x);
+            try { await _context.SaveChangesAsync(); TempData["Success"] = "Đã xóa nhà cung cấp."; }
+            catch (DbUpdateException) { _context.Entry(x).State = EntityState.Detached; TempData["Error"] = "Không thể xóa vì còn dữ liệu liên quan."; }
+        }
+        return RedirectToAction(nameof(Index));
     }
 }

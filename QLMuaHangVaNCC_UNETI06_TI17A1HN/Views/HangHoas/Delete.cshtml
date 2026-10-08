@@ -1,0 +1,5 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.HangHoa
+@{ ViewData["Title"] = "Xóa Hàng hóa"; }
+<h2>@ViewData["Title"]</h2><div class="alert alert-warning">Nếu đã có dữ liệu liên quan, hệ thống sẽ chuyển sang ngừng hoạt động thay vì xóa.</div>
+<form asp-action="Delete" asp-route-id="@Model.MaHang" method="post">
+<p>Bạn xác nhận xử lý: <strong>@Model.TenHang</strong>?</p><button class="btn btn-danger" type="submit">Xác nhận</button> <a asp-action="Index" class="btn btn-secondary">Hủy</a></form>

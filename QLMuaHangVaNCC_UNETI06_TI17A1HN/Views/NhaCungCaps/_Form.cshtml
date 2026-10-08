@@ -1,0 +1,21 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.NhaCungCapFormVm
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="TenNhaCungCap" class="form-label">Tên nhà cung cấp</label>
+<input asp-for="TenNhaCungCap" type="text"  class="form-control" />
+<span asp-validation-for="TenNhaCungCap" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MaSoThue" class="form-label">Mã số thuế</label>
+<input asp-for="MaSoThue" type="text"  class="form-control" />
+<span asp-validation-for="MaSoThue" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="SoDienThoai" class="form-label">Số điện thoại</label>
+<input asp-for="SoDienThoai" type="text"  class="form-control" />
+<span asp-validation-for="SoDienThoai" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Email" class="form-label">Email</label>
+<input asp-for="Email" type="email"  class="form-control" />
+<span asp-validation-for="Email" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+<input asp-for="DiaChi" type="text"  class="form-control" />
+<span asp-validation-for="DiaChi" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="NguoiLienHe" class="form-label">Người liên hệ</label>
+<input asp-for="NguoiLienHe" type="text"  class="form-control" />
+<span asp-validation-for="NguoiLienHe" class="text-danger"></span></div>
+<div class="mb-3 form-check"><input asp-for="TrangThai" class="form-check-input" /><label asp-for="TrangThai" class="form-check-label">Đang hoạt động</label></div>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     /// <inheritdoc />
-    public partial class initialCreate : Migration
+    public partial class IntilCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -248,10 +248,11 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                     MaYeuCau = table.Column<int>(type: "int", nullable: false),
                     MaNhaCungCap = table.Column<int>(type: "int", nullable: false),
                     NgayDat = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TrangThai = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    NgayGiaoDuKien = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NguoiLap = table.Column<int>(type: "int", nullable: false),
+                    TrangThai = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     TongTien = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    NguoiLap = table.Column<int>(type: "int", nullable: false)
+                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -439,6 +440,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                 column: "NguoiLap");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DonViTinh_TenDonViTinh",
+                table: "DonViTinh",
+                column: "TenDonViTinh",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_HangHoa_MaDonViTinh",
                 table: "HangHoa",
                 column: "MaDonViTinh");
@@ -464,14 +471,40 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                 column: "NguoiThucHien");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LoaiHang_TenLoaiHang",
+                table: "LoaiHang",
+                column: "TenLoaiHang",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NhaCungCap_MaSoThue",
+                table: "NhaCungCap",
+                column: "MaSoThue",
+                unique: true,
+                filter: "[MaSoThue] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_NhaCungCapHangHoa_MaHang",
                 table: "NhaCungCapHangHoa",
                 column: "MaHang");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NhaCungCapHangHoa_MaNhaCungCap",
+                name: "IX_NhaCungCapHangHoa_MaNhaCungCap_MaHang",
                 table: "NhaCungCapHangHoa",
-                column: "MaNhaCungCap");
+                columns: new[] { "MaNhaCungCap", "MaHang" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaiKhoan_Email",
+                table: "TaiKhoan",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaiKhoan_TenDangNhap",
+                table: "TaiKhoan",
+                column: "TenDangNhap",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ThanhToanDonMua_MaDonMua",
