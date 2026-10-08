@@ -1,53 +1,49 @@
 @model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.LoaiHang>
+@{ ViewData["Title"] = "Loại hàng"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h3>Quản lý loại hàng</h3>
 
-<h1>Index</h1>
+@if (TempData["ThongBao"] != null) { <div class="alert alert-success">@TempData["ThongBao"]</div> }
+@if (TempData["Loi"] != null) { <div class="alert alert-danger">@TempData["Loi"]</div> }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
+<div class="d-flex justify-content-between mb-3">
+    <form method="get" class="d-flex gap-2">
+        <input name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tên loại hàng" />
+        <button class="btn btn-outline-primary">Tìm</button>
+    </form>
+    <a asp-action="Create" class="btn btn-success">+ Thêm loại hàng</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenLoaiHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HangHoas)
-            </th>
+            <th>@Html.DisplayNameFor(m => m.TenLoaiHang)</th>
+            <th>@Html.DisplayNameFor(m => m.MoTa)</th>
+            <th>Trạng thái</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var l in Model)
+    {
         <tr>
+            <td>@l.TenLoaiHang</td>
+            <td>@l.MoTa</td>
             <td>
-                @Html.DisplayFor(model => item.TenLoaiHang)
+                @if (l.TrangThai) { <span class="badge bg-success">Hoạt động</span> }
+                else { <span class="badge bg-secondary">Ngừng</span> }
             </td>
-            <td>
-                @Html.DisplayFor(model => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.HangHoas)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaLoaiHang">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaLoaiHang">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaLoaiHang">Delete</a>
+            <td class="d-flex gap-1">
+                <a asp-action="Edit" asp-route-id="@l.MaLoaiHang" class="btn btn-sm btn-primary">Sửa</a>
+                <form asp-action="DoiTrangThai" asp-route-id="@l.MaLoaiHang" method="post">
+                    <button class="btn btn-sm btn-warning">@(l.TrangThai ? "Ngừng" : "Kích hoạt")</button>
+                </form>
+                <form asp-action="Delete" asp-route-id="@l.MaLoaiHang" method="post"
+                      onsubmit="return confirm('Xóa loại hàng này?')">
+                    <button class="btn btn-sm btn-danger">Xóa</button>
+                </form>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>

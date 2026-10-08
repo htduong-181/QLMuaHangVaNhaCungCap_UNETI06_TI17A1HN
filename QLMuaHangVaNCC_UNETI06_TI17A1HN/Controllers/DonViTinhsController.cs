@@ -1,149 +1,90 @@
 
+// Họ và tên: Lê Tiến Công
+// Mã sinh viên: 23103100050
+// Nội dung thực hiện: Chức năng phân quyền tài khoản, loại hàng, đơn vị tính
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 
+[PhanQuyen(VaiTroHeThong.Admin)]//Phân quyền admin có thể xem được view controller này
 public class DonViTinhsController : Controller
 {
     private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
+    public DonViTinhsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context) => _context = context;
 
-    public DonViTinhsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context)
+    public async Task<IActionResult> Index(string? tuKhoa)
     {
-        _context = context;
+        var q = _context.DonViTinh.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(tuKhoa))
+            q = q.Where(d => d.TenDonViTinh.Contains(tuKhoa));
+        ViewBag.TuKhoa = tuKhoa;
+        return View(await q.OrderBy(d => d.TenDonViTinh).ToListAsync());
     }
 
-    // GET: DONVITINHS
-    public async Task<IActionResult> Index()    
+    public IActionResult Create() => View(new DonViTinh());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(DonViTinh model)
     {
-        return View(await _context.DonViTinh.ToListAsync());
-    }
+        model.TenDonViTinh = model.TenDonViTinh?.Trim() ?? "";
+        if (await _context.DonViTinh.AnyAsync(d => d.TenDonViTinh == model.TenDonViTinh))
+            ModelState.AddModelError(nameof(model.TenDonViTinh), "Tên đơn vị tính đã tồn tại");
+        if (!ModelState.IsValid) return View(model);
 
-    // GET: DONVITINHS/Details/5
-    public async Task<IActionResult> Details(int? madonvitinh)
-    {
-        if (madonvitinh == null)
-        {
-            return NotFound();
-        }
-
-        var donvitinh = await _context.DonViTinh
-            .FirstOrDefaultAsync(m => m.MaDonViTinh == madonvitinh);
-        if (donvitinh == null)
-        {
-            return NotFound();
-        }
-
-        return View(donvitinh);
-    }
-
-    // GET: DONVITINHS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: DONVITINHS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaDonViTinh,TenDonViTinh,MoTa,TrangThai,HangHoas")] DonViTinh donvitinh)
-    {
-        if (ModelState.IsValid)
-        {
-            _context.Add(donvitinh);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        return View(donvitinh);
-    }
-
-    // GET: DONVITINHS/Edit/5
-    public async Task<IActionResult> Edit(int? madonvitinh)
-    {
-        if (madonvitinh == null)
-        {
-            return NotFound();
-        }
-
-        var donvitinh = await _context.DonViTinh.FindAsync(madonvitinh);
-        if (donvitinh == null)
-        {
-            return NotFound();
-        }
-        return View(donvitinh);
-    }
-
-    // POST: DONVITINHS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? madonvitinh, [Bind("MaDonViTinh,TenDonViTinh,MoTa,TrangThai,HangHoas")] DonViTinh donvitinh)
-    {
-        if (madonvitinh != donvitinh.MaDonViTinh)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                _context.Update(donvitinh);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DonViTinhExists(donvitinh.MaDonViTinh))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        return View(donvitinh);
-    }
-
-    // GET: DONVITINHS/Delete/5
-    public async Task<IActionResult> Delete(int? madonvitinh)
-    {
-        if (madonvitinh == null)
-        {
-            return NotFound();
-        }
-
-        var donvitinh = await _context.DonViTinh
-            .FirstOrDefaultAsync(m => m.MaDonViTinh == madonvitinh);
-        if (donvitinh == null)
-        {
-            return NotFound();
-        }
-
-        return View(donvitinh);
-    }
-
-    // POST: DONVITINHS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? madonvitinh)
-    {
-        var donvitinh = await _context.DonViTinh.FindAsync(madonvitinh);
-        if (donvitinh != null)
-        {
-            _context.DonViTinh.Remove(donvitinh);
-        }
-
+        _context.DonViTinh.Add(model);
         await _context.SaveChangesAsync();
+        TempData["ThongBao"] = "Thêm đơn vị tính thành công";
         return RedirectToAction(nameof(Index));
     }
 
-    private bool DonViTinhExists(int? madonvitinh)
+    public async Task<IActionResult> Edit(int id)
     {
-        return _context.DonViTinh.Any(e => e.MaDonViTinh == madonvitinh);
+        var dvt = await _context.DonViTinh.FindAsync(id);
+        return dvt == null ? NotFound() : View(dvt);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, DonViTinh model)
+    {
+        if (id != model.MaDonViTinh) return NotFound();
+        model.TenDonViTinh = model.TenDonViTinh?.Trim() ?? "";
+        if (await _context.DonViTinh.AnyAsync(d => d.TenDonViTinh == model.TenDonViTinh && d.MaDonViTinh != id))
+            ModelState.AddModelError(nameof(model.TenDonViTinh), "Tên đơn vị tính đã tồn tại");
+        if (!ModelState.IsValid) return View(model);
+
+        _context.DonViTinh.Update(model);
+        await _context.SaveChangesAsync();
+        TempData["ThongBao"] = "Cập nhật đơn vị tính thành công";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DoiTrangThai(int id)
+    {
+        var dvt = await _context.DonViTinh.FindAsync(id);
+        if (dvt == null) return NotFound();
+        dvt.TrangThai = !dvt.TrangThai;
+        await _context.SaveChangesAsync();
+        TempData["ThongBao"] = dvt.TrangThai ? "Đã kích hoạt đơn vị tính" : "Đã ngừng hoạt động đơn vị tính";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var dvt = await _context.DonViTinh.FindAsync(id);
+        if (dvt == null) return NotFound();
+
+        if (await _context.HangHoa.AnyAsync(h => h.MaDonViTinh == id))
+        {
+            TempData["Loi"] = "Đơn vị tính đã có hàng hóa, chỉ có thể ngừng hoạt động";
+            return RedirectToAction(nameof(Index));
+        }
+        _context.DonViTinh.Remove(dvt);
+        await _context.SaveChangesAsync();
+        TempData["ThongBao"] = "Đã xóa đơn vị tính";
+        return RedirectToAction(nameof(Index));
     }
 }

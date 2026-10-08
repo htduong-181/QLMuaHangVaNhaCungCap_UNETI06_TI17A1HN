@@ -10,8 +10,13 @@ builder.Services.AddDbContext<QLMuaHangVaNCC_UNETI06_TI17A1HNContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
-
+// Session dùng cho đăng nhập và phân quyền (PhanQuyenAttribute)
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 
 var app = builder.Build();
@@ -29,6 +34,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseSession();          // phải đặt SAU UseRouting, TRƯỚC UseAuthorization
 app.UseAuthorization();
 
 
