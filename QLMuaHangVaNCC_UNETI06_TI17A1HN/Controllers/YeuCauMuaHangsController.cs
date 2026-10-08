@@ -1,149 +1,280 @@
+// Họ và tên: Hoàng Thùy Dương
+// Mã sinh viên: 23103100051
+// Nội dung thực hiện: Module 3 - Controller yêu cầu mua hàng: danh sách (tìm kiếm/lọc/sắp xếp/phân trang),
+// lập/sửa/xóa yêu cầu Nháp, thêm/sửa/xóa chi tiết, gửi duyệt, xét duyệt, từ chối, hủy.
+// Quyền được kiểm tra TẠI CONTROLLER bằng [PhanQuyenYeuCau] và lại ở Service.
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
+using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
+using QLMuaHangVaNCC_UNETI06_TI17A1HN.Services;
+using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels;
 
+namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers;
+
+// Mặc định: ai đã đăng nhập với 3 vai trò hợp lệ mới vào được controller này.
+// Từng action bên dưới thu hẹp quyền hơn nếu cần (filter cấp action chạy cùng filter cấp class).
+[PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi, VaiTroHeThong.NhanVienMuaHang, VaiTroHeThong.NguoiDuyet)]
 public class YeuCauMuaHangsController : Controller
 {
-    private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
+    private readonly IYeuCauMuaHangService _svc;
 
-    public YeuCauMuaHangsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context)
+    public YeuCauMuaHangsController(IYeuCauMuaHangService svc) => _svc = svc;
+
+    // Filter đã đảm bảo Session có người dùng nên có thể dùng "!"
+    private NguoiDungHienTai NguoiDung => HttpContext.Session.LayNguoiDung()!;
+
+    private void GhiThongBao(KetQuaXuLy kq)
     {
-        _context = context;
+        if (kq.ThanhCong) TempData["ThongBao"] = kq.ThongBao;
+        else TempData["Loi"] = kq.ThongBao;
     }
 
-    // GET: YEUCAUMUAHANGS
-    public async Task<IActionResult> Index()    
+    // ------------------------------------------------------------------ DANH SÁCH
+    public async Task<IActionResult> Index([FromQuery] YeuCauFilterViewModel filter)
     {
-        return View(await _context.YeuCauMuaHang.ToListAsync());
-    }
-
-    // GET: YEUCAUMUAHANGS/Details/5
-    public async Task<IActionResult> Details(int? mayeucau)
-    {
-        if (mayeucau == null)
+        var vm = new YeuCauIndexViewModel
         {
-            return NotFound();
-        }
-
-        var yeucaumuahang = await _context.YeuCauMuaHang
-            .FirstOrDefaultAsync(m => m.MaYeuCau == mayeucau);
-        if (yeucaumuahang == null)
-        {
-            return NotFound();
-        }
-
-        return View(yeucaumuahang);
+            Filter = filter,
+            KetQua = await _svc.TimKiemAsync(filter, NguoiDung)
+        };
+        // Service có thể chỉnh lại số trang (vd. trang quá lớn) -> đồng bộ lại để giữ đúng điều kiện
+        filter.Page = vm.KetQua.Page;
+        return View(vm);
     }
 
-    // GET: YEUCAUMUAHANGS/Create
-    public IActionResult Create()
+    // ------------------------------------------------------------------ CHI TIẾT
+    public async Task<IActionResult> Details(int id)
     {
-        return View();
+        var vm = await _svc.LayChiTietAsync(id, NguoiDung);
+        if (vm is null)
+        {
+            TempData["Loi"] = "Không tìm thấy yêu cầu hoặc bạn không có quyền xem.";
+            return RedirectToAction(nameof(Index));
+        }
+        if (vm.CoTheSua) vm.DanhSachHang = await _svc.DanhSachHangAsync();
+        return View(vm);
     }
 
-    // POST: YEUCAUMUAHANGS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaYeuCau,MaBoPhan,NgayYeuCau,NgayCanHang,MucDoUuTien,LyDoMua,NguoiLap,TrangThai,NgayDuyet,NguoiDuyet,LyDoTuChoiHuy,BoPhanDeNghi,NguoiLapNavigation,NguoiDuyetNavigation,ChiTietYeuCaus,DonMuaHangs")] YeuCauMuaHang yeucaumuahang)
+    // ------------------------------------------------------------------ TẠO
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> Create()
+    {
+        var vm = new YeuCauFormViewModel
+        {
+            NgayYeuCau = DateTime.Today,
+            NgayCanHang = DateTime.Today.AddDays(7),
+            DanhSachBoPhan = await _svc.DanhSachBoPhanAsync()
+        };
+        return View(vm);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> Create(YeuCauFormViewModel vm)
     {
         if (ModelState.IsValid)
         {
-            _context.Add(yeucaumuahang);
-            await _context.SaveChangesAsync();
+            var kq = await _svc.TaoAsync(vm, NguoiDung);
+            if (kq.ThanhCong)
+            {
+                TempData["ThongBao"] = kq.ThongBao;
+                return RedirectToAction(nameof(Details), new { id = kq.DuLieu });
+            }
+            ModelState.AddModelError(string.Empty, kq.ThongBao);
+        }
+        vm.DanhSachBoPhan = await _svc.DanhSachBoPhanAsync(vm.MaBoPhan);
+        return View(vm);
+    }
+
+    // ------------------------------------------------------------------ SỬA
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var vm = await _svc.LayFormSuaAsync(id, NguoiDung);
+        if (vm is null)
+        {
+            TempData["Loi"] = "Không tìm thấy yêu cầu hoặc bạn không có quyền sửa.";
             return RedirectToAction(nameof(Index));
         }
-        return View(yeucaumuahang);
+        vm.DanhSachBoPhan = await _svc.DanhSachBoPhanAsync(vm.MaBoPhan);
+        return View(vm);
     }
 
-    // GET: YEUCAUMUAHANGS/Edit/5
-    public async Task<IActionResult> Edit(int? mayeucau)
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> Edit(int id, YeuCauFormViewModel vm)
     {
-        if (mayeucau == null)
-        {
-            return NotFound();
-        }
-
-        var yeucaumuahang = await _context.YeuCauMuaHang.FindAsync(mayeucau);
-        if (yeucaumuahang == null)
-        {
-            return NotFound();
-        }
-        return View(yeucaumuahang);
-    }
-
-    // POST: YEUCAUMUAHANGS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? mayeucau, [Bind("MaYeuCau,MaBoPhan,NgayYeuCau,NgayCanHang,MucDoUuTien,LyDoMua,NguoiLap,TrangThai,NgayDuyet,NguoiDuyet,LyDoTuChoiHuy,BoPhanDeNghi,NguoiLapNavigation,NguoiDuyetNavigation,ChiTietYeuCaus,DonMuaHangs")] YeuCauMuaHang yeucaumuahang)
-    {
-        if (mayeucau != yeucaumuahang.MaYeuCau)
-        {
-            return NotFound();
-        }
+        if (id != vm.MaYeuCau) return NotFound();
 
         if (ModelState.IsValid)
         {
-            try
+            var kq = await _svc.SuaAsync(vm, NguoiDung);
+            if (kq.ThanhCong)
             {
-                _context.Update(yeucaumuahang);
-                await _context.SaveChangesAsync();
+                TempData["ThongBao"] = kq.ThongBao;
+                return RedirectToAction(nameof(Details), new { id });
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!YeuCauMuaHangExists(yeucaumuahang.MaYeuCau))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            ModelState.AddModelError(string.Empty, kq.ThongBao);
+        }
+        vm.DanhSachBoPhan = await _svc.DanhSachBoPhanAsync(vm.MaBoPhan);
+        return View(vm);
+    }
+
+    // ------------------------------------------------------------------ XÓA (chỉ Nháp)
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> Xoa(int id)
+    {
+        var kq = await _svc.XoaAsync(id, NguoiDung);
+        GhiThongBao(kq);
+        return kq.ThanhCong ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Details), new { id });
+    }
+
+    // ------------------------------------------------------------------ CHI TIẾT YÊU CẦU
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> ThemChiTiet(ChiTietYeuCauFormViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Loi"] = string.Join(" ", ModelState.Values
+                .SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
+        }
+
+        GhiThongBao(await _svc.ThemChiTietAsync(vm, NguoiDung));
+        return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
+    }
+
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> SuaChiTiet(int id)
+    {
+        var vm = await _svc.LayDongDeSuaAsync(id, NguoiDung);
+        if (vm is null)
+        {
+            TempData["Loi"] = "Không tìm thấy dòng chi tiết hoặc bạn không có quyền sửa.";
             return RedirectToAction(nameof(Index));
         }
-        return View(yeucaumuahang);
+        return View(vm);
     }
 
-    // GET: YEUCAUMUAHANGS/Delete/5
-    public async Task<IActionResult> Delete(int? mayeucau)
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> SuaChiTiet(int id, ChiTietYeuCauFormViewModel vm)
     {
-        if (mayeucau == null)
-        {
-            return NotFound();
-        }
+        if (id != vm.MaChiTietYeuCau) return NotFound();
 
-        var yeucaumuahang = await _context.YeuCauMuaHang
-            .FirstOrDefaultAsync(m => m.MaYeuCau == mayeucau);
-        if (yeucaumuahang == null)
+        if (ModelState.IsValid)
         {
-            return NotFound();
+            var kq = await _svc.SuaChiTietAsync(vm, NguoiDung);
+            if (kq.ThanhCong)
+            {
+                TempData["ThongBao"] = kq.ThongBao;
+                return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
+            }
+            ModelState.AddModelError(string.Empty, kq.ThongBao);
         }
-
-        return View(yeucaumuahang);
+        // Tên hàng chỉ để hiển thị nên nạp lại khi trả form về
+        var goc = await _svc.LayDongDeSuaAsync(id, NguoiDung);
+        vm.TenHang = goc?.TenHang;
+        return View(vm);
     }
 
-    // POST: YEUCAUMUAHANGS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? mayeucau)
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> XoaChiTiet(int id, int maYeuCau)
     {
-        var yeucaumuahang = await _context.YeuCauMuaHang.FindAsync(mayeucau);
-        if (yeucaumuahang != null)
-        {
-            _context.YeuCauMuaHang.Remove(yeucaumuahang);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        GhiThongBao(await _svc.XoaChiTietAsync(id, NguoiDung));
+        return RedirectToAction(nameof(Details), new { id = maYeuCau });
     }
 
-    private bool YeuCauMuaHangExists(int? mayeucau)
+    // ------------------------------------------------------------------ GỬI DUYỆT
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> GuiDuyet(int id)
     {
-        return _context.YeuCauMuaHang.Any(e => e.MaYeuCau == mayeucau);
+        GhiThongBao(await _svc.GuiDuyetAsync(id, NguoiDung));
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    // ------------------------------------------------------------------ XÉT DUYỆT (chỉ Admin)
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NguoiDuyet)]
+    public async Task<IActionResult> Duyet(int id)
+    {
+        var vm = await _svc.LayFormDuyetAsync(id, NguoiDung);
+        if (vm is null)
+        {
+            TempData["Loi"] = "Không tìm thấy yêu cầu.";
+            return RedirectToAction(nameof(Index));
+        }
+        if (vm.TrangThai != Models.TrangThaiYeuCau.ChoDuyet)
+        {
+            TempData["Loi"] = "Chỉ yêu cầu đang Chờ duyệt mới được xét duyệt.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        return View(vm);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NguoiDuyet)]
+    public async Task<IActionResult> Duyet(int id, DuyetYeuCauViewModel vm)
+    {
+        if (id != vm.MaYeuCau) return NotFound();
+
+        if (ModelState.IsValid)
+        {
+            var kq = await _svc.DuyetAsync(vm, NguoiDung);
+            if (kq.ThanhCong)
+            {
+                TempData["ThongBao"] = kq.ThongBao;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            ModelState.AddModelError(string.Empty, kq.ThongBao);
+        }
+
+        // Nạp lại phần chỉ để hiển thị (tên hàng, số lượng yêu cầu), giữ nguyên số lượng người dùng đã nhập
+        var goc = await _svc.LayFormDuyetAsync(id, NguoiDung);
+        if (goc is null) return NotFound();
+        foreach (var dong in goc.Dong)
+        {
+            var nhap = vm.Dong.FirstOrDefault(d => d.MaChiTietYeuCau == dong.MaChiTietYeuCau);
+            if (nhap != null) dong.SoLuongDuyet = nhap.SoLuongDuyet;
+        }
+        return View(goc);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NguoiDuyet)]
+    public async Task<IActionResult> DuyetToanBo(int id)
+    {
+        GhiThongBao(await _svc.DuyetToanBoAsync(id, NguoiDung));
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NguoiDuyet)]
+    public async Task<IActionResult> TuChoi(LyDoViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Loi"] = "Phải nhập lý do khi từ chối yêu cầu.";
+            return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
+        }
+        GhiThongBao(await _svc.TuChoiAsync(vm, NguoiDung));
+        return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
+    }
+
+    // ------------------------------------------------------------------ HỦY
+    [HttpPost, ValidateAntiForgeryToken]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin, VaiTroHeThong.NhanVienDeNghi)]
+    public async Task<IActionResult> Huy(LyDoViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Loi"] = "Phải nhập lý do khi hủy yêu cầu.";
+            return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
+        }
+        GhiThongBao(await _svc.HuyAsync(vm, NguoiDung));
+        return RedirectToAction(nameof(Details), new { id = vm.MaYeuCau });
     }
 }
