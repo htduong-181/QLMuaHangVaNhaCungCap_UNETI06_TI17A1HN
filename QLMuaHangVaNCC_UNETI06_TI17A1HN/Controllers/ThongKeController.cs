@@ -100,13 +100,13 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             var vm = new DashboardVM();
 
             vm.TongNCCDangHoatDong = _context.NhaCungCap.Count(n => n.TrangThai == true);
-            vm.SoYeuCauChoDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "Chờ duyệt");
-            vm.SoYeuCauDaDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "Đã duyệt");
-            vm.SoYeuCauTuChoi = _context.YeuCauMuaHang.Count(y => y.TrangThai == "Từ chối");
-            vm.SoDonDaDatHang = _context.DonMuaHang.Count(d => d.TrangThai == "Đã đặt hàng" || d.TrangThai == "DaDatHang");
-            vm.SoDonGiaoMotPhan = _context.DonMuaHang.Count(d => d.TrangThai == "Giao một phần" || d.TrangThai == "GiaoMotPhan");
-            vm.SoDonDaGiaoDu = _context.DonMuaHang.Count(d => d.TrangThai == "Đã giao đủ" || d.TrangThai == "DaGiaoDu");
-            vm.SoDonHoanThanh = _context.DonMuaHang.Count(d => d.TrangThai == "Hoàn thành" || d.TrangThai == "HoanThanh");
+            vm.SoYeuCauChoDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "ChoDuyet");
+            vm.SoYeuCauDaDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "DaDuyet");
+            vm.SoYeuCauTuChoi = _context.YeuCauMuaHang.Count(y => y.TrangThai == "TuChoi");
+            vm.SoDonDaDatHang = _context.DonMuaHang.Count(d => d.TrangThai == "DaDat");
+            vm.SoDonGiaoMotPhan = _context.DonMuaHang.Count(d => d.TrangThai == "GiaoMotPhan");
+            vm.SoDonDaGiaoDu = _context.DonMuaHang.Count(d => d.TrangThai == "DaGiaoDu");
+            vm.SoDonHoanThanh = _context.DonMuaHang.Count(d => d.TrangThai == "HoanThanh");
 
             vm.TongGiaTriMuaTrongThang = _context.ChiTietDonMua
                 .Where(ct => ct.DonMuaHang != null
