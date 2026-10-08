@@ -10,7 +10,23 @@ builder.Services.AddDbContext<QLMuaHangVaNCC_UNETI06_TI17A1HNContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Session dùng cho đăng nhập và phân quyền (PhanQuyenAttribute)
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(o =>
+{
+    o.IdleTimeout = TimeSpan.FromMinutes(30);
+    o.Cookie.HttpOnly = true;
+    o.Cookie.IsEssential = true;
+});
+builder.Services.AddScoped<QLMuaHangVaNCC_UNETI06_TI17A1HN.Services.IYeuCauMuaHangService,
+                           QLMuaHangVaNCC_UNETI06_TI17A1HN.Services.YeuCauMuaHangService>();
 
 
 
@@ -28,6 +44,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 

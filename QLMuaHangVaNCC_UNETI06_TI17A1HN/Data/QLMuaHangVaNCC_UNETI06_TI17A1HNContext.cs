@@ -277,5 +277,15 @@ public class QLMuaHangVaNCC_UNETI06_TI17A1HNContext
             .WithMany(t => t.LichSuTrangThais)
             .HasForeignKey(l => l.NguoiThucHien)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Module 3 (SV3): không cho trùng một mặt hàng nhiều dòng trong cùng yêu cầu (ràng buộc ở mức CSDL)
+        modelBuilder.Entity<ChiTietYeuCau>()
+            .HasIndex(c => new { c.MaYeuCau, c.MaHang })
+            .IsUnique();
+
+        // Module 3 (SV3): tên bộ phận không trùng
+        modelBuilder.Entity<BoPhanDeNghi>()
+            .HasIndex(b => b.TenBoPhan)
+            .IsUnique();
     }
 }
