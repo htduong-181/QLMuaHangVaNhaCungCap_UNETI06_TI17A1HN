@@ -1,4 +1,4 @@
-// Họ và tên: Hoàng Thùy Dương
+﻿// Họ và tên: Hoàng Thùy Dương
 // Mã sinh viên: 23103100051
 // Nội dung thực hiện: Module 3 - Lớp xử lý nghiệp vụ yêu cầu mua hàng: tìm kiếm/lọc/sắp xếp/phân trang,
 // lập yêu cầu, chi tiết yêu cầu (gộp dòng trùng), gửi duyệt, xét duyệt, từ chối, hủy, xóa,
@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels;
+
+// Định danh rõ ràng enum/class VaiTroHeThong lấy từ Models để giải quyết triệt để lỗi CS0104
+using VaiTroHeThong = QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.VaiTroHeThong;
 
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Services;
 

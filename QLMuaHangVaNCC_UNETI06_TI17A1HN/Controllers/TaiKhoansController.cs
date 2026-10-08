@@ -1,14 +1,17 @@
-
 // Họ và tên: Lê Tiến Công
 // Mã sinh viên: 23103100050
 // Nội dung thực hiện: Chức năng phân quyền tài khoản, loại hàng, đơn vị tính
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels;
+
+// Định danh rõ ràng VaiTroHeThong lấy từ Models để tránh xung đột CS0104 với Helpers
+using VaiTroHeThong = QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.VaiTroHeThong;
+
+namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers;
 
 public class TaiKhoansController : Controller
 {
@@ -54,7 +57,7 @@ public class TaiKhoansController : Controller
     public IActionResult TuChoiTruyCap() => View();
 
     // ---------- Quản lý tài khoản (chỉ Admin) ----------
-    [PhanQuyen(VaiTroHeThong.Admin)]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Index(string? tuKhoa)
     {
         var q = _context.TaiKhoan.AsQueryable();
@@ -65,7 +68,7 @@ public class TaiKhoansController : Controller
         return View(await q.OrderBy(t => t.TenDangNhap).ToListAsync());
     }
 
-    [PhanQuyen(VaiTroHeThong.Admin)]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
     public IActionResult Create()
     {
         NapVaiTro();
@@ -73,7 +76,7 @@ public class TaiKhoansController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    [PhanQuyen(VaiTroHeThong.Admin)]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Create(TaiKhoanFormViewModel model)
     {
         if (string.IsNullOrWhiteSpace(model.MatKhau))
@@ -104,7 +107,7 @@ public class TaiKhoansController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [PhanQuyen(VaiTroHeThong.Admin)]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Edit(int id)
     {
         var tk = await _context.TaiKhoan.FindAsync(id);
@@ -122,7 +125,7 @@ public class TaiKhoansController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    [PhanQuyen(VaiTroHeThong.Admin)]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Edit(int id, TaiKhoanFormViewModel model)
     {
         if (id != model.MaTaiKhoan) return NotFound();
@@ -157,7 +160,7 @@ public class TaiKhoansController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    [PhanQuyen(VaiTroHeThong.Admin)]
+    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
     public async Task<IActionResult> DoiTrangThai(int id)
     {
         if (id == HttpContext.Session.GetInt32("MaTaiKhoan"))

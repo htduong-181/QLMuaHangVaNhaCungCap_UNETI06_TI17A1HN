@@ -11,7 +11,7 @@ using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels;
 
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers;
 
-[PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+[PhanQuyenYeuCau(QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.VaiTroHeThong.Admin)]
 public class BoPhanDeNghisController : Controller
 {
     private const int PageSize = 10;

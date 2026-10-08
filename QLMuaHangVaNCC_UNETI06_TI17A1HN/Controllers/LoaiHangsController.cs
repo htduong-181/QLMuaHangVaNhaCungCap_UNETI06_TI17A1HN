@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 
-[PhanQuyen(VaiTroHeThong.Admin)]//Phân quyền admin có thể xem được view controller này
+[PhanQuyenYeuCau(QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.VaiTroHeThong.Admin)]
 public class LoaiHangsController : Controller
 {
     private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
