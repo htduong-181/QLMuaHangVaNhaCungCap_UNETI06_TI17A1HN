@@ -245,6 +245,22 @@ public class QLMuaHangVaNCC_UNETI06_TI17A1HNContext
             .HasForeignKey(t => t.NguoiThucHien)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<TaiKhoan>()
+            .HasIndex(t => t.TenDangNhap)
+            .IsUnique();
+
+        modelBuilder.Entity<TaiKhoan>()
+            .HasIndex(t => t.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<LoaiHang>()
+            .HasIndex(l => l.TenLoaiHang)
+            .IsUnique();
+
+        modelBuilder.Entity<DonViTinh>()
+            .HasIndex(d => d.TenDonViTinh)
+            .IsUnique();
+
 
         // ==================================================
         // 20. NhaCungCap 1 - N NhaCungCapHangHoa

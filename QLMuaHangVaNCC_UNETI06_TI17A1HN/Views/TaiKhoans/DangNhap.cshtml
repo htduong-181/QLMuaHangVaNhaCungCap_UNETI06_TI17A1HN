@@ -1,0 +1,40 @@
+﻿@model DangNhapViewModel
+@{ ViewData["Title"] = "Đăng nhập"; Layout = null; }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Đăng nhập - Quản lý mua hàng</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4">Đăng nhập hệ thống</h3>
+                        <form asp-controller="TaiKhoans" asp-action="DangNhap" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                            <div class="mb-3">
+                                <label asp-for="TenDangNhap" class="form-label"></label>
+                                <input asp-for="TenDangNhap" class="form-control" autofocus />
+                                <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="MatKhau" class="form-label"></label>
+                                <input asp-for="MatKhau" class="form-control" />
+                                <span asp-validation-for="MatKhau" class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>
