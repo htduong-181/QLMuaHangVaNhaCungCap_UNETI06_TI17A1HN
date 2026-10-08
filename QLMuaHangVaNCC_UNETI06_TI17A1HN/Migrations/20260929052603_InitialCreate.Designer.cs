@@ -11,7 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     [DbContext(typeof(QLMuaHangVaNCC_UNETI06_TI17A1HNContext))]
+<<<<<<<< HEAD:QLMuaHangVaNCC_UNETI06_TI17A1HN/Migrations/20260929052603_InitialCreate.Designer.cs
     [Migration("20260929052603_InitialCreate")]
+========
+    [Migration("20261001005819_InitialCreate")]
+>>>>>>>> origin/thdong:QLMuaHangVaNCC_UNETI06_TI17A1HN/Migrations/20261001005819_InitialCreate.Designer.cs
     partial class InitialCreate
     {
         /// <inheritdoc />
