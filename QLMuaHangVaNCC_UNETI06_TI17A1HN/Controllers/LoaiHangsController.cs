@@ -1,149 +1,90 @@
 
+// Họ và tên: Lê Tiến Công
+// Mã sinh viên: 23103100050
+// Nội dung thực hiện: Chức năng phân quyền tài khoản, loại hàng, đơn vị tính
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 
+[PhanQuyen(VaiTroHeThong.Admin)]//Phân quyền admin có thể xem được view controller này
 public class LoaiHangsController : Controller
 {
     private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
+    public LoaiHangsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context) => _context = context;
 
-    public LoaiHangsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context)
+    public async Task<IActionResult> Index(string? tuKhoa)
     {
-        _context = context;
+        var q = _context.LoaiHang.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(tuKhoa))
+            q = q.Where(l => l.TenLoaiHang.Contains(tuKhoa));
+        ViewBag.TuKhoa = tuKhoa;
+        return View(await q.OrderBy(l => l.TenLoaiHang).ToListAsync());
     }
 
-    // GET: LOAIHANGS
-    public async Task<IActionResult> Index()    
+    public IActionResult Create() => View(new LoaiHang());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(LoaiHang model)
     {
-        return View(await _context.LoaiHang.ToListAsync());
-    }
+        model.TenLoaiHang = model.TenLoaiHang?.Trim() ?? "";
+        if (await _context.LoaiHang.AnyAsync(l => l.TenLoaiHang == model.TenLoaiHang))
+            ModelState.AddModelError(nameof(model.TenLoaiHang), "Tên loại hàng đã tồn tại");
+        if (!ModelState.IsValid) return View(model);
 
-    // GET: LOAIHANGS/Details/5
-    public async Task<IActionResult> Details(int? maloaihang)
-    {
-        if (maloaihang == null)
-        {
-            return NotFound();
-        }
-
-        var loaihang = await _context.LoaiHang
-            .FirstOrDefaultAsync(m => m.MaLoaiHang == maloaihang);
-        if (loaihang == null)
-        {
-            return NotFound();
-        }
-
-        return View(loaihang);
-    }
-
-    // GET: LOAIHANGS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: LOAIHANGS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaLoaiHang,TenLoaiHang,MoTa,TrangThai,HangHoas")] LoaiHang loaihang)
-    {
-        if (ModelState.IsValid)
-        {
-            _context.Add(loaihang);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        return View(loaihang);
-    }
-
-    // GET: LOAIHANGS/Edit/5
-    public async Task<IActionResult> Edit(int? maloaihang)
-    {
-        if (maloaihang == null)
-        {
-            return NotFound();
-        }
-
-        var loaihang = await _context.LoaiHang.FindAsync(maloaihang);
-        if (loaihang == null)
-        {
-            return NotFound();
-        }
-        return View(loaihang);
-    }
-
-    // POST: LOAIHANGS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? maloaihang, [Bind("MaLoaiHang,TenLoaiHang,MoTa,TrangThai,HangHoas")] LoaiHang loaihang)
-    {
-        if (maloaihang != loaihang.MaLoaiHang)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                _context.Update(loaihang);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LoaiHangExists(loaihang.MaLoaiHang))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        return View(loaihang);
-    }
-
-    // GET: LOAIHANGS/Delete/5
-    public async Task<IActionResult> Delete(int? maloaihang)
-    {
-        if (maloaihang == null)
-        {
-            return NotFound();
-        }
-
-        var loaihang = await _context.LoaiHang
-            .FirstOrDefaultAsync(m => m.MaLoaiHang == maloaihang);
-        if (loaihang == null)
-        {
-            return NotFound();
-        }
-
-        return View(loaihang);
-    }
-
-    // POST: LOAIHANGS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? maloaihang)
-    {
-        var loaihang = await _context.LoaiHang.FindAsync(maloaihang);
-        if (loaihang != null)
-        {
-            _context.LoaiHang.Remove(loaihang);
-        }
-
+        _context.LoaiHang.Add(model);
         await _context.SaveChangesAsync();
+        TempData["ThongBao"] = "Thêm loại hàng thành công";
         return RedirectToAction(nameof(Index));
     }
 
-    private bool LoaiHangExists(int? maloaihang)
+    public async Task<IActionResult> Edit(int id)
     {
-        return _context.LoaiHang.Any(e => e.MaLoaiHang == maloaihang);
+        var lh = await _context.LoaiHang.FindAsync(id);
+        return lh == null ? NotFound() : View(lh);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, LoaiHang model)
+    {
+        if (id != model.MaLoaiHang) return NotFound();
+        model.TenLoaiHang = model.TenLoaiHang?.Trim() ?? "";
+        if (await _context.LoaiHang.AnyAsync(l => l.TenLoaiHang == model.TenLoaiHang && l.MaLoaiHang != id))
+            ModelState.AddModelError(nameof(model.TenLoaiHang), "Tên loại hàng đã tồn tại");
+        if (!ModelState.IsValid) return View(model);
+
+        _context.LoaiHang.Update(model);
+        await _context.SaveChangesAsync();
+        TempData["ThongBao"] = "Cập nhật loại hàng thành công";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DoiTrangThai(int id)
+    {
+        var lh = await _context.LoaiHang.FindAsync(id);
+        if (lh == null) return NotFound();
+        lh.TrangThai = !lh.TrangThai;
+        await _context.SaveChangesAsync();
+        TempData["ThongBao"] = lh.TrangThai ? "Đã kích hoạt loại hàng" : "Đã ngừng hoạt động loại hàng";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var lh = await _context.LoaiHang.FindAsync(id);
+        if (lh == null) return NotFound();
+
+        if (await _context.HangHoa.AnyAsync(h => h.MaLoaiHang == id))
+        {
+            TempData["Loi"] = "Loại hàng đã có hàng hóa, chỉ có thể ngừng hoạt động";
+            return RedirectToAction(nameof(Index));
+        }
+        _context.LoaiHang.Remove(lh);
+        await _context.SaveChangesAsync();
+        TempData["ThongBao"] = "Đã xóa loại hàng";
+        return RedirectToAction(nameof(Index));
     }
 }
