@@ -1,0 +1,36 @@
+@* Họ và tên: Hoàng Thùy Dương
+   Mã sinh viên: 23103100051
+   Nội dung thực hiện: Module 3 - Partial form dùng chung cho thêm/sửa bộ phận đề nghị. *@
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+@model BoPhanDeNghi
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<input type="hidden" asp-for="MaBoPhan" />
+<div class="row g-3" style="max-width:800px">
+    <div class="col-md-8">
+        <label asp-for="TenBoPhan" class="form-label">Tên bộ phận</label>
+        <input asp-for="TenBoPhan" class="form-control" />
+        <span asp-validation-for="TenBoPhan" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SoDienThoai" class="form-label">Số điện thoại</label>
+        <input asp-for="SoDienThoai" class="form-control" />
+        <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="NguoiPhuTrach" class="form-label">Người phụ trách</label>
+        <input asp-for="NguoiPhuTrach" class="form-control" />
+        <span asp-validation-for="NguoiPhuTrach" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check">
+            <input asp-for="TrangThai" class="form-check-input" />
+            <label asp-for="TrangThai" class="form-check-label">Đang hoạt động</label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="MoTa" class="form-label">Mô tả</label>
+        <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="MoTa" class="text-danger"></span>
+    </div>
+</div>

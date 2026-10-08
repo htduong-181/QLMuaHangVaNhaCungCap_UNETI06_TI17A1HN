@@ -1,119 +1,174 @@
-@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.YeuCauMuaHang>
-
+@* Họ và tên: Hoàng Thùy Dương
+   Mã sinh viên: 23103100051
+   Nội dung thực hiện: Module 3 - Danh sách yêu cầu mua hàng: tìm kiếm, lọc, sắp xếp, phân trang (giữ điều kiện khi chuyển trang). *@
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels
+@model YeuCauIndexViewModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Yêu cầu mua hàng";
+    var f = Model.Filter;
+    var kq = Model.KetQua;
+    var vaiTro = Context.Session.GetString("VaiTro");
+    var duocLap = vaiTro == "Admin" || vaiTro == "NhanVienDeNghi";
+
+    // Giữ toàn bộ điều kiện tra cứu khi chuyển trang
+    object Route(int p) => new
+    {
+        Page = p,
+        f.TuKhoa,
+        f.TrangThai,
+        f.MucDoUuTien,
+        TuNgay = f.TuNgay?.ToString("yyyy-MM-dd"),
+        DenNgay = f.DenNgay?.ToString("yyyy-MM-dd"),
+        CanTuNgay = f.CanTuNgay?.ToString("yyyy-MM-dd"),
+        CanDenNgay = f.CanDenNgay?.ToString("yyyy-MM-dd"),
+        f.SapXep
+    };
+    var sapXep = new[]
+    {
+        ("ngay_desc", "Ngày yêu cầu: mới nhất"),
+        ("ngay_asc", "Ngày yêu cầu: cũ nhất"),
+        ("uutien_desc", "Mức ưu tiên: cao → thấp"),
+        ("uutien_asc", "Mức ưu tiên: thấp → cao"),
+        ("canhang_asc", "Ngày cần hàng: sớm nhất"),
+        ("canhang_desc", "Ngày cần hàng: muộn nhất")
+    };
+    int tuTrang = Math.Max(1, kq.Page - 2);
+    int denTrang = Math.Min(kq.TotalPages, kq.Page + 2);
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Yêu cầu mua hàng</h2>
+    @if (duocLap)
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Lập yêu cầu</a>
+    }
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayYeuCau)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayCanHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MucDoUuTien)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LyDoMua)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayDuyet)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiDuyet)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LyDoTuChoiHuy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoPhanDeNghi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLapNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiDuyetNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChiTietYeuCaus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonMuaHangs)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayYeuCau)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayCanHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MucDoUuTien)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LyDoMua)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiLap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayDuyet)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiDuyet)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LyDoTuChoiHuy)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.BoPhanDeNghi)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiLapNavigation)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiDuyetNavigation)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ChiTietYeuCaus)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonMuaHangs)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaYeuCau">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaYeuCau">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaYeuCau">Delete</a>
-            </td>
-        </tr>
+<partial name="_ThongBao" />
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <label class="form-label">Tìm kiếm</label>
+            <input name="TuKhoa" value="@f.TuKhoa" class="form-control" placeholder="Mã yêu cầu (YC0001), bộ phận, người lập" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Trạng thái</label>
+            <select name="TrangThai" class="form-select">
+                <option value="">Tất cả</option>
+                @foreach (var t in TrangThaiYeuCau.TatCa)
+                {
+                    <option value="@t" selected="@(f.TrangThai == t)">@TrangThaiYeuCau.Nhan(t)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Mức ưu tiên</label>
+            <select name="MucDoUuTien" class="form-select">
+                <option value="">Tất cả</option>
+                @foreach (var m in MucUuTien.TatCa)
+                {
+                    <option value="@m" selected="@(f.MucDoUuTien == m)">@MucUuTien.Nhan(m)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Sắp xếp</label>
+            <select name="SapXep" class="form-select">
+                @foreach (var (gt, nhan) in sapXep)
+                {
+                    <option value="@gt" selected="@((f.SapXep ?? "ngay_desc") == gt)">@nhan</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Ngày yêu cầu từ</label>
+            <input type="date" name="TuNgay" value="@f.TuNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">đến</label>
+            <input type="date" name="DenNgay" value="@f.DenNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Ngày cần hàng từ</label>
+            <input type="date" name="CanTuNgay" value="@f.CanTuNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">đến</label>
+            <input type="date" name="CanDenNgay" value="@f.CanDenNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+    </div>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Tìm / Lọc</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+    </div>
+</form>
+
+<p class="text-muted">Tìm thấy <b>@kq.TotalItems</b> yêu cầu — trang @kq.Page/@kq.TotalPages</p>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Mã</th>
+                <th>Bộ phận</th>
+                <th>Người lập</th>
+                <th>Ngày yêu cầu</th>
+                <th>Ngày cần hàng</th>
+                <th>Ưu tiên</th>
+                <th class="text-end">Số dòng</th>
+                <th class="text-end">Tổng SL</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var y in kq.Items)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@y.MaYeuCau">@y.MaHienThi</a></td>
+                    <td>@y.TenBoPhan</td>
+                    <td>@y.TenNguoiLap</td>
+                    <td>@y.NgayYeuCau.ToString("dd/MM/yyyy")</td>
+                    <td>@y.NgayCanHang.ToString("dd/MM/yyyy")</td>
+                    <td><partial name="_UuTienBadge" model="y.MucDoUuTien" /></td>
+                    <td class="text-end">@y.SoDong</td>
+                    <td class="text-end">@y.TongSoLuongYeuCau.ToString("N0")</td>
+                    <td><partial name="_TrangThaiBadge" model="y.TrangThai" /></td>
+                    <td><a asp-action="Details" asp-route-id="@y.MaYeuCau" class="btn btn-sm btn-outline-primary">Xem</a></td>
+                </tr>
+            }
+            @if (!kq.Items.Any())
+            {
+                <tr><td colspan="10" class="text-center text-muted py-4">Không có yêu cầu nào phù hợp.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (kq.TotalPages > 1)
+{
+    <nav aria-label="Phân trang">
+        <ul class="pagination">
+            <li class="page-item @(kq.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@Url.Action("Index", Route(1))">«</a>
+            </li>
+            <li class="page-item @(kq.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@Url.Action("Index", Route(kq.Page - 1))">‹</a>
+            </li>
+            @for (var p = tuTrang; p <= denTrang; p++)
+            {
+                <li class="page-item @(p == kq.Page ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", Route(p))">@p</a>
+                </li>
+            }
+            <li class="page-item @(kq.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@Url.Action("Index", Route(kq.Page + 1))">›</a>
+            </li>
+            <li class="page-item @(kq.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@Url.Action("Index", Route(kq.TotalPages))">»</a>
+            </li>
+        </ul>
+    </nav>
 }
-    </tbody>
-</table>

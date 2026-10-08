@@ -1,0 +1,196 @@
+@* Họ và tên: Hoàng Thùy Dương
+   Mã sinh viên: 23103100051
+   Nội dung thực hiện: Module 3 - Chi tiết yêu cầu: thông tin, danh sách dòng chi tiết, thêm/sửa/xóa dòng (khi Nháp),
+   các nút Gửi duyệt / Duyệt / Từ chối / Hủy / Xóa hiển thị theo trạng thái và quyền. *@
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels
+@model YeuCauDetailsViewModel
+@{
+    ViewData["Title"] = "Yêu cầu " + Model.MaHienThi;
+    var daXetDuyet = Model.TrangThai is TrangThaiYeuCau.DaDuyet or TrangThaiYeuCau.DaTaoDon
+                     or TrangThaiYeuCau.HoanThanh;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Yêu cầu @Model.MaHienThi <partial name="_TrangThaiBadge" model="Model.TrangThai" /></h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">← Danh sách</a>
+</div>
+
+<partial name="_ThongBao" />
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Bộ phận đề nghị</dt><dd class="col-sm-9">@Model.TenBoPhan</dd>
+            <dt class="col-sm-3">Người lập</dt><dd class="col-sm-9">@Model.TenNguoiLap</dd>
+            <dt class="col-sm-3">Ngày yêu cầu</dt><dd class="col-sm-9">@Model.NgayYeuCau.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-3">Ngày cần hàng</dt><dd class="col-sm-9">@Model.NgayCanHang.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-3">Mức ưu tiên</dt><dd class="col-sm-9"><partial name="_UuTienBadge" model="Model.MucDoUuTien" /></dd>
+            <dt class="col-sm-3">Lý do mua</dt><dd class="col-sm-9" style="white-space:pre-line">@Model.LyDoMua</dd>
+            @if (Model.NgayDuyet.HasValue)
+            {
+                <dt class="col-sm-3">Ngày xét duyệt</dt><dd class="col-sm-9">@Model.NgayDuyet.Value.ToString("dd/MM/yyyy")</dd>
+                <dt class="col-sm-3">Người xét duyệt</dt><dd class="col-sm-9">@Model.TenNguoiDuyet</dd>
+            }
+            @if (!string.IsNullOrEmpty(Model.LyDoTuChoiHuy))
+            {
+                <dt class="col-sm-3 text-danger">Lý do từ chối/hủy</dt>
+                <dd class="col-sm-9 text-danger" style="white-space:pre-line">@Model.LyDoTuChoiHuy</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+@* ---------------- Nút thao tác (View chỉ ẩn/hiện; Controller + Service vẫn kiểm tra quyền & trạng thái) ---------------- *@
+<div class="d-flex flex-wrap gap-2 mb-3">
+    @if (Model.CoTheSua)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.MaYeuCau" class="btn btn-outline-primary">Sửa thông tin</a>
+    }
+    @if (Model.CoTheGuiDuyet)
+    {
+        <form asp-action="GuiDuyet" asp-route-id="@Model.MaYeuCau" method="post"
+              onsubmit="return confirm('Gửi duyệt? Sau khi gửi bạn không được sửa nội dung mua.');">
+            <button type="submit" class="btn btn-success">Gửi duyệt</button>
+        </form>
+    }
+    @if (Model.CoTheDuyet)
+    {
+        <a asp-action="Duyet" asp-route-id="@Model.MaYeuCau" class="btn btn-success">Duyệt từng mặt hàng</a>
+        <form asp-action="DuyetToanBo" asp-route-id="@Model.MaYeuCau" method="post"
+              onsubmit="return confirm('Duyệt toàn bộ số lượng yêu cầu?');">
+            <button type="submit" class="btn btn-outline-success">Duyệt toàn bộ</button>
+        </form>
+    }
+    @if (Model.CoTheXoa)
+    {
+        <form asp-action="Xoa" asp-route-id="@Model.MaYeuCau" method="post"
+              onsubmit="return confirm('Xóa yêu cầu Nháp này?');">
+            <button type="submit" class="btn btn-outline-danger">Xóa nháp</button>
+        </form>
+    }
+</div>
+
+@if (Model.CoTheDuyet)
+{
+    <details class="mb-3">
+        <summary class="btn btn-danger btn-sm">Từ chối yêu cầu…</summary>
+        <form asp-action="TuChoi" method="post" class="card card-body mt-2" style="max-width:600px">
+            <input type="hidden" name="MaYeuCau" value="@Model.MaYeuCau" />
+            <label class="form-label">Lý do từ chối (bắt buộc)</label>
+            <textarea name="LyDo" class="form-control" rows="2" required maxlength="500"></textarea>
+            <button type="submit" class="btn btn-danger mt-2 align-self-start">Xác nhận từ chối</button>
+        </form>
+    </details>
+}
+@if (Model.CoTheHuy)
+{
+    <details class="mb-3">
+        <summary class="btn btn-outline-dark btn-sm">Hủy yêu cầu…</summary>
+        <form asp-action="Huy" method="post" class="card card-body mt-2" style="max-width:600px">
+            <input type="hidden" name="MaYeuCau" value="@Model.MaYeuCau" />
+            <label class="form-label">Lý do hủy (bắt buộc)</label>
+            <textarea name="LyDo" class="form-control" rows="2" required maxlength="500"></textarea>
+            <button type="submit" class="btn btn-dark mt-2 align-self-start">Xác nhận hủy</button>
+        </form>
+    </details>
+}
+
+@* ---------------- Chi tiết ---------------- *@
+<h4>Chi tiết yêu cầu</h4>
+<div class="table-responsive">
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Hàng hóa</th>
+                <th>ĐVT</th>
+                <th class="text-end">SL yêu cầu</th>
+                @if (daXetDuyet || Model.TrangThai == TrangThaiYeuCau.TuChoi)
+                {
+                    <th class="text-end">SL duyệt</th>
+                }
+                <th>Ghi chú</th>
+                @if (Model.CoTheSua) { <th></th> }
+            </tr>
+        </thead>
+        <tbody>
+            @{ var stt = 0; }
+            @foreach (var d in Model.Dong)
+            {
+                stt++;
+                <tr>
+                    <td>@stt</td>
+                    <td>@d.TenHang</td>
+                    <td>@d.TenDonViTinh</td>
+                    <td class="text-end">@d.SoLuongYeuCau.ToString("N0")</td>
+                    @if (daXetDuyet || Model.TrangThai == TrangThaiYeuCau.TuChoi)
+                    {
+                        <td class="text-end">@d.SoLuongDuyet.ToString("N0")</td>
+                    }
+                    <td>@d.GhiChu</td>
+                    @if (Model.CoTheSua)
+                    {
+                        <td class="text-nowrap">
+                            <a asp-action="SuaChiTiet" asp-route-id="@d.MaChiTietYeuCau" class="btn btn-sm btn-outline-primary">Sửa</a>
+                            <form asp-action="XoaChiTiet" asp-route-id="@d.MaChiTietYeuCau" asp-route-maYeuCau="@Model.MaYeuCau"
+                                  method="post" class="d-inline" onsubmit="return confirm('Xóa dòng này?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+            @if (!Model.Dong.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted">Chưa có mặt hàng nào.</td></tr>
+            }
+        </tbody>
+        @if (Model.Dong.Any())
+        {
+            <tfoot class="table-light">
+                <tr>
+                    <th colspan="3" class="text-end">Tổng</th>
+                    <th class="text-end">@Model.TongSoLuongYeuCau.ToString("N0")</th>
+                    @if (daXetDuyet || Model.TrangThai == TrangThaiYeuCau.TuChoi)
+                    {
+                        <th class="text-end">@Model.TongSoLuongDuyet.ToString("N0")</th>
+                    }
+                    <th colspan="@(Model.CoTheSua ? 2 : 1)"></th>
+                </tr>
+            </tfoot>
+        }
+    </table>
+</div>
+
+@if (Model.CoTheSua)
+{
+    <div class="card mb-4">
+        <div class="card-header">Thêm mặt hàng</div>
+        <div class="card-body">
+            <form asp-action="ThemChiTiet" method="post">
+                <input type="hidden" name="MaYeuCau" value="@Model.MaYeuCau" />
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <label class="form-label">Hàng hóa</label>
+                        <select name="MaHang" asp-items="Model.DanhSachHang" class="form-select" required>
+                            <option value="">-- Chọn hàng hóa --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Số lượng</label>
+                        <input type="number" name="SoLuongYeuCau" min="1" max="1000000" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Ghi chú</label>
+                        <input type="text" name="GhiChu" maxlength="500" class="form-control" />
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Thêm</button>
+                    </div>
+                </div>
+                <div class="form-text">Nếu mặt hàng đã có trong yêu cầu, số lượng sẽ được gộp vào dòng cũ.</div>
+            </form>
+        </div>
+    </div>
+}
