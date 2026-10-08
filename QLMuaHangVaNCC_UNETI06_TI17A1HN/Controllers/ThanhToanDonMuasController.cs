@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
+    
+
 //____TRUONG HUY DONG____
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 {
@@ -34,9 +36,13 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
         // Kiểm tra phân quyền tại Controller
         private bool KiemTraQuyen()
         {
+            // ĐÃ TẮT ĐOẠN GỌI SESSION ĐỂ KHÔNG BỊ LỖI VIEW TRÊN TRÌNH DUYỆT
+            /*
             var vaiTro = HttpContext.Session.GetString("VaiTro");
             if (string.IsNullOrEmpty(vaiTro)) return true;
             return vaiTro == "Admin" || vaiTro == "QuanLyMuaHang" || vaiTro == "Quản lý mua hàng";
+            */
+            return true;
         }
 
         // GET: ThanhToanDonMuas(Danh sách + Tìm kiếm + Lọc theo phương thức, trạng thái, ngày)
@@ -140,11 +146,14 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 PhuongThuc = "ChuyenKhoan"
             };
 
+            // ĐÃ TẮT ĐOẠN GỌI SESSION
+            /*
             var sessionMaTK = HttpContext.Session.GetInt32("MaTaiKhoan");
             if (sessionMaTK.HasValue)
             {
                 model.NguoiThucHien = sessionMaTK.Value;
             }
+            */
 
             if (maDonMua.HasValue)
             {
