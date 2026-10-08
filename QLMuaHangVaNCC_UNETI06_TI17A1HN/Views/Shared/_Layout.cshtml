@@ -6,15 +6,12 @@
 
     <title>@ViewData["Title"] - Quản lý mua hàng</title>
 
-    <!-- Bootstrap -->
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <!-- CSS chung -->
     <link rel="stylesheet"
           href="~/css/layout.css"
           asp-append-version="true" />
@@ -26,9 +23,9 @@
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+    <!-- ================= NAVBAR ================= -->
     <header>
-        <nav class="navbar navbar-expand-lg main-navbar">
+        <nav class="navbar navbar-expand-xl main-navbar">
             <div class="container-fluid px-4">
 
                 <!-- LOGO -->
@@ -36,28 +33,25 @@
                    asp-controller="Home"
                    asp-action="Index">
 
-                    <i class="bi bi-cart-check-fill me-1"></i>
+                    <i class="bi bi-cart-check-fill me-2"></i>
                     QL Mua Hàng
                 </a>
 
-                <!-- Nút menu mobile -->
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar"
-                        aria-controls="mainNavbar"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
+                        data-bs-target="#mainNavbar">
 
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="mainNavbar">
 
-                    <!-- MENU TRÁI -->
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <div class="collapse navbar-collapse"
+                     id="mainNavbar">
 
-                        <!-- Trang chủ -->
+                    <ul class="navbar-nav me-auto">
+
+                        <!-- TRANG CHỦ -->
                         <li class="nav-item">
                             <a class="nav-link"
                                asp-controller="Home"
@@ -68,12 +62,12 @@
                             </a>
                         </li>
 
-                        <!-- Danh mục -->
+
+                        <!-- ================= DANH MỤC ================= -->
                         <li class="nav-item dropdown">
 
                             <a class="nav-link dropdown-toggle"
                                href="#"
-                               role="button"
                                data-bs-toggle="dropdown">
 
                                 <i class="bi bi-grid me-1"></i>
@@ -84,7 +78,7 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="HangHoa"
+                                       asp-controller="HangHoas"
                                        asp-action="Index">
 
                                         <i class="bi bi-box-seam me-2"></i>
@@ -94,7 +88,7 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="LoaiHang"
+                                       asp-controller="LoaiHangs"
                                        asp-action="Index">
 
                                         <i class="bi bi-tags me-2"></i>
@@ -104,7 +98,7 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="DonViTinh"
+                                       asp-controller="DonViTinhs"
                                        asp-action="Index">
 
                                         <i class="bi bi-rulers me-2"></i>
@@ -114,7 +108,7 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="BoPhanDeNghi"
+                                       asp-controller="BoPhanDeNghis"
                                        asp-action="Index">
 
                                         <i class="bi bi-building me-2"></i>
@@ -125,23 +119,49 @@
                             </ul>
                         </li>
 
-                        <!-- Nhà cung cấp -->
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="NhaCungCap"
-                               asp-action="Index">
 
-                                <i class="bi bi-truck me-1"></i>
-                                Nhà cung cấp
-                            </a>
-                        </li>
-
-                        <!-- Mua hàng -->
+                        <!-- ================= NHÀ CUNG CẤP ================= -->
                         <li class="nav-item dropdown">
 
                             <a class="nav-link dropdown-toggle"
                                href="#"
-                               role="button"
+                               data-bs-toggle="dropdown">
+
+                                <i class="bi bi-truck me-1"></i>
+                                Nhà cung cấp
+                            </a>
+
+                            <ul class="dropdown-menu">
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="NhaCungCaps"
+                                       asp-action="Index">
+
+                                        <i class="bi bi-buildings me-2"></i>
+                                        Danh sách nhà cung cấp
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="NhaCungCapHangHoas"
+                                       asp-action="Index">
+
+                                        <i class="bi bi-boxes me-2"></i>
+                                        Hàng hóa nhà cung cấp
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+
+                        <!-- ================= MUA HÀNG ================= -->
+                        <li class="nav-item dropdown">
+
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
                                data-bs-toggle="dropdown">
 
                                 <i class="bi bi-cart me-1"></i>
@@ -152,7 +172,7 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="YeuCauMuaHang"
+                                       asp-controller="YeuCauMuaHangs"
                                        asp-action="Index">
 
                                         <i class="bi bi-file-earmark-text me-2"></i>
@@ -162,7 +182,21 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="DonMuaHang"
+                                       asp-controller="ChiTietYeuCaus"
+                                       asp-action="Index">
+
+                                        <i class="bi bi-card-list me-2"></i>
+                                        Chi tiết yêu cầu
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="DonMuaHangs"
                                        asp-action="Index">
 
                                         <i class="bi bi-receipt me-2"></i>
@@ -170,24 +204,61 @@
                                     </a>
                                 </li>
 
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="ChiTietDonMuas"
+                                       asp-action="Index">
+
+                                        <i class="bi bi-list-check me-2"></i>
+                                        Chi tiết đơn mua
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
 
-                        <!-- Giao hàng -->
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="LanGiaoHang"
-                               asp-action="Index">
+
+                        <!-- ================= GIAO HÀNG ================= -->
+                        <li class="nav-item dropdown">
+
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               data-bs-toggle="dropdown">
 
                                 <i class="bi bi-box-arrow-in-down me-1"></i>
                                 Giao hàng
                             </a>
+
+                            <ul class="dropdown-menu">
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="LanGiaoHangs"
+                                       asp-action="Index">
+
+                                        <i class="bi bi-truck me-2"></i>
+                                        Lần giao hàng
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="ChiTietGiaoHangs"
+                                       asp-action="Index">
+
+                                        <i class="bi bi-box2 me-2"></i>
+                                        Chi tiết giao hàng
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
 
-                        <!-- Thanh toán -->
+
+                        <!-- ================= THANH TOÁN ================= -->
                         <li class="nav-item">
                             <a class="nav-link"
-                               asp-controller="ThanhToanDonMua"
+                               asp-controller="ThanhToanDonMuas"
                                asp-action="Index">
 
                                 <i class="bi bi-cash-coin me-1"></i>
@@ -195,19 +266,31 @@
                             </a>
                         </li>
 
+
+                        <!-- ================= LỊCH SỬ ================= -->
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="LichSuTrangThais"
+                               asp-action="Index">
+
+                                <i class="bi bi-clock-history me-1"></i>
+                                Lịch sử
+                            </a>
+                        </li>
+
                     </ul>
 
-                    <!-- USER -->
+
+                    <!-- ================= TÀI KHOẢN ================= -->
                     <ul class="navbar-nav">
 
                         <li class="nav-item dropdown">
 
                             <a class="nav-link dropdown-toggle user-box"
                                href="#"
-                               role="button"
                                data-bs-toggle="dropdown">
 
-                                <i class="bi bi-person-circle user-icon"></i>
+                                <i class="bi bi-person-circle me-1"></i>
                                 Tài khoản
                             </a>
 
@@ -215,10 +298,10 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       asp-controller="TaiKhoan"
+                                       asp-controller="TaiKhoans"
                                        asp-action="Index">
 
-                                        <i class="bi bi-person me-2"></i>
+                                        <i class="bi bi-people me-2"></i>
                                         Quản lý tài khoản
                                     </a>
                                 </li>
@@ -248,11 +331,13 @@
     </header>
 
 
-    <!-- ================= CONTENT ================= -->
+    <!-- ================= NỘI DUNG ================= -->
     <div class="container-fluid px-4 main-content">
 
         <main role="main">
+
             @RenderBody()
+
         </main>
 
     </div>
@@ -261,15 +346,20 @@
     <!-- ================= FOOTER ================= -->
     <footer class="main-footer">
 
-        <div class="container-fluid px-4 d-flex justify-content-between">
+        <div class="container-fluid px-4">
 
-            <span>
-                &copy; 2026 - Hệ thống Quản lý Mua hàng
-            </span>
+            <div class="d-flex justify-content-between align-items-center">
 
-            <span>
-                QLMuaHangVaNCC
-            </span>
+                <span>
+                    <i class="bi bi-cart-check me-1"></i>
+                    &copy; 2026 - Hệ thống Quản lý Mua hàng
+                </span>
+
+                <span>
+                    QLMuaHangVaNCC
+                </span>
+
+            </div>
 
         </div>
 
