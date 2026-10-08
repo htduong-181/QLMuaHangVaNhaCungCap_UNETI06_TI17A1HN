@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 
-[PhanQuyenYeuCau(QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.VaiTroHeThong.Admin)]
+[PhanQuyen(VaiTroHeThong.Admin)]
 public class LoaiHangsController : Controller
 {
     private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;

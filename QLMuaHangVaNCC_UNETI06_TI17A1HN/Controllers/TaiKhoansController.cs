@@ -57,7 +57,7 @@ public class TaiKhoansController : Controller
     public IActionResult TuChoiTruyCap() => View();
 
     // ---------- Quản lý tài khoản (chỉ Admin) ----------
-    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+    [PhanQuyen(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Index(string? tuKhoa)
     {
         var q = _context.TaiKhoan.AsQueryable();
@@ -68,7 +68,7 @@ public class TaiKhoansController : Controller
         return View(await q.OrderBy(t => t.TenDangNhap).ToListAsync());
     }
 
-    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+    [PhanQuyen(VaiTroHeThong.Admin)]
     public IActionResult Create()
     {
         NapVaiTro();
@@ -76,7 +76,7 @@ public class TaiKhoansController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+    [PhanQuyen(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Create(TaiKhoanFormViewModel model)
     {
         if (string.IsNullOrWhiteSpace(model.MatKhau))
@@ -107,7 +107,7 @@ public class TaiKhoansController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+    [PhanQuyen(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Edit(int id)
     {
         var tk = await _context.TaiKhoan.FindAsync(id);
@@ -125,7 +125,7 @@ public class TaiKhoansController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+    [PhanQuyen(VaiTroHeThong.Admin)]
     public async Task<IActionResult> Edit(int id, TaiKhoanFormViewModel model)
     {
         if (id != model.MaTaiKhoan) return NotFound();
@@ -160,7 +160,7 @@ public class TaiKhoansController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    [PhanQuyenYeuCau(VaiTroHeThong.Admin)]
+    [PhanQuyen(VaiTroHeThong.Admin)]
     public async Task<IActionResult> DoiTrangThai(int id)
     {
         if (id == HttpContext.Session.GetInt32("MaTaiKhoan"))
