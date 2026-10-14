@@ -1,0 +1,32 @@
+@model YeuCauMuaHangFormViewModel
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<input type="hidden" asp-for="MaYeuCau" />
+
+<div class="mb-3">
+    <label asp-for="MaBoPhan" class="form-label"></label>
+    <select asp-for="MaBoPhan" asp-items="(SelectList)ViewBag.BoPhans" class="form-select">
+        <option value="">-- Chọn bộ phận --</option>
+    </select>
+    <span asp-validation-for="MaBoPhan" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="NgayCanHang" class="form-label"></label>
+    <input asp-for="NgayCanHang" class="form-control" type="date" />
+    <span asp-validation-for="NgayCanHang" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="MucDoUuTien" class="form-label"></label>
+    <select asp-for="MucDoUuTien" class="form-select">
+        @foreach (var m in MucDoUuTien.TatCa)
+        {
+            <option value="@m">@MucDoUuTien.NhanTiengViet(m)</option>
+        }
+    </select>
+</div>
+<div class="mb-3">
+    <label asp-for="LyDoMua" class="form-label"></label>
+    <textarea asp-for="LyDoMua" class="form-control" rows="3"></textarea>
+    <span asp-validation-for="LyDoMua" class="text-danger"></span>
+</div>
