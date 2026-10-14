@@ -1,0 +1,22 @@
+@model ChiTietYeuCauFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<input type="hidden" asp-for="MaChiTietYeuCau" />
+<input type="hidden" asp-for="MaYeuCau" />
+
+<div class="mb-3">
+    <label asp-for="MaHang" class="form-label"></label>
+    <select asp-for="MaHang" asp-items="(SelectList)ViewBag.HangHoas" class="form-select">
+        <option value="">-- Chọn hàng hóa --</option>
+    </select>
+    <span asp-validation-for="MaHang" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="SoLuongYeuCau" class="form-label"></label>
+    <input asp-for="SoLuongYeuCau" class="form-control" type="number" min="1" />
+    <span asp-validation-for="SoLuongYeuCau" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="GhiChu" class="form-label"></label>
+    <textarea asp-for="GhiChu" class="form-control" rows="2"></textarea>
+</div>
