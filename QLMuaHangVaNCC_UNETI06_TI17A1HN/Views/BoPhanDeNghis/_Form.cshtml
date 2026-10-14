@@ -1,0 +1,27 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.BoPhanDeNghi
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<input type="hidden" asp-for="MaBoPhan" />
+
+<div class="mb-3">
+    <label asp-for="TenBoPhan" class="form-label"></label>
+    <input asp-for="TenBoPhan" class="form-control" />
+    <span asp-validation-for="TenBoPhan" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="NguoiPhuTrach" class="form-label"></label>
+    <input asp-for="NguoiPhuTrach" class="form-control" />
+</div>
+<div class="mb-3">
+    <label asp-for="SoDienThoai" class="form-label"></label>
+    <input asp-for="SoDienThoai" class="form-control" />
+    <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="MoTa" class="form-label"></label>
+    <textarea asp-for="MoTa" class="form-control" rows="2"></textarea>
+</div>
+<div class="form-check mb-3">
+    <input asp-for="TrangThai" class="form-check-input" />
+    <label asp-for="TrangThai" class="form-check-label"></label>
+</div>

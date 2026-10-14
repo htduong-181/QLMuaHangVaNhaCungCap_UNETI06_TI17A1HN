@@ -1,66 +1,45 @@
 ﻿@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.BoPhanDeNghi>
+@{ ViewData["Title"] = "Bộ phận đề nghị"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h3>Quản lý bộ phận đề nghị</h3>
 
-<h1>Index</h1>
+@if (TempData["ThongBao"] != null) { <div class="alert alert-success">@TempData["ThongBao"]</div> }
+@if (TempData["Loi"] != null) { <div class="alert alert-danger">@TempData["Loi"]</div> }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiPhuTrach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.YeuCauMuaHangs)
-            </th>
-            <th></th>
-        </tr>
+<div class="d-flex justify-content-between mb-3">
+    <form method="get" class="d-flex gap-2">
+        <input name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tên bộ phận" />
+        <button class="btn btn-outline-primary">Tìm</button>
+    </form>
+    <a asp-action="Create" class="btn btn-success">+ Thêm bộ phận</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr><th>Tên bộ phận</th><th>Người phụ trách</th><th>SĐT</th><th>Trạng thái</th><th></th></tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(model => item.TenBoPhan)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.NguoiPhuTrach)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.SoDienThoai)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.MoTa)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.TrangThai)
-                </td>
-                <td>
-                    @Html.DisplayFor(model => item.YeuCauMuaHangs)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.MaBoPhan">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.MaBoPhan">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.MaBoPhan">Delete</a>
-                </td>
-            </tr>
-        }
+    @foreach (var b in Model)
+    {
+        <tr>
+            <td>@b.TenBoPhan</td>
+            <td>@b.NguoiPhuTrach</td>
+            <td>@b.SoDienThoai</td>
+            <td>
+                @if (b.TrangThai) { <span class="badge bg-success">Hoạt động</span> }
+                else { <span class="badge bg-secondary">Ngừng</span> }
+            </td>
+            <td class="d-flex gap-1">
+                <a asp-action="Edit" asp-route-id="@b.MaBoPhan" class="btn btn-sm btn-primary">Sửa</a>
+                <form asp-action="DoiTrangThai" asp-route-id="@b.MaBoPhan" method="post">
+                    <button class="btn btn-sm btn-warning">@(b.TrangThai ? "Ngừng" : "Kích hoạt")</button>
+                </form>
+                <form asp-action="Delete" asp-route-id="@b.MaBoPhan" method="post"
+                      onsubmit="return confirm('Xóa bộ phận này?')">
+                    <button class="btn btn-sm btn-danger">Xóa</button>
+                </form>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
