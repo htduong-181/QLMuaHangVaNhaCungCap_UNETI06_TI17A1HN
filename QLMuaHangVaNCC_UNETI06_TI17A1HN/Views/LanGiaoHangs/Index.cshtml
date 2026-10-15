@@ -1,83 +1,88 @@
 @model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.LanGiaoHang>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Lần giao hàng";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Lần giao hàng</h1>
+    <a asp-action="Create" class="btn btn-primary">Ghi nhận lần giao</a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaDonMua)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayGiao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiNhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoChungTu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonMuaHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiNhanNavigation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChiTietGiaoHangs)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaDonMua)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayGiao)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiNhan)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoChungTu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonMuaHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiNhanNavigation)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ChiTietGiaoHangs)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaLanGiao">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaLanGiao">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaLanGiao">Delete</a>
-            </td>
-        </tr>
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger">@TempData["Loi"]</div>
 }
-    </tbody>
-</table>
+@if (TempData["ThanhCong"] != null)
+{
+    <div class="alert alert-success">@TempData["ThanhCong"]</div>
+}
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle text-center mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã lần giao</th>
+                    <th>Mã đơn mua</th>
+                    <th>Trạng thái đơn</th>
+                    <th>Ngày giao</th>
+                    <th>Người nhận</th>
+                    <th>Số chứng từ</th>
+                    <th>Tổng SL nhận</th>
+                    <th>Ghi chú</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var choPhep = item.TrangThai
+     && item.DonMuaHang != null
+     && item.DonMuaHang.TrangThai != "HoanThanh"
+     && item.DonMuaHang.TrangThai != "DaHuy";
+                    <tr>
+                        <td>@item.MaLanGiao</td>
+                        <td>
+                            <a asp-action="DoiChieu" asp-route-maDonMua="@item.MaDonMua">@item.MaDonMua</a>
+                        </td>
+                        <td>@item.DonMuaHang?.TrangThai</td>
+                        <td>@item.NgayGiao.ToString("dd/MM/yyyy")</td>
+                        <td>@(item.NguoiNhanNavigation?.HoTen ?? item.NguoiNhan.ToString())</td>
+                        <td>@item.SoChungTu</td>
+                        <td>@item.ChiTietGiaoHangs.Sum(c => c.SoLuongNhan)</td>
+                        <td>@item.GhiChu</td>
+                        <td>
+                            @if (item.TrangThai)
+                            {
+                                <span class="badge bg-success">Còn hiệu lực</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Đã vô hiệu</span>
+                            }
+                        </td>
+                        <td class="text-nowrap">
+                            @if (choPhep)
+                            {
+                                <a asp-action="Edit" asp-route-malangiao="@item.MaLanGiao" class="btn btn-sm btn-outline-primary">Sửa</a>
+                            }
+                            <a asp-action="Details" asp-route-malangiao="@item.MaLanGiao" class="btn btn-sm btn-outline-info">Chi tiết</a>
+                            @if (choPhep)
+                            {
+                                <a asp-action="Delete" asp-route-malangiao="@item.MaLanGiao" class="btn btn-sm btn-outline-danger">Vô hiệu</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-muted py-4">Chưa có lần giao nào.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

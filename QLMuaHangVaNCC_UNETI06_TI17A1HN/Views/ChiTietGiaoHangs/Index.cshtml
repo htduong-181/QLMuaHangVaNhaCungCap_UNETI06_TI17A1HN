@@ -1,71 +1,63 @@
 @model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietGiaoHang>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Chi tiết giao hàng";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Chi tiết giao hàng</h1>
+    <a asp-controller="LanGiaoHangs" asp-action="Create" class="btn btn-primary">Ghi nhận lần giao</a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaLanGiao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaChiTietDon)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongNhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongDatChatLuong)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LanGiaoHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChiTietDonMua)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaLanGiao)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaChiTietDon)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoLuongNhan)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoLuongDatChatLuong)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LanGiaoHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ChiTietDonMua)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaChiTietGiao">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaChiTietGiao">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaChiTietGiao">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle text-center mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã chi tiết giao</th>
+                    <th>Mã lần giao</th>
+                    <th>Mặt hàng</th>
+                    <th>Số lượng nhận</th>
+                    <th>Số lượng đạt chất lượng</th>
+                    <th>Ghi chú</th>
+                    <th>Trạng thái lần giao</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.MaChiTietGiao</td>
+                        <td>
+                            <a asp-controller="LanGiaoHangs" asp-action="Details" asp-route-malangiao="@item.MaLanGiao">@item.MaLanGiao</a>
+                        </td>
+                        <td>@item.ChiTietDonMua?.HangHoa?.TenHang</td>
+                        <td>@item.SoLuongNhan</td>
+                        <td>@(item.SoLuongDatChatLuong?.ToString() ?? "-")</td>
+                        <td>@item.GhiChu</td>
+                        <td>
+                            @if (item.LanGiaoHang != null && item.LanGiaoHang.TrangThai)
+                            {
+                                <span class="badge bg-success">Còn hiệu lực</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Vô hiệu</span>
+                            }
+                        </td>
+                        <td class="text-nowrap">
+                            <a asp-action="Details" asp-route-id="@item.MaChiTietGiao" class="btn btn-sm btn-outline-info">Chi tiết</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">Chưa có dữ liệu.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

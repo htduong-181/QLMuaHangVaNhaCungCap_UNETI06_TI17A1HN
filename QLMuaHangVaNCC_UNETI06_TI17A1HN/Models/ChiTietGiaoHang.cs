@@ -8,33 +8,29 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
         [Key]
         public int MaChiTietGiao { get; set; }
 
-
         [Required]
         public int MaLanGiao { get; set; }
-
 
         [Required]
         public int MaChiTietDon { get; set; }
 
-
         [Required]
         [Range(1, int.MaxValue)]
+        [Display(Name = "Số lượng nhận")]
         public int SoLuongNhan { get; set; }
 
-
         [Range(0, int.MaxValue)]
+        [Display(Name = "Số lượng đạt chất lượng")]
         public int? SoLuongDatChatLuong { get; set; }
 
-
         [StringLength(500)]
+        [Display(Name = "Ghi chú")]
         public string? GhiChu { get; set; }
 
-
         [ForeignKey(nameof(MaLanGiao))]
-        public virtual LanGiaoHang LanGiaoHang { get; set; } = null!;
-
+        public virtual LanGiaoHang? LanGiaoHang { get; set; }
 
         [ForeignKey(nameof(MaChiTietDon))]
-        public virtual ChiTietDonMua ChiTietDonMua { get; set; } = null!;
+        public virtual ChiTietDonMua? ChiTietDonMua { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
 
         [Required]
         [StringLength(50)]
-        public string TrangThai { get; set; } = "Nhap";
+        public string TrangThai { get; set; } = "Nháp";
 
         [Column(TypeName = "decimal(18,2)")]
         [Range(0, double.MaxValue)]
@@ -36,13 +36,13 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
         public string? GhiChu { get; set; }
 
         [ForeignKey(nameof(MaYeuCau))]
-        public virtual YeuCauMuaHang YeuCauMuaHang { get; set; } = null!;
+        public virtual YeuCauMuaHang? YeuCauMuaHang { get; set; }
 
         [ForeignKey(nameof(MaNhaCungCap))]
-        public virtual NhaCungCap NhaCungCap { get; set; } = null!;
+        public virtual NhaCungCap? NhaCungCap { get; set; }
 
         [ForeignKey(nameof(NguoiLap))]
-        public virtual TaiKhoan NguoiLapNavigation { get; set; } = null!;
+        public virtual TaiKhoan? NguoiLapNavigation { get; set; }
 
         public virtual ICollection<ChiTietDonMua> ChiTietDonMuas { get; set; }
             = new List<ChiTietDonMua>();
