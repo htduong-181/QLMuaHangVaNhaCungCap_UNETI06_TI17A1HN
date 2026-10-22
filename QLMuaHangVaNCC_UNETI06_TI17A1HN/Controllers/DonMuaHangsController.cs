@@ -47,11 +47,26 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                     .ToListAsync());
         }
 
+        public async Task<IActionResult> ChonYeuCau()
+        {
+            var ds = await _context.YeuCauMuaHang
+                .AsNoTracking()
+                .Where(y => y.TrangThai == "DaDuyet"
+                    && y.ChiTietYeuCaus.Any(c => c.SoLuongDuyet >
+                        (_context.ChiTietDonMua
+                            .Where(d => d.MaChiTietYeuCau == c.MaChiTietYeuCau
+                                     && d.DonMuaHang.TrangThai != "DaHuy")
+                            .Sum(d => (int?)d.SoLuongDat) ?? 0)))
+                .OrderByDescending(y => y.MaYeuCau)
+                .ToListAsync();
+
+            return View(ds);
+        }
+
         public async Task<IActionResult> Create(int? maYeuCau)
         {
             if (maYeuCau == null)
-                return BadRequest(
-                    "Thiếu mã yêu cầu mua hàng.");
+                return RedirectToAction(nameof(ChonYeuCau));
 
             var yeuCau = await _context.YeuCauMuaHang
                 .AsNoTracking()
@@ -275,7 +290,16 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                             ycct.SoLuongDuyet -
                             soLuongDaDat);
 
-                    if (input.SoLuongDat <= 0)
+                    if (input.SoLuongDat < 0)
+                    {
+                        ModelState.AddModelError(
+                            string.Empty,
+                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: số lượng đặt không được âm.");
+
+                        continue;
+                    }
+
+                    if (input.SoLuongDat == 0)
                         continue;
 
                     if (input.SoLuongDat >
@@ -283,7 +307,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                     {
                         ModelState.AddModelError(
                             string.Empty,
-                            $"{input.MaChiTietYeuCau}: chỉ còn được đặt tối đa {conDuocDat}.");
+                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: chỉ còn được đặt tối đa {conDuocDat}.");
 
                         continue;
                     }
@@ -295,7 +319,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                     {
                         ModelState.AddModelError(
                             string.Empty,
-                            $"Đơn giá của {input.TenHang} không được âm.");
+                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: đơn giá không được âm.");
 
                         continue;
                     }
@@ -464,6 +488,38 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 received;
 
             return View(donMua);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Huy(int? madonmua)
+        {
+            if (madonmua == null)
+                return NotFound();
+
+            var don = await _context.DonMuaHang
+                .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
+
+            if (don == null)
+                return NotFound();
+
+            if (don.TrangThai != "Nhap" && don.TrangThai != "DaDat")
+            {
+                TempData["Loi"] = "Chỉ hủy được đơn ở trạng thái Nháp hoặc Đã đặt hàng.";
+                return RedirectToAction(nameof(Details), new { madonmua });
+            }
+
+            if (await _context.LanGiaoHang.AnyAsync(l => l.MaDonMua == madonmua.Value))
+            {
+                TempData["Loi"] = "Đơn đã có lần giao hàng, không thể hủy để tránh mất lịch sử giao nhận.";
+                return RedirectToAction(nameof(Details), new { madonmua });
+            }
+
+            don.TrangThai = "DaHuy";
+            await _context.SaveChangesAsync();
+
+            TempData["ThanhCong"] = "Đã hủy đơn mua.";
+            return RedirectToAction(nameof(Details), new { madonmua });
         }
 
         private async Task LoadCreateSelectLists()

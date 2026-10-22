@@ -1,131 +1,96 @@
 ﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.LanGiaoHangVM
-
 @{
-    ViewData["Title"] = "Tạo lần giao hàng";
+    ViewData["Title"] = "Ghi nhận lần giao";
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <h4 class="mb-0">Tạo lần giao hàng</h4>
-        </div>
+<h2>Ghi nhận lần giao</h2>
 
-        <div class="card-body">
-
-            <div asp-validation-summary="ModelOnly"
-                 class="text-danger mb-3"></div>
-
-            <form asp-action="Create" method="post">
-
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="MaDonMua" class="form-label">
-                            Đơn mua hàng
-                        </label>
-
-                        <select asp-for="MaDonMua"
-                                class="form-select">
-                            <option value="">-- Chọn đơn mua hàng --</option>
-
-                            @if (ViewBag.DonMuaHangs != null)
-                            {
-                                foreach (var don in ViewBag.DonMuaHangs)
-                                {
-                                    <option value="@don.MaDonMua">
-                                        Đơn #@don.MaDonMua -
-                                        @(don.NhaCungCap?.TenNhaCungCap ?? "Không có NCC")
-                                    </option>
-                                }
-                            }
-                        </select>
-
-                        <span asp-validation-for="MaDonMua"
-                              class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="NguoiNhan" class="form-label">
-                            Người nhận
-                        </label>
-
-                        <select asp-for="NguoiNhan"
-                                class="form-select">
-                            <option value="">-- Chọn người nhận --</option>
-
-                            @if (ViewBag.TaiKhoans != null)
-                            {
-                                foreach (var tk in ViewBag.TaiKhoans)
-                                {
-                                    <option value="@tk.MaTaiKhoan">
-                                        @tk.HoTen
-                                    </option>
-                                }
-                            }
-                        </select>
-
-                        <span asp-validation-for="NguoiNhan"
-                              class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="NgayGiao" class="form-label">
-                            Ngày giao
-                        </label>
-
-                        <input asp-for="NgayGiao"
-                               type="date"
-                               class="form-control" />
-
-                        <span asp-validation-for="NgayGiao"
-                              class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="SoChungTu" class="form-label">
-                            Số chứng từ
-                        </label>
-
-                        <input asp-for="SoChungTu"
-                               class="form-control"
-                               placeholder="Nhập số chứng từ nếu có" />
-
-                        <span asp-validation-for="SoChungTu"
-                              class="text-danger"></span>
-                    </div>
-
-                    <div class="col-12 mb-3">
-                        <label asp-for="GhiChu" class="form-label">
-                            Ghi chú
-                        </label>
-
-                        <textarea asp-for="GhiChu"
-                                  class="form-control"
-                                  rows="4"
-                                  placeholder="Nhập ghi chú..."></textarea>
-
-                        <span asp-validation-for="GhiChu"
-                              class="text-danger"></span>
-                    </div>
-
-                </div>
-
-                <div class="d-flex gap-2">
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Tạo lần giao
-                    </button>
-
-                    <a asp-action="Index"
-                       class="btn btn-secondary">
-                        Quay lại
-                    </a>
-                </div>
-
-            </form>
-        </div>
-    </div>
+<div class="mb-3">
+    <label class="form-label">Đơn mua</label>
+    <select class="form-select" asp-items="ViewBag.DonMua"
+            onchange="location.href='@Url.Action("Create")?maDonMua=' + this.value">
+        <option value="">-- Chọn đơn mua --</option>
+    </select>
 </div>
+
+@if (Model.ChiTiets.Any())
+{
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" asp-for="MaDonMua" />
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label asp-for="NgayGiao" class="form-label">Ngày giao</label>
+                <input asp-for="NgayGiao" type="date" class="form-control" />
+                <span asp-validation-for="NgayGiao" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="NguoiNhan" class="form-label">Người nhận</label>
+                <select asp-for="NguoiNhan" class="form-select" asp-items="ViewBag.NguoiNhan">
+                    <option value="0">-- Chọn người nhận --</option>
+                </select>
+                <span asp-validation-for="NguoiNhan" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="SoChungTu" class="form-label">Số chứng từ</label>
+                <input asp-for="SoChungTu" class="form-control" />
+                <span asp-validation-for="SoChungTu" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="GhiChu" class="form-label">Ghi chú</label>
+                <input asp-for="GhiChu" class="form-control" />
+                <span asp-validation-for="GhiChu" class="text-danger"></span>
+            </div>
+        </div>
+
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Mặt hàng</th>
+                    <th>Số lượng đặt</th>
+                    <th>Đã nhận</th>
+                    <th>Còn phải giao</th>
+                    <th>Số lượng nhận</th>
+                    <th>Số lượng đạt chất lượng</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.ChiTiets.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @Model.ChiTiets[i].TenHang
+                            <input type="hidden" asp-for="ChiTiets[i].MaChiTietDon" />
+                        </td>
+                        <td>@Model.ChiTiets[i].SoLuongDat</td>
+                        <td>@Model.ChiTiets[i].TongDaNhan</td>
+                        <td>@Model.ChiTiets[i].ConPhaiGiao</td>
+                        <td>
+                            <input asp-for="ChiTiets[i].SoLuongNhan" type="number" min="0"
+                                   max="@Model.ChiTiets[i].ConPhaiGiao" class="form-control" />
+                        </td>
+                        <td>
+                            <input asp-for="ChiTiets[i].SoLuongDatChatLuong" type="number" min="0" class="form-control" />
+                        </td>
+                        <td>
+                            <input asp-for="ChiTiets[i].GhiChu" class="form-control" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+}
+else
+{
+    <p class="text-muted">Chọn một đơn mua để hiển thị các mặt hàng cần nhận.</p>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+}
 
 @section Scripts {
     @{

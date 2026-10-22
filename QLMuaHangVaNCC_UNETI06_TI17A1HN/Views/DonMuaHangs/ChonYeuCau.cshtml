@@ -1,0 +1,43 @@
+﻿@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.YeuCauMuaHang>
+@{
+    ViewData["Title"] = "Chọn yêu cầu mua hàng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Chọn yêu cầu để lập đơn mua</h1>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle text-center mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã yêu cầu</th>
+                    <th>Ngày yêu cầu</th>
+                    <th>Lý do mua</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var y in Model)
+                {
+                    <tr>
+                        <td>@y.MaYeuCau</td>
+                        <td>@($"{y.NgayYeuCau:dd/MM/yyyy}")</td>
+                        <td>@y.LyDoMua</td>
+                        <td>
+                            <a asp-action="Create" asp-route-maYeuCau="@y.MaYeuCau" class="btn btn-sm btn-primary">Lập đơn mua</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-muted py-4">Không có yêu cầu đã duyệt nào còn số lượng chưa đặt.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

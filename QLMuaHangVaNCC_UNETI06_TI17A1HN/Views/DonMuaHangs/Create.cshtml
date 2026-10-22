@@ -1,5 +1,143 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ViewModels.DonMuaHangCreateViewModel
 @{
+    ViewData["Title"] = "Lập đơn mua hàng";
+    var nhaCungCaps = new SelectList(
+        (IEnumerable<NhaCungCap>)ViewBag.NhaCungCaps, "MaNhaCungCap", "TenNhaCungCap", Model.MaNhaCungCap);
+    var taiKhoans = new SelectList(
+        (IEnumerable<TaiKhoan>)ViewBag.TaiKhoans, "MaTaiKhoan", "HoTen", Model.NguoiLap);
 }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Lập đơn mua hàng</h1>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</div>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="alert alert-danger py-2 @(ViewData.ModelState.IsValid ? "d-none" : "")"></div>
+
+    <input type="hidden" asp-for="MaYeuCau" />
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header fw-bold">Thông tin đơn mua (từ yêu cầu #@Model.MaYeuCau)</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="MaNhaCungCap" class="form-label">Nhà cung cấp</label>
+                    <select asp-for="MaNhaCungCap" class="form-select" asp-items="nhaCungCaps">
+                        <option value="0">-- Chọn nhà cung cấp --</option>
+                    </select>
+                    <span asp-validation-for="MaNhaCungCap" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="NguoiLap" class="form-label">Người lập</label>
+                    <select asp-for="NguoiLap" class="form-select" asp-items="taiKhoans">
+                        <option value="0">-- Chọn người lập --</option>
+                    </select>
+                    <span asp-validation-for="NguoiLap" class="text-danger"></span>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Ngày đặt</label>
+                    <input class="form-control" value="@DateTime.Today.ToString("dd/MM/yyyy")" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="NgayGiaoDuKien" class="form-label">Ngày giao dự kiến</label>
+                    <input asp-for="NgayGiaoDuKien" type="date" class="form-control" />
+                    <span asp-validation-for="NgayGiaoDuKien" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="GhiChu" class="form-label">Ghi chú</label>
+                    <input asp-for="GhiChu" class="form-control" />
+                    <span asp-validation-for="GhiChu" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.ChiTiet != null && Model.ChiTiet.Any())
+    {
+        <div class="card shadow-sm mb-3">
+            <div class="card-header fw-bold">Chi tiết đơn mua</div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle text-center mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mặt hàng</th>
+                            <th>SL yêu cầu</th>
+                            <th>SL duyệt</th>
+                            <th>Đã đặt</th>
+                            <th>Còn được đặt</th>
+                            <th style="width:140px">Số lượng đặt</th>
+                            <th style="width:180px">Đơn giá mua</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.ChiTiet.Count; i++)
+                        {
+                            <tr data-row>
+                                <td class="text-start">
+                                    @Model.ChiTiet[i].TenHang
+                                    <input type="hidden" asp-for="ChiTiet[i].MaChiTietYeuCau" />
+                                    <input type="hidden" asp-for="ChiTiet[i].MaHang" />
+                                    <input type="hidden" asp-for="ChiTiet[i].TenHang" />
+                                </td>
+                                <td>@Model.ChiTiet[i].SoLuongYeuCau</td>
+                                <td>@Model.ChiTiet[i].SoLuongDuyet</td>
+                                <td>@Model.ChiTiet[i].SoLuongDaDat</td>
+                                <td><strong>@Model.ChiTiet[i].SoLuongConDuocDat</strong></td>
+                                <td>
+                                    <input asp-for="ChiTiet[i].SoLuongDat" type="number" min="0"
+                                           max="@Model.ChiTiet[i].SoLuongConDuocDat" class="form-control sl" />
+                                </td>
+                                <td>
+                                    <input asp-for="ChiTiet[i].DonGiaMua" type="number" min="0" step="1" class="form-control gia" />
+                                </td>
+                                <td class="thanhtien text-end">0</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="7" class="text-end">Tổng tiền đơn</th>
+                            <th id="tongTien" class="text-end">0</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="card-footer text-muted small">
+                Thành tiền và tổng tiền do hệ thống tính (số lượng đặt x đơn giá mua), không nhập tay.
+                Để đơn giá bằng 0 thì hệ thống lấy giá báo của nhà cung cấp nếu có.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lập đơn mua</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    }
+    else
+    {
+        <div class="alert alert-warning">Yêu cầu này không còn mặt hàng nào có thể đặt thêm.</div>
+        <a asp-action="ChonYeuCau" class="btn btn-secondary">Chọn yêu cầu khác</a>
+    }
+</form>
+
+<script>
+    (function () {
+        function so(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+        function dinhDang(n) { return n.toLocaleString('vi-VN'); }
+        function tinh() {
+            var tong = 0;
+            document.querySelectorAll('tr[data-row]').forEach(function (tr) {
+                var tt = so(tr.querySelector('.sl').value) * so(tr.querySelector('.gia').value);
+                tr.querySelector('.thanhtien').textContent = dinhDang(tt);
+                tong += tt;
+            });
+            var o = document.getElementById('tongTien');
+            if (o) o.textContent = dinhDang(tong);
+        }
+        document.addEventListener('input', function (e) {
+            if (e.target.classList.contains('sl') || e.target.classList.contains('gia')) tinh();
+        });
+        tinh();
+    })();
+</script>
