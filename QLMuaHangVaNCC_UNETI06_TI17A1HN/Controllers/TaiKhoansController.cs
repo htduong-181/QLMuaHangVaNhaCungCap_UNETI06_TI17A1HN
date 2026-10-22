@@ -1,14 +1,17 @@
-
 // Họ và tên: Lê Tiến Công
 // Mã sinh viên: 23103100050
 // Nội dung thực hiện: Chức năng phân quyền tài khoản, loại hàng, đơn vị tính
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Helpers;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels;
+
+// Định danh rõ ràng VaiTroHeThong lấy từ Models để tránh xung đột CS0104 với Helpers
+using VaiTroHeThong = QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.VaiTroHeThong;
+
+namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers;
 
 public class TaiKhoansController : Controller
 {

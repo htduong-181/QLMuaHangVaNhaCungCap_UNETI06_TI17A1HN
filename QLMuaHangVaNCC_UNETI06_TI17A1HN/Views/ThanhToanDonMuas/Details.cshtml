@@ -1,0 +1,62 @@
+﻿@* Họ và tên: Trương Huy Đồng *@
+@* Mã sinh viên: 23103100036 *@
+@* Nội dung thực hiện: Module 5 - Xem chi tiết thông tin phiếu thanh toán *@
+
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ThanhToanDonMua
+@{
+    ViewData["Title"] = "Chi tiết phiếu thanh toán";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm border-0 col-md-7 mx-auto">
+        <div class="card-header bg-info text-white text-center py-3">
+            <h4 class="mb-0 fw-bold">PHIẾU CHI TIẾT GIAO DỊCH THANH TOÁN</h4>
+            <span>Mã GD: #@Model.MaThanhToan</span>
+        </div>
+        <div class="card-body px-5 py-4">
+            <div class="row mb-3 border-bottom pb-2">
+                <div class="col-sm-5 fw-bold text-muted">Mã đơn mua hàng:</div>
+                <div class="col-sm-7 fw-bold fs-5 text-primary">#@Model.MaDonMua</div>
+            </div>
+
+            <div class="row mb-3 border-bottom pb-2">
+                <div class="col-sm-5 fw-bold text-muted">Nhà cung cấp nhận tiền:</div>
+                <div class="col-sm-7 fw-bold">@Model.DonMuaHang?.NhaCungCap?.TenNhaCungCap</div>
+            </div>
+
+            <div class="row mb-3 border-bottom pb-2">
+                <div class="col-sm-5 fw-bold text-muted">Ngày thực hiện:</div>
+                <div class="col-sm-7">@Model.NgayThanhToan.ToString("dd/MM/yyyy")</div>
+            </div>
+
+            <div class="row mb-3 border-bottom pb-2">
+                <div class="col-sm-5 fw-bold text-muted">Số tiền thanh toán:</div>
+                <div class="col-sm-7 fs-4 text-success fw-bold">@Model.SoTienThanhToan.ToString("N0") VNĐ</div>
+            </div>
+
+            <div class="row mb-3 border-bottom pb-2">
+                <div class="col-sm-5 fw-bold text-muted">Phương thức TT:</div>
+                <div class="col-sm-7">
+                    @(Model.PhuongThuc == "ChuyenKhoan" ? "Chuyển khoản qua ngân hàng" :
+                      Model.PhuongThuc == "TienMat" ? "Tiền mặt" :
+                      Model.PhuongThuc == "UyNhiemChi" ? "Ủy nhiệm chi" : Model.PhuongThuc)
+                </div>
+            </div>
+
+            <div class="row mb-3 border-bottom pb-2">
+                <div class="col-sm-5 fw-bold text-muted">Người lập phiếu:</div>
+                <div class="col-sm-7">@Model.NguoiThucHienNavigation?.HoTen</div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-5 fw-bold text-muted">Ghi chú kèm theo:</div>
+                <div class="col-sm-7 fst-italic">
+                    @(string.IsNullOrEmpty(Model.GhiChu) ? "(Không có ghi chú)" : Model.GhiChu)
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-light text-center py-3">
+            <a asp-action="Index" class="btn btn-secondary px-4">Quay lại danh sách</a>
+        </div>
+    </div>
+</div>

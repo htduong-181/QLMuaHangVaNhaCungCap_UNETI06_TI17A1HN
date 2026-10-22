@@ -11,5 +11,9 @@
 
         public static readonly string[] TatCa =
             { Admin, NhanVienDeNghi, NhanVienMuaHang, KeToan, NguoiDuyet, NhanVienKho };
+
+        // Bổ sung phương thức kiểm tra quyền duyệt
+        public static bool CoQuyenDuyet(string? vaiTro) =>
+            vaiTro == Admin || vaiTro == NguoiDuyet;
     }
 }

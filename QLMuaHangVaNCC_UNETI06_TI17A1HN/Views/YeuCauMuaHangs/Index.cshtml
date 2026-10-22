@@ -1,4 +1,4 @@
-@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.YeuCauMuaHang>
+﻿@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.YeuCauMuaHang>
 
 @{
     ViewData["Title"] = "Index";
@@ -61,59 +61,60 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayYeuCau)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayCanHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MucDoUuTien)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LyDoMua)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiLap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayDuyet)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiDuyet)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LyDoTuChoiHuy)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.BoPhanDeNghi)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiLapNavigation)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiDuyetNavigation)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ChiTietYeuCaus)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonMuaHangs)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaYeuCau">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaYeuCau">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaYeuCau">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(model => item.MaBoPhan)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NgayYeuCau)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NgayCanHang)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.MucDoUuTien)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.LyDoMua)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NguoiLap)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.TrangThai)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NgayDuyet)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NguoiDuyet)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.LyDoTuChoiHuy)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.BoPhanDeNghi)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NguoiLapNavigation)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.NguoiDuyetNavigation)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.ChiTietYeuCaus)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.DonMuaHangs)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MaYeuCau">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.MaYeuCau">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MaYeuCau">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

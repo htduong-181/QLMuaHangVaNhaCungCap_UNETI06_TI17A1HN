@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     [DbContext(typeof(QLMuaHangVaNCC_UNETI06_TI17A1HNContext))]
-    [Migration("20260928150217_initialCreate")]
-    partial class initialCreate
+    [Migration("20261008032704_IntilCreate")]
+    partial class IntilCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -178,6 +178,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                     b.Property<DateTime>("NgayDat")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("NgayGiaoDuKien")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("NguoiLap")
                         .HasColumnType("int");
 
@@ -186,8 +189,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.Property<string>("TrangThai")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("MaDonMua");
 
@@ -221,6 +224,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("MaDonViTinh");
+
+                    b.HasIndex("TenDonViTinh")
+                        .IsUnique();
 
                     b.ToTable("DonViTinh");
                 });
@@ -364,6 +370,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaLoaiHang");
 
+                    b.HasIndex("TenLoaiHang")
+                        .IsUnique();
+
                     b.ToTable("LoaiHang");
                 });
 
@@ -406,6 +415,10 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasKey("MaNhaCungCap");
 
+                    b.HasIndex("MaSoThue")
+                        .IsUnique()
+                        .HasFilter("[MaSoThue] IS NOT NULL");
+
                     b.ToTable("NhaCungCap");
                 });
 
@@ -439,7 +452,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 
                     b.HasIndex("MaHang");
 
-                    b.HasIndex("MaNhaCungCap");
+                    b.HasIndex("MaNhaCungCap", "MaHang")
+                        .IsUnique();
 
                     b.ToTable("NhaCungCapHangHoa");
                 });
@@ -481,6 +495,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("MaTaiKhoan");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("TenDangNhap")
+                        .IsUnique();
 
                     b.ToTable("TaiKhoan");
                 });
