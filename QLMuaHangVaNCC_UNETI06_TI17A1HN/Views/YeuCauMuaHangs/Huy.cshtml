@@ -1,0 +1,17 @@
+@model LyDoViewModel
+@{ ViewData["Title"] = "Hủy yêu cầu"; }
+
+<h3>Hủy yêu cầu #@Model.MaYeuCau</h3>
+<form asp-action="Huy" method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="MaYeuCau" />
+    <div class="mb-3">
+        <label asp-for="LyDo" class="form-label">Lý do hủy</label>
+        <textarea asp-for="LyDo" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="LyDo" class="text-danger"></span>
+    </div>
+    <button class="btn btn-outline-danger">Xác nhận hủy</button>
+    <a asp-action="Details" asp-route-id="@Model.MaYeuCau" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

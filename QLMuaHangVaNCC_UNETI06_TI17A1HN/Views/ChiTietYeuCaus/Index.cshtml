@@ -1,77 +1,35 @@
 @model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietYeuCau>
+@{ ViewData["Title"] = "Chi tiết yêu cầu"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h3>Chi tiết yêu cầu mua hàng</h3>
 
-<h1>Index</h1>
+@if (TempData["ThongBao"] != null) { <div class="alert alert-success">@TempData["ThongBao"]</div> }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaYeuCau)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongYeuCau)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongDuyet)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.YeuCauMuaHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HangHoa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChiTietDonMuas)
-            </th>
-            <th></th>
-        </tr>
+<form method="get" class="d-flex gap-2 mb-3">
+    <input name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tên hàng hóa" style="max-width:300px" />
+    <button class="btn btn-outline-primary">Tìm</button>
+</form>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr><th>Mã yêu cầu</th><th>Hàng hóa</th><th>Đơn vị tính</th><th>SL yêu cầu</th><th>SL duyệt</th><th>Ghi chú</th><th></th></tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var c in Model)
+    {
         <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaYeuCau)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoLuongYeuCau)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoLuongDuyet)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.YeuCauMuaHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.HangHoa)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ChiTietDonMuas)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaChiTietYeuCau">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaChiTietYeuCau">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaChiTietYeuCau">Delete</a>
-            </td>
+            <td><a asp-controller="YeuCauMuaHangs" asp-action="Details" asp-route-id="@c.MaYeuCau">#@c.MaYeuCau</a></td>
+            <td>@c.HangHoa.TenHang</td>
+            <td>@c.HangHoa.DonViTinh.TenDonViTinh</td>
+            <td>@c.SoLuongYeuCau</td>
+            <td>@c.SoLuongDuyet</td>
+            <td>@c.GhiChu</td>
+            <td><a asp-controller="YeuCauMuaHangs" asp-action="Details" asp-route-id="@c.MaYeuCau" class="btn btn-sm btn-outline-secondary">Xem yêu cầu</a></td>
         </tr>
-}
+    }
+    @if (!Model.Any())
+    {
+        <tr><td colspan="7" class="text-center text-muted">Không có dữ liệu</td></tr>
+    }
     </tbody>
 </table>

@@ -1,0 +1,11 @@
+@model ChiTietYeuCauFormViewModel
+@{ ViewData["Title"] = "Sửa chi tiết yêu cầu"; }
+
+<h3>Sửa chi tiết của yêu cầu #@Model.MaYeuCau</h3>
+<form asp-action="Edit" method="post" class="col-md-6">
+    <partial name="_Form" model="Model" />
+    <button class="btn btn-primary">Lưu</button>
+    <a asp-controller="YeuCauMuaHangs" asp-action="Details" asp-route-id="@Model.MaYeuCau" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

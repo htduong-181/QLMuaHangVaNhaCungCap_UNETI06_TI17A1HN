@@ -1,0 +1,45 @@
+@model XetDuyetViewModel
+@{ ViewData["Title"] = "Xét duyệt yêu cầu #" + Model.MaYeuCau; }
+
+<h3>Xét duyệt yêu cầu #@Model.MaYeuCau</h3>
+
+<table class="table table-sm table-borderless col-md-6">
+    <tr><th style="width:160px">Bộ phận</th><td>@Model.TenBoPhan</td></tr>
+    <tr><th>Người lập</th><td>@Model.NguoiLapHoTen</td></tr>
+    <tr><th>Ngày yêu cầu</th><td>@Model.NgayYeuCau.ToString("dd/MM/yyyy")</td></tr>
+    <tr><th>Ngày cần hàng</th><td>@Model.NgayCanHang.ToString("dd/MM/yyyy")</td></tr>
+    <tr><th>Lý do mua</th><td>@Model.LyDoMua</td></tr>
+</table>
+
+<form asp-action="Duyet" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="MaYeuCau" />
+
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr><th>Hàng hóa</th><th>Đơn vị tính</th><th>SL yêu cầu</th><th style="width:160px">SL duyệt</th></tr>
+        </thead>
+        <tbody>
+        @for (int i = 0; i < Model.ChiTiet.Count; i++)
+        {
+            <tr>
+                <td>
+                    @Model.ChiTiet[i].TenHang
+                    <input type="hidden" asp-for="ChiTiet[i].MaChiTietYeuCau" />
+                    <input type="hidden" asp-for="ChiTiet[i].TenHang" />
+                    <input type="hidden" asp-for="ChiTiet[i].DonViTinh" />
+                    <input type="hidden" asp-for="ChiTiet[i].SoLuongYeuCau" />
+                </td>
+                <td>@Model.ChiTiet[i].DonViTinh</td>
+                <td>@Model.ChiTiet[i].SoLuongYeuCau</td>
+                <td>
+                    <input asp-for="ChiTiet[i].SoLuongDuyet" class="form-control" type="number" min="0" max="@Model.ChiTiet[i].SoLuongYeuCau" />
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <button class="btn btn-success">Xác nhận duyệt</button>
+    <a asp-action="Details" asp-route-id="@Model.MaYeuCau" class="btn btn-secondary">Hủy bỏ</a>
+</form>

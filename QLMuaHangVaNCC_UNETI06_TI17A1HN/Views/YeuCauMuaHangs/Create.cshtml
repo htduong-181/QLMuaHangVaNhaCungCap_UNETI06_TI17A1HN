@@ -1,0 +1,11 @@
+@model YeuCauMuaHangFormViewModel
+@{ ViewData["Title"] = "Tạo yêu cầu mua hàng"; }
+
+<h3>Tạo yêu cầu mua hàng</h3>
+<form asp-action="Create" method="post" class="col-md-6">
+    <partial name="_Form" model="Model" />
+    <button class="btn btn-primary">Lưu nháp</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

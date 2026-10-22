@@ -1,4 +1,8 @@
-﻿    using System.ComponentModel.DataAnnotations;
+﻿// Họ và tên: Hoàng Thùy Dương
+// Mã sinh viên: 23103100051
+// Nội dung thực hiện: Quản lý bộ phận đề nghị, yêu cầu mua hàng và xét duyệt yêu cầu.
+
+using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
     namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
