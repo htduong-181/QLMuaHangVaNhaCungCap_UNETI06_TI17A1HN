@@ -1,0 +1,217 @@
+﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.DonMuaHang
+@{
+    ViewData["Title"] = "Chi tiết đơn mua #" + Model.MaDonMua;
+    var daNhan = (Dictionary<int, int>)ViewBag.DaNhan;
+
+    string TenTrangThai(string? ma) => ma switch
+    {
+        "Nhap" => "Nháp",
+        "DaDat" => "Đã đặt hàng",
+        "GiaoMotPhan" => "Giao một phần",
+        "DaGiaoDu" => "Đã giao đủ",
+        "HoanThanh" => "Hoàn thành",
+        "DaHuy" => "Đã hủy",
+        _ => ma ?? ""
+    };
+
+    string MauTrangThai(string? ma) => ma switch
+    {
+        "Nhap" => "bg-secondary",
+        "DaDat" => "bg-primary",
+        "GiaoMotPhan" => "bg-warning text-dark",
+        "DaGiaoDu" => "bg-success",
+        "HoanThanh" => "bg-success",
+        "DaHuy" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    var tongDat = Model.ChiTietDonMuas.Sum(c => c.SoLuongDat);
+    var tongNhan = Model.ChiTietDonMuas.Sum(c => daNhan.GetValueOrDefault(c.MaChiTietDon));
+    var choNhanHang = Model.TrangThai == "DaDat" || Model.TrangThai == "GiaoMotPhan";
+    var choHuy = (Model.TrangThai == "Nhap" || Model.TrangThai == "DaDat") && !Model.LanGiaoHangs.Any();
+}
+
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger">@TempData["Loi"]</div>
+}
+@if (TempData["ThanhCong"] != null)
+{
+    <div class="alert alert-success">@TempData["ThanhCong"]</div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">
+        Đơn mua #@Model.MaDonMua
+        <span class="badge @MauTrangThai(Model.TrangThai) fs-6 align-middle">@TenTrangThai(Model.TrangThai)</span>
+    </h1>
+    <div class="d-flex gap-2">
+        @if (choNhanHang)
+        {
+            <a asp-controller="LanGiaoHangs" asp-action="Create" asp-route-maDonMua="@Model.MaDonMua" class="btn btn-success">Ghi nhận giao hàng</a>
+        }
+        @if (choHuy)
+        {
+            <form asp-action="Huy" asp-route-madonmua="@Model.MaDonMua" method="post" class="d-inline"
+                  onsubmit="return confirm('Hủy đơn mua này?');">
+                <button type="submit" class="btn btn-outline-danger">Hủy đơn</button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Yêu cầu mua hàng</dt>
+            <dd class="col-sm-9">#@Model.MaYeuCau</dd>
+            <dt class="col-sm-3">Nhà cung cấp</dt>
+            <dd class="col-sm-9">@Model.NhaCungCap?.TenNhaCungCap</dd>
+            <dt class="col-sm-3">Người lập</dt>
+            <dd class="col-sm-9">@Model.NguoiLapNavigation?.HoTen</dd>
+            <dt class="col-sm-3">Ngày đặt</dt>
+            <dd class="col-sm-9">@Model.NgayDat.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-3">Ngày giao dự kiến</dt>
+            <dd class="col-sm-9">@(Model.NgayGiaoDuKien.HasValue ? Model.NgayGiaoDuKien.Value.ToString("dd/MM/yyyy") : "—")</dd>
+            <dt class="col-sm-3">Tổng tiền</dt>
+            <dd class="col-sm-9"><strong>@($"{Model.TongTien:N0}") đ</strong></dd>
+            <dt class="col-sm-3">Ghi chú</dt>
+            <dd class="col-sm-9">@Model.GhiChu</dd>
+        </dl>
+    </div>
+</div>
+
+<h4>Chi tiết đặt hàng và đối chiếu giao nhận</h4>
+<div class="card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mặt hàng</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Số lượng đặt</th>
+                    <th class="text-end">Tổng đã nhận</th>
+                    <th class="text-end">Còn phải giao</th>
+                    <th style="width:200px">Tỷ lệ giao</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.ChiTietDonMuas)
+                {
+                    var nhan = daNhan.GetValueOrDefault(c.MaChiTietDon);
+                    var con = c.SoLuongDat - nhan;
+                    var tyLe = c.SoLuongDat == 0 ? 0 : Math.Round(nhan * 100.0 / c.SoLuongDat, 1);
+                    <tr>
+                        <td>@c.HangHoa?.TenHang</td>
+                        <td class="text-end">@($"{c.DonGiaMua:N0}")</td>
+                        <td class="text-end">@c.SoLuongDat</td>
+                        <td class="text-end">@nhan</td>
+                        <td class="text-end">@con</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width:@(Math.Min(tyLe, 100).ToString(System.Globalization.CultureInfo.InvariantCulture))%">
+                                    @tyLe%
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-end">@($"{c.ThanhTien:N0}")</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="2" class="text-end">Tổng</td>
+                    <td class="text-end">@tongDat</td>
+                    <td class="text-end">@tongNhan</td>
+                    <td class="text-end">@(tongDat - tongNhan)</td>
+                    <td></td>
+                    <td class="text-end">@($"{Model.TongTien:N0}")</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<h4>Các lần giao hàng</h4>
+<div class="card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table table-striped align-middle text-center mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã lần giao</th>
+                    <th>Ngày giao</th>
+                    <th>Người nhận</th>
+                    <th>Số chứng từ</th>
+                    <th>Ghi chú</th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var l in Model.LanGiaoHangs.OrderBy(x => x.NgayGiao))
+                {
+                    <tr>
+                        <td>@l.MaLanGiao</td>
+                        <td>@l.NgayGiao.ToString("dd/MM/yyyy")</td>
+                        <td>@l.NguoiNhanNavigation?.HoTen</td>
+                        <td>@l.SoChungTu</td>
+                        <td>@l.GhiChu</td>
+                        <td>
+                            @if (l.TrangThai)
+                            {
+                                <span class="badge bg-success">Còn hiệu lực</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Vô hiệu</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-controller="LanGiaoHangs" asp-action="Details" asp-route-malangiao="@l.MaLanGiao" class="btn btn-sm btn-outline-info">Chi tiết</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.LanGiaoHangs.Any())
+                {
+                    <tr><td colspan="7" class="text-muted py-3">Chưa có lần giao hàng nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h4>Thanh toán</h4>
+<div class="card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table table-striped align-middle text-center mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã thanh toán</th>
+                    <th>Ngày thanh toán</th>
+                    <th>Số tiền</th>
+                    <th>Phương thức</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.ThanhToanDonMuas)
+                {
+                    <tr>
+                        <td>@t.MaThanhToan</td>
+                        <td>@($"{t.NgayThanhToan:dd/MM/yyyy}")</td>
+                        <td>@($"{t.SoTienThanhToan:N0}")</td>
+                        <td>@t.PhuongThuc</td>
+                        <td>@t.GhiChu</td>
+                    </tr>
+                }
+                @if (!Model.ThanhToanDonMuas.Any())
+                {
+                    <tr><td colspan="5" class="text-muted py-3">Chưa có thanh toán nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

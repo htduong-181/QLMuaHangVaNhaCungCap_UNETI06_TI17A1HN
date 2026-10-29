@@ -15,9 +15,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             _context = context;
         }
 
-
-
-
         public async Task<IActionResult> Index(
             string? search,
             string? trangThai)
@@ -60,10 +57,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                     .ToListAsync());
         }
 
-
-
-
-
         public async Task<IActionResult> ChonYeuCau()
         {
             var ds = await _context.YeuCauMuaHang
@@ -80,8 +73,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             return View(ds);
         }
 
-
-//tạo đơn mua hàng 
+        //tạo đơn mua hàng
         public async Task<IActionResult> Create(int? maYeuCau)
         {
             if (maYeuCau == null)
@@ -180,9 +172,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
             return View(vm);
         }
-
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -512,6 +501,109 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             return View(donMua);
         }
 
+        public async Task<IActionResult> Edit(int? madonmua)
+        {
+            if (madonmua == null)
+                return NotFound();
+
+            var don = await _context.DonMuaHang
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
+
+            if (don == null)
+                return NotFound();
+
+            if (don.TrangThai == "HoanThanh" || don.TrangThai == "DaHuy")
+            {
+                TempData["Loi"] = "Đơn đã hoàn thành hoặc đã hủy, không thể sửa.";
+                return RedirectToAction(nameof(Details), new { madonmua });
+            }
+
+            await NapNhaCungCapSua(don);
+            return View(don);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int? madonmua,
+            int maNhaCungCap,
+            DateTime? ngayGiaoDuKien,
+            string? ghiChu)
+        {
+            if (madonmua == null)
+                return NotFound();
+
+            var don = await _context.DonMuaHang
+                .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
+
+            if (don == null)
+                return NotFound();
+
+            if (don.TrangThai == "HoanThanh" || don.TrangThai == "DaHuy")
+            {
+                TempData["Loi"] = "Đơn đã hoàn thành hoặc đã hủy, không thể sửa.";
+                return RedirectToAction(nameof(Details), new { madonmua });
+            }
+
+            var coGiao = await _context.LanGiaoHang
+                .AnyAsync(l => l.MaDonMua == don.MaDonMua);
+
+            var choDoiNcc =
+                (don.TrangThai == "Nhap" || don.TrangThai == "DaDat") &&
+                !coGiao;
+
+            if (ngayGiaoDuKien.HasValue &&
+                ngayGiaoDuKien.Value.Date < don.NgayDat.Date)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ngày giao dự kiến không được trước ngày đặt.");
+            }
+
+            if (ghiChu != null && ghiChu.Length > 500)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ghi chú tối đa 500 ký tự.");
+            }
+
+            if (choDoiNcc && maNhaCungCap != don.MaNhaCungCap)
+            {
+                var ncc = await _context.NhaCungCap
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(n => n.MaNhaCungCap == maNhaCungCap);
+
+                if (ncc == null || !ncc.TrangThai)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Nhà cung cấp không tồn tại hoặc đã ngừng hoạt động.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                don.NgayGiaoDuKien = ngayGiaoDuKien;
+                don.GhiChu = ghiChu;
+                if (choDoiNcc)
+                    don.MaNhaCungCap = maNhaCungCap;
+
+                await NapNhaCungCapSua(don);
+                return View(don);
+            }
+
+            don.NgayGiaoDuKien = ngayGiaoDuKien;
+            don.GhiChu = ghiChu;
+            if (choDoiNcc)
+                don.MaNhaCungCap = maNhaCungCap;
+
+            await _context.SaveChangesAsync();
+
+            TempData["ThanhCong"] = "Đã cập nhật đơn mua.";
+            return RedirectToAction(nameof(Details), new { madonmua });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Huy(int? madonmua)
@@ -542,6 +634,25 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
             TempData["ThanhCong"] = "Đã hủy đơn mua.";
             return RedirectToAction(nameof(Details), new { madonmua });
+        }
+
+        private async Task NapNhaCungCapSua(DonMuaHang don)
+        {
+            var coGiao = await _context.LanGiaoHang
+                .AnyAsync(l => l.MaDonMua == don.MaDonMua);
+
+            ViewBag.ChoDoiNcc =
+                (don.TrangThai == "Nhap" || don.TrangThai == "DaDat") &&
+                !coGiao;
+
+            ViewBag.NhaCungCaps =
+                await _context.NhaCungCap
+                    .AsNoTracking()
+                    .Where(x =>
+                        x.TrangThai ||
+                        x.MaNhaCungCap == don.MaNhaCungCap)
+                    .OrderBy(x => x.TenNhaCungCap)
+                    .ToListAsync();
         }
 
         private async Task LoadCreateSelectLists()
