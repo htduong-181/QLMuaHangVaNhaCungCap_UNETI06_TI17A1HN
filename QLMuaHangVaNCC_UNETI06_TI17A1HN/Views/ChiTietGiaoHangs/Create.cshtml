@@ -1,0 +1,466 @@
+﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietGiaoHang
+
+@{
+    ViewData["Title"] = "Thêm hàng nhận";
+
+    var lanGiao =
+        ViewBag.LanGiaoHang
+        as QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.LanGiaoHang;
+
+    var chiTietDonMuas =
+        ViewBag.ChiTietDonMuas
+        as List<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietDonMua>
+        ?? new List<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietDonMua>();
+
+    var chiTietOptionsJson =
+        ViewBag.ChiTietOptionsJson as string ?? "[]";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-box-arrow-in-down text-primary fs-2"></i>
+
+            <h2 class="fw-bold mb-0">
+                Thêm hàng nhận
+            </h2>
+        </div>
+
+        <p class="text-muted mb-0 mt-1">
+            Ghi nhận số lượng hàng thực tế nhận được
+        </p>
+    </div>
+
+    @if (lanGiao != null)
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+                        <div class="text-muted small">
+                            Lần giao
+                        </div>
+
+                        <div class="fw-bold fs-5 text-primary">
+                            #@lanGiao.MaLanGiao
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-muted small">
+                            Đơn mua
+                        </div>
+
+                        <div class="fw-bold fs-5">
+                            #@lanGiao.MaDonMua
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="text-muted small">
+                            Nhà cung cấp
+                        </div>
+
+                        <div class="fw-semibold">
+                            @(lanGiao.DonMuaHang?.NhaCungCap?.TenNhaCungCap ?? "—")
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-box-seam text-primary me-2"></i>
+                Thông tin hàng nhận
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (!chiTietDonMuas.Any())
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Đơn mua hàng này đã giao đủ tất cả
+                    số lượng.
+                </div>
+
+                <a asp-controller="LanGiaoHangs"
+                   asp-action="Details"
+                   asp-route-malangiao="@Model.MaLanGiao"
+                   class="btn btn-outline-secondary">
+
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Quay lại
+
+                </a>
+            }
+            else
+            {
+                <form asp-action="Create" method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           asp-for="MaLanGiao" />
+
+                    <div class="mb-4">
+
+                        <label asp-for="MaChiTietDon"
+                               class="form-label fw-semibold">
+
+                            Mặt hàng
+
+                        </label>
+
+                        <select asp-for="MaChiTietDon"
+                                class="form-select"
+                                id="maChiTietDon">
+
+                            <option value="">
+                                -- Chọn mặt hàng --
+                            </option>
+
+                            @foreach (var item in chiTietDonMuas)
+                            {
+                                <option value="@item.MaChiTietDon">
+
+                                    @(item.HangHoa?.TenHang
+                                        ?? "Không xác định")
+
+                                </option>
+                            }
+
+                        </select>
+
+                        <span asp-validation-for="MaChiTietDon"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div id="quantityInfo"
+                         class="alert alert-light border mb-4"
+                         style="display:none;">
+
+                        <div class="row text-center">
+
+                            <div class="col-md-4">
+
+                                <div class="text-muted small">
+                                    Số lượng đặt
+                                </div>
+
+                                <div id="soLuongDat"
+                                     class="fs-4 fw-bold text-primary">
+                                    0
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <div class="text-muted small">
+                                    Đã nhận
+                                </div>
+
+                                <div id="soLuongDaNhan"
+                                     class="fs-4 fw-bold text-success">
+                                    0
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <div class="text-muted small">
+                                    Còn phải giao
+                                </div>
+
+                                <div id="soLuongCon"
+                                     class="fs-4 fw-bold text-warning">
+                                    0
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="SoLuongNhan"
+                               class="form-label fw-semibold">
+
+                            Số lượng nhận lần này
+
+                        </label>
+
+                        <input asp-for="SoLuongNhan"
+                               type="number"
+                               min="1"
+                               class="form-control"
+                               id="soLuongNhan"
+                               placeholder="Nhập số lượng thực tế nhận" />
+
+                        <div class="form-text">
+                            Không được lớn hơn số lượng còn phải giao.
+                        </div>
+
+                        <span asp-validation-for="SoLuongNhan"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="SoLuongDatChatLuong"
+                               class="form-label fw-semibold">
+
+                            Số lượng đạt chất lượng
+
+                        </label>
+
+                        <input asp-for="SoLuongDatChatLuong"
+                               type="number"
+                               min="0"
+                               class="form-control"
+                               id="soLuongChatLuong"
+                               placeholder="Có thể để trống" />
+
+                        <div class="form-text">
+                            Không được lớn hơn số lượng nhận.
+                        </div>
+
+                        <span asp-validation-for="SoLuongDatChatLuong"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="GhiChu"
+                               class="form-label fw-semibold">
+
+                            Ghi chú
+
+                        </label>
+
+                        <textarea asp-for="GhiChu"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Nhập ghi chú về hàng nhận..."></textarea>
+
+                        <span asp-validation-for="GhiChu"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            <i class="bi bi-check-lg me-1"></i>
+                            Lưu hàng nhận
+
+                        </button>
+
+                        <a asp-controller="LanGiaoHangs"
+                           asp-action="Details"
+                           asp-route-malangiao="@Model.MaLanGiao"
+                           class="btn btn-outline-secondary">
+
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Quay lại
+
+                        </a>
+
+                    </div>
+
+                </form>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        const chiTietOptions =
+            @Html.Raw(chiTietOptionsJson);
+
+        const select =
+            document.getElementById("maChiTietDon");
+
+        const info =
+            document.getElementById("quantityInfo");
+
+        const soLuongDat =
+            document.getElementById("soLuongDat");
+
+        const soLuongDaNhan =
+            document.getElementById("soLuongDaNhan");
+
+        const soLuongCon =
+            document.getElementById("soLuongCon");
+
+        const inputNhan =
+            document.getElementById("soLuongNhan");
+
+        const inputChatLuong =
+            document.getElementById("soLuongChatLuong");
+
+        function capNhatSoLuong() {
+
+            if (!select)
+                return;
+
+            const ma =
+                parseInt(select.value);
+
+            const item =
+                chiTietOptions.find(
+                    x => x.maChiTietDon === ma
+                );
+
+            if (!item) {
+
+                info.style.display = "none";
+
+                return;
+            }
+
+            soLuongDat.textContent =
+                item.soLuongDat;
+
+            soLuongDaNhan.textContent =
+                item.soLuongDaNhan;
+
+            soLuongCon.textContent =
+                item.soLuongConPhaiGiao;
+
+            info.style.display =
+                "block";
+
+            inputNhan.max =
+                item.soLuongConPhaiGiao;
+
+            inputChatLuong.max =
+                item.soLuongConPhaiGiao;
+
+            inputNhan.value = "";
+
+            inputChatLuong.value = "";
+        }
+
+        if (select) {
+
+            select.addEventListener(
+                "change",
+                capNhatSoLuong
+            );
+
+        }
+
+        if (inputNhan) {
+
+            inputNhan.addEventListener(
+                "input",
+                function () {
+
+                    const max =
+                        parseInt(
+                            inputNhan.max || "0"
+                        );
+
+                    let value =
+                        parseInt(
+                            inputNhan.value || "0"
+                        );
+
+                    if (value > max) {
+
+                        inputNhan.value =
+                            max;
+
+                        value = max;
+                    }
+
+                    if (inputChatLuong) {
+
+                        inputChatLuong.max =
+                            value;
+
+                        const chatLuong =
+                            parseInt(
+                                inputChatLuong.value || "0"
+                            );
+
+                        if (chatLuong > value) {
+
+                            inputChatLuong.value =
+                                value;
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+        if (inputChatLuong) {
+
+            inputChatLuong.addEventListener(
+                "input",
+                function () {
+
+                    const max =
+                        parseInt(
+                            inputChatLuong.max || "0"
+                        );
+
+                    const value =
+                        parseInt(
+                            inputChatLuong.value || "0"
+                        );
+
+                    if (value > max) {
+
+                        inputChatLuong.value =
+                            max;
+
+                    }
+
+                }
+            );
+
+        }
+
+    </script>
+}

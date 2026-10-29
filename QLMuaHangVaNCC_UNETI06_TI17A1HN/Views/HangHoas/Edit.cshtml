@@ -1,0 +1,9 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.HangHoaFormVm
+@{ ViewData["Title"] = "Sửa Hàng hóa"; }
+<h2>@ViewData["Title"]</h2>
+<form asp-action="Edit" asp-route-id="@Model.MaHang" method="post" class="card card-body shadow-sm">
+<input type="hidden" asp-for="MaHang" />
+<partial name="_Form" model="Model" />
+<div><button type="submit" class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-secondary">Quay lại</a></div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

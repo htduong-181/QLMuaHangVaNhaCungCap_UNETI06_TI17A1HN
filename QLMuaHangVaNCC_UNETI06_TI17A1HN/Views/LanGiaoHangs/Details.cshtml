@@ -1,0 +1,150 @@
+﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.LanGiaoHang
+
+@{
+    ViewData["Title"] = "Chi tiết lần giao hàng";
+
+    var chiTietGiaoHangs =
+        Model.ChiTietGiaoHangs?
+            .ToList()
+        ?? new List<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.ChiTietGiaoHang>();
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-truck text-primary fs-2"></i>
+
+                <h2 class="fw-bold mb-0">
+                    Chi tiết lần giao hàng
+                    <span class="text-primary">
+                        #@Model.MaLanGiao
+                    </span>
+                </h2>
+            </div>
+
+            <p class="text-muted mb-0 mt-1">
+                Thông tin tiếp nhận hàng
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Quay lại
+            </a>
+
+            @if (Model.TrangThai)
+            {
+                <a asp-controller="ChiTietGiaoHangs"
+                   asp-action="Create"
+                   asp-route-malangiao="@Model.MaLanGiao"
+                   class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>
+                    Thêm hàng nhận
+                </a>
+            }
+
+            <a asp-action="Edit"
+               asp-route-malangiao="@Model.MaLanGiao"
+               class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i>
+                Chỉnh sửa
+            </a>
+
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-info-circle text-primary me-2"></i>
+                Thông tin lần giao
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">
+                        Đơn mua hàng
+                    </div>
+
+                    <a asp-controller="DonMuaHangs"
+                       asp-action="Details"
+                       asp-route-madonmua="@Model.MaDonMua"
+                       class="fw-semibold text-primary text-decoration-none fs-5">
+                        Đơn #@Model.MaDonMua
+                    </a>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">
+                        Nhà cung cấp
+                    </div>
+
+                    <div class="fw-semibold fs-5">
+                        @(Model.DonMuaHang?.NhaCungCap?.TenNhaCungCap ?? "—")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">
+                        Ngày giao
+                    </div>
+
+                    <div class="fw-semibold fs-5">
+                        @Model.NgayGiao.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">
+                        Người nhận
+                    </div>
+
+                    <div class="fw-semibold fs-5">
+                        @(Model.NguoiNhanNavigation?.HoTen ?? "—")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">
+                        Số chứng từ
+                    </div>
+
+                    <div class="fw-semibold fs-5">
+                        @(string.IsNullOrWhiteSpace(Model.SoChungTu)
+                            ? "Chưa có"
+                            : Model.SoChungTu)
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">
+                        Trạng thái
+                    </div>
+
+                    @if (Model.TrangThai)
+                    {
+                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Đang hoạt động
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border px-3 py-2">
+                            Đã khóa
+                        </span>
+                    }
+                </div>
+
+                <

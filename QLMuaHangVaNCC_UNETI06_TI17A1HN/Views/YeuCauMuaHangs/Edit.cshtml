@@ -1,0 +1,20 @@
+@* Họ và tên: Hoàng Thùy Dương
+   Mã sinh viên: 23103100051
+   Nội dung thực hiện: Module 3 - Sửa yêu cầu (chỉ khi còn Nháp). *@
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels
+@model YeuCauFormViewModel
+@{ ViewData["Title"] = "Sửa yêu cầu YC" + Model.MaYeuCau.ToString("D4"); }
+
+<h2>Sửa yêu cầu YC@(Model.MaYeuCau.ToString("D4"))</h2>
+
+<form asp-action="Edit" asp-route-id="@Model.MaYeuCau" method="post">
+    @await Html.PartialAsync("_Form", Model)
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a asp-action="Details" asp-route-id="@Model.MaYeuCau" class="btn btn-outline-secondary">Quay lại</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

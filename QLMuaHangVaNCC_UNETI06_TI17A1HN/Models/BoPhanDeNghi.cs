@@ -6,7 +6,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
     {
         [Key]
         public int MaBoPhan { get; set; }
-
+         
         [Required]
         [StringLength(150)]
         public string TenBoPhan { get; set; } = string.Empty;

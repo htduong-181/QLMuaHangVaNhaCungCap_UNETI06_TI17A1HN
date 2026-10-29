@@ -245,6 +245,22 @@ public class QLMuaHangVaNCC_UNETI06_TI17A1HNContext
             .HasForeignKey(t => t.NguoiThucHien)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<TaiKhoan>()
+            .HasIndex(t => t.TenDangNhap)
+            .IsUnique();
+
+        modelBuilder.Entity<TaiKhoan>()
+            .HasIndex(t => t.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<LoaiHang>()
+            .HasIndex(l => l.TenLoaiHang)
+            .IsUnique();
+
+        modelBuilder.Entity<DonViTinh>()
+            .HasIndex(d => d.TenDonViTinh)
+            .IsUnique();
+
 
         // ==================================================
         // 20. NhaCungCap 1 - N NhaCungCapHangHoa
@@ -277,5 +293,16 @@ public class QLMuaHangVaNCC_UNETI06_TI17A1HNContext
             .WithMany(t => t.LichSuTrangThais)
             .HasForeignKey(l => l.NguoiThucHien)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Mỗi mã số thuế chỉ thuộc một nhà cung cấp
+        modelBuilder.Entity<NhaCungCap>()
+            .HasIndex(n => n.MaSoThue)
+            .IsUnique()
+            .HasFilter("[MaSoThue] IS NOT NULL");
+
+        // Không trùng cặp nhà cung cấp - hàng hóa
+        modelBuilder.Entity<NhaCungCapHangHoa>()
+            .HasIndex(n => new { n.MaNhaCungCap, n.MaHang })
+            .IsUnique();
     }
 }

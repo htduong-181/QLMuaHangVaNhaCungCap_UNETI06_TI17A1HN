@@ -10,10 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models;
 
-
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 {
-    //
+    // ==========================================
+    // 1. CÁC LỚP VIEWMODEL
+    // ==========================================
     public class DashboardVM
     {
         public int TongNCCDangHoatDong { get; set; }
@@ -73,7 +74,43 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
         public List<ThongKeThoiGianItem> GiaTriTheoThangQuyNam { get; set; } = new List<ThongKeThoiGianItem>();
     }
 
-    // LỚP CONTROLLER CHÍNH
+    public class LichSuNCCVM
+    {
+        public NhaCungCap? NhaCungCap { get; set; }
+        public List<DonMuaHang> DanhSachDonMua { get; set; } = new List<DonMuaHang>();
+        public Dictionary<int, decimal> TongGiaTriDon { get; set; } = new Dictionary<int, decimal>();
+        public Dictionary<int, decimal> DaThanhToan { get; set; } = new Dictionary<int, decimal>();
+    }
+
+    public class LichSuHangHoaVM
+    {
+        public HangHoa? HangHoa { get; set; }
+        public List<ChiTietYeuCau> LichSuYeuCau { get; set; } = new List<ChiTietYeuCau>();
+        public List<ChiTietDonMua> LichSuDatMua { get; set; } = new List<ChiTietDonMua>();
+        public Dictionary<int, int> SoLuongDaNhan { get; set; } = new Dictionary<int, int>();
+    }
+
+    public class ThongKeGiaoHangVM
+    {
+        public DateTime? TuNgay { get; set; }
+        public DateTime? DenNgay { get; set; }
+        public int SoDonGiaoDu { get; set; }
+        public int SoDonGiaoMotPhan { get; set; }
+        public int SoDonChamGiao { get; set; }
+        public List<TyLeGiaoHangNCC> TyLeTheoNCC { get; set; } = new List<TyLeGiaoHangNCC>();
+    }
+
+    public class TyLeGiaoHangNCC
+    {
+        public string TenNhaCungCap { get; set; } = string.Empty;
+        public int TongSoDon { get; set; }
+        public int SoDonGiaoDu { get; set; }
+        public double TyLeHoanThanh { get; set; }
+    }
+
+    // ==========================================
+    // 2. LỚP CONTROLLER CHÍNH
+    // ==========================================
     public class ThongKeController : Controller
     {
         private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
@@ -85,11 +122,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
         private bool KiemTraQuyenQuanLy()
         {
-            return true; // tắt tạm
+            return true; // Tắt tạm check Session để test
         }
 
-
-        // DASHBOARD 
+        // ==========================================
+        // MODULE 5: DASHBOARD TỔNG QUAN
+        // ==========================================
         public IActionResult Dashboard(int? thang, int? nam)
         {
             if (!KiemTraQuyenQuanLy()) return StatusCode(403, "Không có quyền truy cập Dashboard.");
@@ -100,13 +138,16 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             var vm = new DashboardVM();
 
             vm.TongNCCDangHoatDong = _context.NhaCungCap.Count(n => n.TrangThai == true);
-            vm.SoYeuCauChoDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "ChoDuyet");
-            vm.SoYeuCauDaDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "DaDuyet");
-            vm.SoYeuCauTuChoi = _context.YeuCauMuaHang.Count(y => y.TrangThai == "TuChoi");
-            vm.SoDonDaDatHang = _context.DonMuaHang.Count(d => d.TrangThai == "DaDat");
-            vm.SoDonGiaoMotPhan = _context.DonMuaHang.Count(d => d.TrangThai == "GiaoMotPhan");
-            vm.SoDonDaGiaoDu = _context.DonMuaHang.Count(d => d.TrangThai == "DaGiaoDu");
-            vm.SoDonHoanThanh = _context.DonMuaHang.Count(d => d.TrangThai == "HoanThanh");
+
+            // Gom các trạng thái có thể lưu trùng lặp vào chung 1 điều kiện
+            vm.SoYeuCauChoDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "ChoDuyet" || y.TrangThai == "Chờ duyệt");
+            vm.SoYeuCauDaDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "DaDuyet" || y.TrangThai == "Đã duyệt");
+            vm.SoYeuCauTuChoi = _context.YeuCauMuaHang.Count(y => y.TrangThai == "TuChoi" || y.TrangThai == "Từ chối");
+
+            vm.SoDonDaDatHang = _context.DonMuaHang.Count(d => d.TrangThai == "Đã đặt hàng" || d.TrangThai == "DaDatHang" || d.TrangThai == "DaDat");
+            vm.SoDonGiaoMotPhan = _context.DonMuaHang.Count(d => d.TrangThai == "Giao một phần" || d.TrangThai == "GiaoMotPhan");
+            vm.SoDonDaGiaoDu = _context.DonMuaHang.Count(d => d.TrangThai == "Đã giao đủ" || d.TrangThai == "DaGiaoDu");
+            vm.SoDonHoanThanh = _context.DonMuaHang.Count(d => d.TrangThai == "Hoàn thành" || d.TrangThai == "HoanThanh");
 
             vm.TongGiaTriMuaTrongThang = _context.ChiTietDonMua
                 .Where(ct => ct.DonMuaHang != null
@@ -120,7 +161,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 .Count(d => d.TrangThai != "Đã giao đủ" && d.TrangThai != "DaGiaoDu"
                          && d.TrangThai != "Hoàn thành" && d.TrangThai != "HoanThanh"
                          && d.TrangThai != "Đã hủy" && d.TrangThai != "DaHuy"
-                         && d.TrangThai != "Nháp" && d.TrangThai != "Nhap");
+                         && d.TrangThai != "Nháp" && d.TrangThai != "Nhap"
+                         && d.NgayGiaoDuKien < DateTime.Now.Date);
 
             decimal tongGiaTriTatCaDon = _context.ChiTietDonMua
                 .Where(ct => ct.DonMuaHang != null && ct.DonMuaHang.TrangThai != "Đã hủy" && ct.DonMuaHang.TrangThai != "Nháp")
@@ -146,7 +188,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             return View(vm);
         }
 
-        // Thống kê bằng LINQ
+        // ==========================================
+        // MODULE 5: THỐNG KÊ BẰNG LINQ
+        // ==========================================
         public IActionResult Index(DateTime? tuNgay, DateTime? denNgay)
         {
             var vm = new ThongKeTongHopVM { TuNgay = tuNgay, DenNgay = denNgay };
@@ -242,6 +286,107 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                     TongGiaTriMua = g.SelectMany(d => d.ChiTietDonMuas).Sum(ct => ct.SoLuongDat * ct.DonGiaMua)
                 })
                 .OrderByDescending(x => x.Nam).ThenByDescending(x => x.Thang)
+                .ToList();
+
+            return View(vm);
+        }
+
+        // ==========================================
+        // MODULE 5: LỊCH SỬ NHÀ CUNG CẤP & HÀNG HÓA
+        // ==========================================
+        public IActionResult LichSuNhaCungCap(int id)
+        {
+            var ncc = _context.NhaCungCap.FirstOrDefault(n => n.MaNhaCungCap == id);
+            if (ncc == null) return NotFound();
+
+            var vm = new LichSuNCCVM { NhaCungCap = ncc };
+
+            vm.DanhSachDonMua = _context.DonMuaHang
+                .Include(d => d.ChiTietDonMuas)
+                .Include(d => d.ThanhToanDonMuas)
+                .Where(d => d.MaNhaCungCap == id && d.TrangThai != "Nháp")
+                .OrderByDescending(d => d.NgayDat)
+                .ToList();
+
+            foreach (var don in vm.DanhSachDonMua)
+            {
+                vm.TongGiaTriDon[don.MaDonMua] = don.ChiTietDonMuas.Sum(ct => (decimal?)(ct.SoLuongDat * ct.DonGiaMua)) ?? 0;
+                vm.DaThanhToan[don.MaDonMua] = don.ThanhToanDonMuas.Sum(tt => (decimal?)tt.SoTienThanhToan) ?? 0;
+            }
+
+            return View(vm);
+        }
+
+        public IActionResult LichSuHangHoa(int id)
+        {
+            var hang = _context.HangHoa.FirstOrDefault(h => h.MaHang == id);
+            if (hang == null) return NotFound();
+
+            var vm = new LichSuHangHoaVM { HangHoa = hang };
+
+            vm.LichSuYeuCau = _context.ChiTietYeuCau
+                .Include(ct => ct.YeuCauMuaHang)
+                    .ThenInclude(y => y.BoPhanDeNghi)
+                .Where(ct => ct.MaHang == id && ct.YeuCauMuaHang!.TrangThai != "Nháp")
+                .OrderByDescending(ct => ct.YeuCauMuaHang!.NgayYeuCau)
+                .ToList();
+
+            vm.LichSuDatMua = _context.ChiTietDonMua
+                .Include(ct => ct.DonMuaHang)
+                    .ThenInclude(d => d.NhaCungCap)
+                .Include(ct => ct.ChiTietGiaoHangs)
+                .Where(ct => ct.MaHang == id && ct.DonMuaHang!.TrangThai != "Nháp")
+                .OrderByDescending(ct => ct.DonMuaHang!.NgayDat)
+                .ToList();
+
+            foreach (var ct in vm.LichSuDatMua)
+            {
+                vm.SoLuongDaNhan[ct.MaChiTietDon] = ct.ChiTietGiaoHangs?.Sum(g => g.SoLuongNhan) ?? 0;
+            }
+
+            return View(vm);
+        }
+
+        // ==========================================
+        // MODULE 5: THỐNG KÊ GIAO HÀNG (CÓ BỘ LỌC)
+        // ==========================================
+        public IActionResult ThongKeGiaoHang(DateTime? tuNgay, DateTime? denNgay)
+        {
+            var vm = new ThongKeGiaoHangVM { TuNgay = tuNgay, DenNgay = denNgay };
+
+            var donMuaQuery = _context.DonMuaHang
+                .Include(d => d.NhaCungCap)
+                .Where(d => d.TrangThai != "Đã hủy" && d.TrangThai != "Nháp")
+                .AsQueryable();
+
+            if (tuNgay.HasValue) donMuaQuery = donMuaQuery.Where(d => d.NgayDat.Date >= tuNgay.Value.Date);
+            if (denNgay.HasValue) donMuaQuery = donMuaQuery.Where(d => d.NgayDat.Date <= denNgay.Value.Date);
+
+            var danhSachDon = donMuaQuery.ToList();
+            var now = DateTime.Now;
+
+            vm.SoDonGiaoDu = danhSachDon.Count(d => d.TrangThai == "Đã giao đủ" || d.TrangThai == "Hoàn thành");
+            vm.SoDonGiaoMotPhan = danhSachDon.Count(d => d.TrangThai == "Giao một phần");
+
+            vm.SoDonChamGiao = danhSachDon.Count(d =>
+                d.NgayGiaoDuKien.HasValue && d.NgayGiaoDuKien.Value.Date < now.Date
+                && d.TrangThai != "Đã giao đủ" && d.TrangThai != "Hoàn thành");
+
+            vm.TyLeTheoNCC = danhSachDon
+                .Where(d => d.NhaCungCap != null)
+                .GroupBy(d => new { d.MaNhaCungCap, d.NhaCungCap!.TenNhaCungCap })
+                .Select(g => {
+                    int tongDon = g.Count();
+                    int giaoDu = g.Count(d => d.TrangThai == "Đã giao đủ" || d.TrangThai == "Hoàn thành");
+                    return new TyLeGiaoHangNCC
+                    {
+                        TenNhaCungCap = g.Key.TenNhaCungCap,
+                        TongSoDon = tongDon,
+                        SoDonGiaoDu = giaoDu,
+                        TyLeHoanThanh = tongDon > 0 ? Math.Round((double)giaoDu / tongDon * 100, 2) : 0
+                    };
+                })
+                .OrderByDescending(x => x.TyLeHoanThanh)
                 .ToList();
 
             return View(vm);

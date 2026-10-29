@@ -1,65 +1,102 @@
-@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.BoPhanDeNghi>
-
+@* Họ và tên: Hoàng Thùy Dương
+   Mã sinh viên: 23103100051
+   Nội dung thực hiện: Module 3 - Danh sách bộ phận đề nghị: tìm kiếm, lọc trạng thái, phân trang, đổi trạng thái, xóa khi chưa có yêu cầu. *@
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+@using QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels
+@model PagedResult<BoPhanDeNghi>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Bộ phận đề nghị";
+    string? tuKhoa = ViewBag.TuKhoa;
+    bool? trangThai = ViewBag.TrangThai;
+    var soYeuCau = (Dictionary<int, int>)ViewBag.SoYeuCau;
+    object Route(int p) => new { page = p, tuKhoa, trangThai };
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Bộ phận đề nghị</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm bộ phận</a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
+@await Html.PartialAsync("~/Views/YeuCauMuaHangs/_ThongBao.cshtml")
+
+<form method="get" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input name="tuKhoa" value="@tuKhoa" class="form-control" placeholder="Tên bộ phận / người phụ trách" />
+    </div>
+    <div class="col-md-3">
+        <select name="trangThai" class="form-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="true" selected="@(trangThai == true)">Đang hoạt động</option>
+            <option value="false" selected="@(trangThai == false)">Ngừng hoạt động</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary">Tìm / Lọc</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Xóa lọc</a>
+    </div>
+</form>
+
+<p class="text-muted">Tìm thấy <b>@Model.TotalItems</b> bộ phận — trang @Model.Page/@Model.TotalPages</p>
+
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiPhuTrach)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.YeuCauMuaHangs)
-            </th>
-            <th></th>
+            <th>Tên bộ phận</th><th>Người phụ trách</th><th>Điện thoại</th><th>Mô tả</th>
+            <th class="text-end">Số yêu cầu</th><th>Trạng thái</th><th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.TenBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiPhuTrach)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.YeuCauMuaHangs)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaBoPhan">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaBoPhan">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaBoPhan">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var b in Model.Items)
+        {
+            var so = soYeuCau.GetValueOrDefault(b.MaBoPhan);
+            <tr>
+                <td>@b.TenBoPhan</td>
+                <td>@b.NguoiPhuTrach</td>
+                <td>@b.SoDienThoai</td>
+                <td>@b.MoTa</td>
+                <td class="text-end">@so</td>
+                <td>
+                    @if (b.TrangThai) { <span class="badge bg-success">Hoạt động</span> }
+                    else { <span class="badge bg-secondary">Ngừng hoạt động</span> }
+                </td>
+                <td class="text-nowrap">
+                    <a asp-action="Edit" asp-route-id="@b.MaBoPhan" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <form asp-action="DoiTrangThai" asp-route-id="@b.MaBoPhan" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-warning">@(b.TrangThai ? "Ngừng" : "Kích hoạt")</button>
+                    </form>
+                    @if (so == 0)
+                    {
+                        <form asp-action="Xoa" asp-route-id="@b.MaBoPhan" method="post" class="d-inline"
+                              onsubmit="return confirm('Xóa bộ phận này?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        @if (!Model.Items.Any())
+        {
+            <tr><td colspan="7" class="text-center text-muted py-4">Không có bộ phận nào phù hợp.</td></tr>
+        }
     </tbody>
 </table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Phân trang">
+        <ul class="pagination">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@Url.Action("Index", Route(Model.Page - 1))">‹ Trước</a>
+            </li>
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", Route(p))">@p</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@Url.Action("Index", Route(Model.Page + 1))">Sau ›</a>
+            </li>
+        </ul>
+    </nav>
+}

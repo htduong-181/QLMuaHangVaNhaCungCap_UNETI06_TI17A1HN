@@ -1,83 +1,146 @@
-@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.NhaCungCap>
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.PagedListVm<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.NhaCungCap>
+@{ ViewData["Title"] = "Nhà cung cấp"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h2 class="mb-3">Nhà cung cấp</h2>
 
-<h1>Index</h1>
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenNhaCungCap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaSoThue)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiaChi)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLienHe)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonMuaHangs)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NhaCungCapHangHoas)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.TenNhaCungCap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaSoThue)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DiaChi)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiLienHe)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonMuaHangs)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NhaCungCapHangHoas)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaNhaCungCap">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<a asp-action="Create" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Thêm mới</a>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="row g-2">
+        <div class="col-md-3"><input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Tìm tên, mã và thông tin liên quan" /></div>
+        <div class="col-md-3">
+            <select name="maHang" class="form-select">
+                <option value="">Chọn mặt hàng để lọc cung ứng</option>
+                @foreach (var x in Model.HangHoas) { <option value="@x.MaHang" selected="@(Model.MaHang == x.MaHang)">@x.TenHang</option> }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="coCungUng" class="form-select">
+                <option value="">Cung ứng: Tất cả</option>
+                <option value="true" selected="@(Model.CoCungUng == true)">Có cung ứng</option>
+                <option value="false" selected="@(Model.CoCungUng == false)">Không cung ứng</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">Mọi trạng thái</option>
+                <option value="true" selected="@(Model.Status == true)">Hoạt động</option>
+                <option value="false" selected="@(Model.Status == false)">Ngừng hoạt động</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="sort" class="form-select">
+                <option value="">Sắp xếp mặc định</option>
+                <option value="name_asc" selected="@(Model.Sort == "name_asc")">Tên A-Z</option>
+                <option value="name_desc" selected="@(Model.Sort == "name_desc")">Tên Z-A</option>
+            </select>
+        </div>
+        <div class="col-md-auto"><button class="btn btn-primary" type="submit">Lọc / Tìm</button> <a asp-action="Index" class="btn btn-outline-secondary">Xóa lọc</a></div>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Mã</th>
+                <th>Nhà cung cấp</th>
+                <th>Mã số thuế</th>
+                <th>Điện thoại</th>
+                <th>Người liên hệ</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.MaNhaCungCap</td>
+                    <td class="fw-bold text-primary">@item.TenNhaCungCap</td>
+                    <td>@item.MaSoThue</td>
+                    <td>@item.SoDienThoai</td>
+                    <td>@item.NguoiLienHe</td>
+                    <td><span class="badge @(item.TrangThai ? "bg-success" : "bg-secondary")">@(item.TrangThai ? "Hoạt động" : "Ngừng")</span></td>
+                    <td class="text-nowrap">
+                        <!-- Nút Lịch sử để sổ xuống (Collapse) -->
+                        <button class="btn btn-outline-dark btn-sm" data-bs-toggle="collapse" data-bs-target="#history-@item.MaNhaCungCap">
+                            <i class="bi bi-clock-history"></i> Lịch sử
+                        </button>
+                        <a asp-action="Details" asp-route-id="@item.MaNhaCungCap" class="btn btn-outline-info btn-sm">Chi tiết</a>
+                        <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap" class="btn btn-outline-primary btn-sm">Sửa</a>
+                        <form method="post" asp-action="ChangeStatus" asp-route-id="@item.MaNhaCungCap" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Đổi trạng thái</button>
+                        </form>
+                        <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap" class="btn btn-outline-danger btn-sm">Xóa</a>
+                    </td>
+                </tr>
+                <!-- Dòng ẩn chứa Lịch sử mua hàng -->
+                <tr class="p-0">
+                    <td colspan="7" class="p-0 border-0">
+                        <div class="collapse" id="history-@item.MaNhaCungCap">
+                            <div class="card card-body m-3 bg-light border-secondary shadow-sm">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-receipt"></i> Lịch sử đơn mua của @item.TenNhaCungCap</h6>
+                                <table class="table table-sm table-bordered bg-white mb-0">
+                                    <thead class="table-secondary text-center">
+                                        <tr>
+                                            <th>Mã Đơn</th>
+                                            <th>Ngày Đặt</th>
+                                            <th>Tổng Giá Trị</th>
+                                            <th>Tình Trạng Giao</th>
+                                            <th>Đã Thanh Toán</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (item.DonMuaHangs != null && item.DonMuaHangs.Any(d => d.TrangThai != "Nháp"))
+                                        {
+                                            foreach (var don in item.DonMuaHangs.Where(d => d.TrangThai != "Nháp").OrderByDescending(d => d.NgayDat))
+                                            {
+                                                // Tính toán tổng tiền và tổng đã trả
+                                                var tongTien = don.ChiTietDonMuas?.Sum(ct => (decimal?)(ct.SoLuongDat * ct.DonGiaMua)) ?? 0;
+                                                var daTra = don.ThanhToanDonMuas?.Sum(tt => (decimal?)tt.SoTienThanhToan) ?? 0;
+                                                
+                                                <tr>
+                                                    <td class="text-center">@don.MaDonMua</td>
+                                                    <td class="text-center">@don.NgayDat.ToString("dd/MM/yyyy")</td>
+                                                    <td class="text-end fw-bold text-danger">@tongTien.ToString("N0") đ</td>
+                                                    <td class="text-center"><span class="badge bg-info text-dark">@don.TrangThai</span></td>
+                                                    <td class="text-end fw-bold text-success">@daTra.ToString("N0") đ</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr><td colspan="5" class="text-center text-muted py-3">Nhà cung cấp này chưa có đơn mua hàng nào.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted">Không có dữ liệu phù hợp</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-between align-items-center">
+    <div>Tổng: @Model.TotalItems bản ghi — Trang @Model.Page / @Model.TotalPages</div>
+    <nav>
+        <ul class="pagination mb-0">
+            @for (int p = 1; p <= Model.TotalPages; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="@Model.Sort" asp-route-maHang="@Model.MaHang" asp-route-maNhaCungCap="@Model.MaNhaCungCap" asp-route-maLoaiHang="@Model.MaLoaiHang" asp-route-maDonViTinh="@Model.MaDonViTinh" asp-route-giaTu="@Model.GiaTu" asp-route-giaDen="@Model.GiaDen" asp-route-coCungUng="@Model.CoCungUng">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,33 @@
+﻿@model TaiKhoanFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<input type="hidden" asp-for="MaTaiKhoan" />
+
+<div class="mb-3">
+    <label asp-for="TenDangNhap" class="form-label"></label>
+    <input asp-for="TenDangNhap" class="form-control" />
+    <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="MatKhau" class="form-label"></label>
+    <input asp-for="MatKhau" class="form-control" />
+    <span asp-validation-for="MatKhau" class="text-danger"></span>
+    @if (Model.MaTaiKhoan != 0) { <div class="form-text">Để trống nếu không đổi mật khẩu</div> }
+</div>
+<div class="mb-3">
+    <label asp-for="HoTen" class="form-label"></label>
+    <input asp-for="HoTen" class="form-control" />
+    <span asp-validation-for="HoTen" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Email" class="form-label"></label>
+    <input asp-for="Email" class="form-control" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="VaiTro" class="form-label"></label>
+    <select asp-for="VaiTro" asp-items="(SelectList)ViewBag.VaiTros" class="form-select">
+        <option value="">-- Chọn vai trò --</option>
+    </select>
+    <span asp-validation-for="VaiTro" class="text-danger"></span>
+</div>

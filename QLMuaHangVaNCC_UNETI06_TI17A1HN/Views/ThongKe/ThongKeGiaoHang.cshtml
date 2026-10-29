@@ -1,0 +1,84 @@
+﻿@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers.ThongKeGiaoHangVM
+@{ ViewData["Title"] = "Thống Kê Giao Hàng"; }
+
+<div class="container-fluid mt-4">
+    <h3 class="fw-bold text-success mb-3"><i class="bi bi-truck"></i> BÁO CÁO THỐNG KÊ GIAO HÀNG</h3>
+
+    <!--BỘ LỌC THỜI GIAN -->
+    <form method="get" class="card card-body bg-light mb-4 border-0 shadow-sm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Từ ngày đặt hàng</label>
+                <input type="date" name="tuNgay" value="@Model.TuNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Đến ngày</label>
+                <input type="date" name="denNgay" value="@Model.DenNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-success me-2 px-4">Lọc dữ liệu</button>
+                <a asp-action="ThongKeGiaoHang" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- CÁC CHỈ SỐ GIAO HÀNG -->
+    <div class="row g-3 mb-4 text-center">
+        <div class="col-md-4">
+            <div class="alert alert-primary shadow-sm border-0">
+                <div class="text-uppercase fw-bold small mb-1">Số đơn đã giao đủ</div>
+                <h3 class="fw-bold mb-0">@Model.SoDonGiaoDu</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert alert-warning shadow-sm border-0">
+                <div class="text-uppercase fw-bold small mb-1">Đang giao một phần</div>
+                <h3 class="fw-bold mb-0">@Model.SoDonGiaoMotPhan</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="alert alert-danger shadow-sm border-0">
+                <div class="text-uppercase fw-bold small mb-1">Đơn chậm giao (Quá hạn)</div>
+                <h3 class="fw-bold mb-0">@Model.SoDonChamGiao</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- TỶ LỆ HOÀN THÀNH THEO NCC -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white fw-bold">Tỷ Lệ Hoàn Thành Giao Hàng Theo Nhà Cung Cấp</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nhà cung cấp</th>
+                        <th class="text-center">Tổng số đơn</th>
+                        <th class="text-center">Đã giao đủ</th>
+                        <th class="text-center">Tỷ lệ hoàn thành</th>
+                        <th>Tiến độ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ncc in Model.TyLeTheoNCC)
+                    {
+                        <tr>
+                            <td class="fw-bold">@ncc.TenNhaCungCap</td>
+                            <td class="text-center">@ncc.TongSoDon</td>
+                            <td class="text-center text-success fw-bold">@ncc.SoDonGiaoDu</td>
+                            <td class="text-center">@ncc.TyLeHoanThanh%</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar @(ncc.TyLeHoanThanh == 100 ? "bg-success" : (ncc.TyLeHoanThanh > 50 ? "bg-primary" : "bg-danger"))" 
+                                         role="progressbar" style="width: @ncc.TyLeHoanThanh%;" 
+                                         aria-valuenow="@ncc.TyLeHoanThanh" aria-valuemin="0" aria-valuemax="100">
+                                        @ncc.TyLeHoanThanh%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
