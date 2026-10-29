@@ -1,0 +1,30 @@
+﻿@using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
+@model List<QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.DongDoiChieuVM>
+@{
+    ViewData["Title"] = "Đối chiếu số lượng";
+    var don = (DonMuaHang)ViewBag.Don;
+    var tenTrangThai = don.TrangThai switch
+    {
+        "Nhap" => "Nháp",
+        "DaDat" => "Đã đặt hàng",
+        "GiaoMotPhan" => "Giao một phần",
+        "DaGiaoDu" => "Đã giao đủ",
+        "HoanThanh" => "Hoàn thành",
+        "DaHuy" => "Đã hủy",
+        _ => don.TrangThai
+    };
+}
+
+<h2>Đối chiếu số lượng - Đơn mua #@don.MaDonMua</h2>
+<p>Trạng thái đơn: <strong>@tenTrangThai</strong></p>
+
+@if (Model.Any())
+{
+    @await Html.PartialAsync("_BangDoiChieu", Model)
+}
+else
+{
+    <p class="text-muted">Đơn này chưa có mặt hàng nào.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Quay lại</a>

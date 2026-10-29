@@ -15,6 +15,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             _context = context;
         }
 
+
+
+
         public async Task<IActionResult> Index(
             string? search,
             string? trangThai)
@@ -26,13 +29,22 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 .Include(d => d.NguoiLapNavigation)
                 .AsQueryable();
 
+            search = search?.Trim();
+
             if (!string.IsNullOrWhiteSpace(search))
             {
-                search = search.Trim();
+                var tuKhoa = search.TrimStart('#').Trim();
 
-                query = query.Where(d =>
-                    d.MaDonMua.ToString().Contains(search) ||
-                    d.NhaCungCap.TenNhaCungCap.Contains(search));
+                if (search.StartsWith('#') && int.TryParse(tuKhoa, out var ma))
+                {
+                    query = query.Where(d => d.MaDonMua == ma);
+                }
+                else if (tuKhoa.Length > 0)
+                {
+                    query = query.Where(d =>
+                        d.MaDonMua.ToString().Contains(tuKhoa) ||
+                        d.NhaCungCap.TenNhaCungCap.Contains(tuKhoa));
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(trangThai))
@@ -44,8 +56,13 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             return View(
                 await query
                     .OrderByDescending(d => d.NgayDat)
+                    .ThenByDescending(d => d.MaDonMua)
                     .ToListAsync());
         }
+
+
+
+
 
         public async Task<IActionResult> ChonYeuCau()
         {
@@ -63,6 +80,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             return View(ds);
         }
 
+
+//tạo đơn mua hàng 
         public async Task<IActionResult> Create(int? maYeuCau)
         {
             if (maYeuCau == null)
@@ -161,6 +180,9 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
             return View(vm);
         }
+
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -1,0 +1,32 @@
+﻿@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.DongDoiChieuVM>
+
+<table class="table table-bordered align-middle">
+    <thead>
+        <tr>
+            <th>Mặt hàng</th>
+            <th>Số lượng đặt</th>
+            <th>Tổng đã nhận</th>
+            <th>Còn phải giao</th>
+            <th style="width:220px">Tỷ lệ giao</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@d.TenHang</td>
+                <td>@d.SoLuongDat</td>
+                <td>@d.TongDaNhan</td>
+                <td>@d.ConPhaiGiao</td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar"
+                             style="width:@(Math.Min(d.TyLeGiao, 100).ToString(System.Globalization.CultureInfo.InvariantCulture))%">
+                            @d.TyLeGiao%
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

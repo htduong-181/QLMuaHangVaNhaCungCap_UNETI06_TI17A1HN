@@ -46,6 +46,7 @@
                         {
                             var nhan = daNhan.GetValueOrDefault(item.MaChiTietDon);
                             var conLai = Math.Max(0, item.SoLuongDat - nhan);
+                            //thanh tiến độ 
                             var phanTram = item.SoLuongDat > 0
                                 ? Math.Min(100, nhan * 100.0 / item.SoLuongDat)
                                 : 0;
