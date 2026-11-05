@@ -21,14 +21,31 @@ public class LanGiaoHangsController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var ds = await _context.LanGiaoHang
+        int pageSize = 10;
+
+        var query = _context.LanGiaoHang
+            .AsNoTracking()
             .Include(l => l.DonMuaHang)
             .Include(l => l.NguoiNhanNavigation)
-            .Include(l => l.ChiTietGiaoHangs)
+            .Include(l => l.ChiTietGiaoHangs);
+
+        int totalItems = await query.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        page = Math.Max(1, page);
+        page = totalPages > 0 ? Math.Min(page, totalPages) : 1;
+
+        var ds = await query
             .OrderByDescending(l => l.MaLanGiao)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+
+        ViewBag.Page = page;
+        ViewBag.TotalPages = totalPages;
+
         return View(ds);
     }
 

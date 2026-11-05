@@ -11,14 +11,31 @@ public class ChiTietGiaoHangsController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var ds = await _context.ChiTietGiaoHang
+        int pageSize = 10;
+
+        var query = _context.ChiTietGiaoHang
+            .AsNoTracking()
             .Include(c => c.LanGiaoHang)
             .Include(c => c.ChiTietDonMua)
-                .ThenInclude(d => d!.HangHoa)
+                .ThenInclude(d => d!.HangHoa);
+
+        int totalItems = await query.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        page = Math.Max(1, page);
+        page = totalPages > 0 ? Math.Min(page, totalPages) : 1;
+
+        var ds = await query
             .OrderByDescending(c => c.MaChiTietGiao)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+
+        ViewBag.Page = page;
+        ViewBag.TotalPages = totalPages;
+
         return View(ds);
     }
 

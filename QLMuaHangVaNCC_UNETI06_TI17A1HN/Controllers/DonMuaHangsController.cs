@@ -9,52 +9,57 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
     {
         private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
 
-        public DonMuaHangsController(
-            QLMuaHangVaNCC_UNETI06_TI17A1HNContext context)
+        public DonMuaHangsController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context)
         {
             _context = context;
         }
 
-        public async Task<IActionResult> Index(
-            string? search,
-            string? trangThai)
+        public async Task<IActionResult> Index(string? search, string? trangThai, int page = 1)
         {
-            var query = _context.DonMuaHang
-                .AsNoTracking()
-                .Include(d => d.YeuCauMuaHang)
-                .Include(d => d.NhaCungCap)
-                .Include(d => d.NguoiLapNavigation)
-                .AsQueryable();
+            int pageSize = 10;
+            var query = _context.DonMuaHang.AsNoTracking().AsQueryable();
 
             search = search?.Trim();
-
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var tuKhoa = search.TrimStart('#').Trim();
-
                 if (search.StartsWith('#') && int.TryParse(tuKhoa, out var ma))
-                {
                     query = query.Where(d => d.MaDonMua == ma);
-                }
                 else if (tuKhoa.Length > 0)
-                {
-                    query = query.Where(d =>
-                        d.MaDonMua.ToString().Contains(tuKhoa) ||
-                        d.NhaCungCap.TenNhaCungCap.Contains(tuKhoa));
-                }
+                    query = query.Where(d => d.MaDonMua.ToString().Contains(tuKhoa)
+                                          || d.NhaCungCap.TenNhaCungCap.Contains(tuKhoa));
             }
-
             if (!string.IsNullOrWhiteSpace(trangThai))
                 query = query.Where(d => d.TrangThai == trangThai);
 
+            int tongSo = await query.CountAsync();
+            int tongTrang = (int)Math.Ceiling(tongSo / (double)pageSize);
+            if (tongTrang < 1) tongTrang = 1;
+            if (page < 1) page = 1;
+            if (page > tongTrang) page = tongTrang;
+
+            var ds = await query
+                .Include(d => d.YeuCauMuaHang)
+                .Include(d => d.NhaCungCap)
+                .Include(d => d.NguoiLapNavigation)
+                .OrderByDescending(d => d.NgayDat)
+                .ThenByDescending(d => d.MaDonMua)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             ViewBag.Search = search;
             ViewBag.TrangThai = trangThai;
+            ViewBag.Page = page;
+            ViewBag.TotalPages = tongTrang;
+            ViewBag.TongDon = tongSo;
+            ViewBag.SoNhap = await query.CountAsync(d => d.TrangThai == "Nhap");
+            ViewBag.SoDaDat = await query.CountAsync(d => d.TrangThai == "DaDat");
+            ViewBag.SoGiaoMotPhan = await query.CountAsync(d => d.TrangThai == "GiaoMotPhan");
+            ViewBag.SoDaGiaoDu = await query.CountAsync(d => d.TrangThai == "DaGiaoDu");
+            ViewBag.TongTien = await query.SumAsync(d => d.TongTien);
 
-            return View(
-                await query
-                    .OrderByDescending(d => d.NgayDat)
-                    .ThenByDescending(d => d.MaDonMua)
-                    .ToListAsync());
+            return View(ds);
         }
 
         public async Task<IActionResult> ChonYeuCau()
@@ -81,422 +86,184 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
             var yeuCau = await _context.YeuCauMuaHang
                 .AsNoTracking()
-                .Include(y => y.ChiTietYeuCaus)
-                    .ThenInclude(c => c.HangHoa)
-                .FirstOrDefaultAsync(
-                    y => y.MaYeuCau == maYeuCau.Value);
+                .Include(y => y.ChiTietYeuCaus).ThenInclude(c => c.HangHoa)
+                .FirstOrDefaultAsync(y => y.MaYeuCau == maYeuCau.Value);
 
             if (yeuCau == null)
-                return NotFound(
-                    "Không tìm thấy yêu cầu mua hàng.");
+                return NotFound("Không tìm thấy yêu cầu mua hàng.");
 
-            if (!string.Equals(
-                    yeuCau.TrangThai,
-                    "DaDuyet",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return BadRequest(
-                    "Chỉ yêu cầu mua hàng ở trạng thái Đã duyệt mới được lập đơn mua.");
-            }
+            if (!string.Equals(yeuCau.TrangThai, "DaDuyet", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Chỉ yêu cầu mua hàng ở trạng thái Đã duyệt mới được lập đơn mua.");
 
-            var itemIds = yeuCau.ChiTietYeuCaus
-                .Select(x => x.MaChiTietYeuCau)
-                .ToList();
-
-            var daDat = await _context.ChiTietDonMua
-                .Where(c =>
-                    itemIds.Contains(c.MaChiTietYeuCau) &&
-                    c.DonMuaHang.TrangThai != "DaHuy")
-                .GroupBy(c => c.MaChiTietYeuCau)
-                .Select(g => new
-                {
-                    MaChiTietYeuCau = g.Key,
-                    SoLuong = g.Sum(x => x.SoLuongDat)
-                })
-                .ToDictionaryAsync(
-                    x => x.MaChiTietYeuCau,
-                    x => x.SoLuong);
+            var daDat = await LayDaDat(yeuCau.ChiTietYeuCaus.Select(x => x.MaChiTietYeuCau).ToList());
 
             var vm = new DonMuaHangCreateViewModel
             {
                 MaYeuCau = yeuCau.MaYeuCau,
-
                 ChiTiet = yeuCau.ChiTietYeuCaus
                     .Select(c =>
                     {
-                        var soLuongDaDat =
-                            daDat.GetValueOrDefault(
-                                c.MaChiTietYeuCau);
-
-                        var con = Math.Max(
-                            0,
-                            c.SoLuongDuyet -
-                            soLuongDaDat);
-
+                        var soLuongDaDat = daDat.GetValueOrDefault(c.MaChiTietYeuCau);
+                        var con = Math.Max(0, c.SoLuongDuyet - soLuongDaDat);
                         return new DonMuaHangItemViewModel
                         {
-                            MaChiTietYeuCau =
-                                c.MaChiTietYeuCau,
-
-                            MaHang =
-                                c.MaHang,
-
-                            TenHang =
-                                c.HangHoa.TenHang,
-
-                            SoLuongYeuCau =
-                                c.SoLuongYeuCau,
-
-                            SoLuongDuyet =
-                                c.SoLuongDuyet,
-
-                            SoLuongDaDat =
-                                soLuongDaDat,
-
-                            SoLuongConDuocDat =
-                                con,
-
-                            SoLuongDat =
-                                con,
-
-                            DonGiaMua =
-                                0
+                            MaChiTietYeuCau = c.MaChiTietYeuCau,
+                            MaHang = c.MaHang,
+                            TenHang = c.HangHoa.TenHang,
+                            SoLuongYeuCau = c.SoLuongYeuCau,
+                            SoLuongDuyet = c.SoLuongDuyet,
+                            SoLuongDaDat = soLuongDaDat,
+                            SoLuongConDuocDat = con,
+                            SoLuongDat = con,
+                            DonGiaMua = 0
                         };
                     })
-                    .Where(x =>
-                        x.SoLuongConDuocDat > 0)
+                    .Where(x => x.SoLuongConDuocDat > 0)
                     .ToList()
             };
 
             await LoadCreateSelectLists();
-
             return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            DonMuaHangCreateViewModel vm)
+        public async Task<IActionResult> Create(DonMuaHangCreateViewModel vm)
         {
             var yeuCau = await _context.YeuCauMuaHang
                 .Include(y => y.ChiTietYeuCaus)
-                .FirstOrDefaultAsync(
-                    y => y.MaYeuCau == vm.MaYeuCau);
+                .FirstOrDefaultAsync(y => y.MaYeuCau == vm.MaYeuCau);
 
             if (yeuCau == null)
-                return NotFound(
-                    "Không tìm thấy yêu cầu mua hàng.");
+                return NotFound("Không tìm thấy yêu cầu mua hàng.");
 
-            if (!string.Equals(
-                    yeuCau.TrangThai,
-                    "DaDuyet",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Chỉ yêu cầu Đã duyệt mới được lập đơn mua.");
-            }
+            if (!string.Equals(yeuCau.TrangThai, "DaDuyet", StringComparison.OrdinalIgnoreCase))
+                ModelState.AddModelError(string.Empty, "Chỉ yêu cầu Đã duyệt mới được lập đơn mua.");
 
-            var nhaCungCap = await _context.NhaCungCap
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    n => n.MaNhaCungCap ==
-                         vm.MaNhaCungCap);
+            var nhaCungCap = await _context.NhaCungCap.AsNoTracking()
+                .FirstOrDefaultAsync(n => n.MaNhaCungCap == vm.MaNhaCungCap);
+            if (nhaCungCap == null || !nhaCungCap.TrangThai)
+                ModelState.AddModelError(nameof(vm.MaNhaCungCap), "Nhà cung cấp không tồn tại hoặc đã ngừng hoạt động.");
 
-            if (nhaCungCap == null ||
-                !nhaCungCap.TrangThai)
-            {
-                ModelState.AddModelError(
-                    nameof(vm.MaNhaCungCap),
-                    "Nhà cung cấp không tồn tại hoặc đã ngừng hoạt động.");
-            }
+            var nguoiLap = await _context.TaiKhoan.AsNoTracking()
+                .FirstOrDefaultAsync(t => t.MaTaiKhoan == vm.NguoiLap);
+            if (nguoiLap == null || !nguoiLap.TrangThai)
+                ModelState.AddModelError(nameof(vm.NguoiLap), "Tài khoản người lập không tồn tại hoặc đang bị khóa.");
 
-            var nguoiLap = await _context.TaiKhoan
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    t => t.MaTaiKhoan ==
-                         vm.NguoiLap);
+            if (vm.ChiTiet == null || vm.ChiTiet.Count == 0)
+                ModelState.AddModelError(string.Empty, "Đơn mua phải có ít nhất một chi tiết.");
 
-            if (nguoiLap == null ||
-                !nguoiLap.TrangThai)
-            {
-                ModelState.AddModelError(
-                    nameof(vm.NguoiLap),
-                    "Tài khoản người lập không tồn tại hoặc đang bị khóa.");
-            }
-
-            if (vm.ChiTiet == null ||
-                vm.ChiTiet.Count == 0)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Đơn mua phải có ít nhất một chi tiết.");
-            }
-
-            var validDetails =
-                new List<ChiTietDonMua>();
-
+            var validDetails = new List<ChiTietDonMua>();
             decimal tongTien = 0;
 
-            if (yeuCau != null)
+            var requestDetails = yeuCau.ChiTietYeuCaus.ToDictionary(x => x.MaChiTietYeuCau);
+            var daDat = await LayDaDat(requestDetails.Keys.ToList());
+
+            foreach (var input in vm.ChiTiet ?? new List<DonMuaHangItemViewModel>())
             {
-                var requestDetails =
-                    yeuCau.ChiTietYeuCaus
-                        .ToDictionary(
-                            x => x.MaChiTietYeuCau);
-
-                var itemIds =
-                    requestDetails.Keys.ToList();
-
-                var daDat = await _context.ChiTietDonMua
-                    .Where(c =>
-                        itemIds.Contains(
-                            c.MaChiTietYeuCau) &&
-                        c.DonMuaHang.TrangThai !=
-                            "DaHuy")
-                    .GroupBy(
-                        c => c.MaChiTietYeuCau)
-                    .Select(g => new
-                    {
-                        MaChiTietYeuCau = g.Key,
-                        SoLuong =
-                            g.Sum(x => x.SoLuongDat)
-                    })
-                    .ToDictionaryAsync(
-                        x => x.MaChiTietYeuCau,
-                        x => x.SoLuong);
-
-                foreach (
-                    var input in
-                    vm.ChiTiet ??
-                    new List<DonMuaHangItemViewModel>())
+                if (!requestDetails.TryGetValue(input.MaChiTietYeuCau, out var ycct))
                 {
-                    if (!requestDetails.TryGetValue(
-                            input.MaChiTietYeuCau,
-                            out var ycct))
-                    {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau} không thuộc yêu cầu {vm.MaYeuCau}.");
-
-                        continue;
-                    }
-
-                    if (ycct.MaHang != input.MaHang)
-                    {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            $"Mặt hàng của chi tiết yêu cầu {input.MaChiTietYeuCau} không hợp lệ.");
-
-                        continue;
-                    }
-
-                    var soLuongDaDat =
-                        daDat.GetValueOrDefault(
-                            input.MaChiTietYeuCau);
-
-                    var conDuocDat =
-                        Math.Max(
-                            0,
-                            ycct.SoLuongDuyet -
-                            soLuongDaDat);
-
-                    if (input.SoLuongDat < 0)
-                    {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: số lượng đặt không được âm.");
-
-                        continue;
-                    }
-
-                    if (input.SoLuongDat == 0)
-                        continue;
-
-                    if (input.SoLuongDat >
-                        conDuocDat)
-                    {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: chỉ còn được đặt tối đa {conDuocDat}.");
-
-                        continue;
-                    }
-
-                    var gia =
-                        input.DonGiaMua;
-
-                    if (gia < 0)
-                    {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: đơn giá không được âm.");
-
-                        continue;
-                    }
-
-                    var giaBao =
-                        await _context.NhaCungCapHangHoa
-                            .AsNoTracking()
-                            .Where(x =>
-                                x.MaNhaCungCap ==
-                                    vm.MaNhaCungCap &&
-                                x.MaHang ==
-                                    input.MaHang &&
-                                x.TrangThai)
-                            .Select(x =>
-                                (decimal?)x.DonGiaBao)
-                            .FirstOrDefaultAsync();
-
-                    if (giaBao.HasValue &&
-                        gia <= 0)
-                    {
-                        gia = giaBao.Value;
-                    }
-
-                    var chiTiet =
-                        new ChiTietDonMua
-                        {
-                            MaChiTietYeuCau =
-                                input.MaChiTietYeuCau,
-
-                            MaHang =
-                                input.MaHang,
-
-                            SoLuongDat =
-                                input.SoLuongDat,
-
-                            DonGiaMua =
-                                gia
-                        };
-
-                    validDetails.Add(
-                        chiTiet);
-
-                    tongTien +=
-                        chiTiet.ThanhTien;
+                    ModelState.AddModelError(string.Empty, $"Chi tiết yêu cầu {input.MaChiTietYeuCau} không thuộc yêu cầu {vm.MaYeuCau}.");
+                    continue;
                 }
+                if (ycct.MaHang != input.MaHang)
+                {
+                    ModelState.AddModelError(string.Empty, $"Mặt hàng của chi tiết yêu cầu {input.MaChiTietYeuCau} không hợp lệ.");
+                    continue;
+                }
+
+                var conDuocDat = Math.Max(0, ycct.SoLuongDuyet - daDat.GetValueOrDefault(input.MaChiTietYeuCau));
+
+                if (input.SoLuongDat < 0)
+                {
+                    ModelState.AddModelError(string.Empty, $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: số lượng đặt không được âm.");
+                    continue;
+                }
+                if (input.SoLuongDat == 0)
+                    continue;
+                if (input.SoLuongDat > conDuocDat)
+                {
+                    ModelState.AddModelError(string.Empty, $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: chỉ còn được đặt tối đa {conDuocDat}.");
+                    continue;
+                }
+
+                var gia = input.DonGiaMua;
+                if (gia < 0)
+                {
+                    ModelState.AddModelError(string.Empty, $"Chi tiết yêu cầu {input.MaChiTietYeuCau}: đơn giá không được âm.");
+                    continue;
+                }
+
+                var giaBao = await _context.NhaCungCapHangHoa
+                    .AsNoTracking()
+                    .Where(x => x.MaNhaCungCap == vm.MaNhaCungCap && x.MaHang == input.MaHang && x.TrangThai)
+                    .Select(x => (decimal?)x.DonGiaBao)
+                    .FirstOrDefaultAsync();
+                if (giaBao.HasValue && gia <= 0)
+                    gia = giaBao.Value;
+
+                var chiTiet = new ChiTietDonMua
+                {
+                    MaChiTietYeuCau = input.MaChiTietYeuCau,
+                    MaHang = input.MaHang,
+                    SoLuongDat = input.SoLuongDat,
+                    DonGiaMua = gia
+                };
+                validDetails.Add(chiTiet);
+                tongTien += chiTiet.ThanhTien;
             }
 
             if (validDetails.Count == 0)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Đơn mua phải có ít nhất một mặt hàng có số lượng đặt > 0.");
-            }
+                ModelState.AddModelError(string.Empty, "Đơn mua phải có ít nhất một mặt hàng có số lượng đặt > 0.");
 
             if (!ModelState.IsValid)
             {
                 await LoadCreateSelectLists();
                 await ReloadCreateQuantities(vm);
-
                 return View(vm);
             }
 
             var donMua = new DonMuaHang
             {
-                MaYeuCau =
-                    vm.MaYeuCau,
-
-                MaNhaCungCap =
-                    vm.MaNhaCungCap,
-
-                NguoiLap =
-                    vm.NguoiLap,
-
-                NgayDat =
-                    DateTime.Today,
-
-                NgayGiaoDuKien =
-                    vm.NgayGiaoDuKien,
-
-                TrangThai =
-                    "DaDat",
-
-                TongTien =
-                    tongTien,
-
-                GhiChu =
-                    vm.GhiChu,
-
-                ChiTietDonMuas =
-                    validDetails
+                MaYeuCau = vm.MaYeuCau,
+                MaNhaCungCap = vm.MaNhaCungCap,
+                NguoiLap = vm.NguoiLap,
+                NgayDat = DateTime.Today,
+                NgayGiaoDuKien = vm.NgayGiaoDuKien,
+                TrangThai = "DaDat",
+                TongTien = tongTien,
+                GhiChu = vm.GhiChu,
+                ChiTietDonMuas = validDetails
             };
-
-            _context.DonMuaHang.Add(
-                donMua);
-
+            _context.DonMuaHang.Add(donMua);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(
-                nameof(Details),
-                new
-                {
-                    madonmua =
-                        donMua.MaDonMua
-                });
+            return RedirectToAction(nameof(Details), new { madonmua = donMua.MaDonMua });
         }
 
-        public async Task<IActionResult> Details(
-            int? madonmua)
+        public async Task<IActionResult> Details(int? madonmua)
         {
             if (madonmua == null)
                 return NotFound();
 
-            var donMua =
-                await _context.DonMuaHang
-                    .AsNoTracking()
-                    .Include(d =>
-                        d.YeuCauMuaHang)
-                    .Include(d =>
-                        d.NhaCungCap)
-                    .Include(d =>
-                        d.NguoiLapNavigation)
-                    .Include(d =>
-                        d.ChiTietDonMuas)
-                        .ThenInclude(c =>
-                            c.HangHoa)
-                    .Include(d =>
-                        d.LanGiaoHangs)
-                        .ThenInclude(l =>
-                            l.NguoiNhanNavigation)
-                    .Include(d =>
-                        d.ThanhToanDonMuas)
-                    .FirstOrDefaultAsync(
-                        d =>
-                            d.MaDonMua ==
-                            madonmua.Value);
+            var donMua = await _context.DonMuaHang
+                .AsNoTracking()
+                .Include(d => d.YeuCauMuaHang)
+                .Include(d => d.NhaCungCap)
+                .Include(d => d.NguoiLapNavigation)
+                .Include(d => d.ChiTietDonMuas).ThenInclude(c => c.HangHoa)
+                .Include(d => d.LanGiaoHangs).ThenInclude(l => l.NguoiNhanNavigation)
+                .Include(d => d.ThanhToanDonMuas)
+                .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
 
             if (donMua == null)
                 return NotFound();
 
-            var received =
-                await _context.ChiTietGiaoHang
-                    .Where(g =>
-                        g.ChiTietDonMua
-                            .DonMuaHang
-                            .MaDonMua ==
-                            madonmua.Value &&
-                        g.LanGiaoHang.TrangThai)
-                    .GroupBy(
-                        g => g.MaChiTietDon)
-                    .Select(g => new
-                    {
-                        MaChiTietDon =
-                            g.Key,
-
-                        SoLuong =
-                            g.Sum(x =>
-                                x.SoLuongNhan)
-                    })
-                    .ToDictionaryAsync(
-                        x =>
-                            x.MaChiTietDon,
-                        x =>
-                            x.SoLuong);
-
-            ViewBag.DaNhan =
-                received;
+            ViewBag.DaNhan = await _context.ChiTietGiaoHang
+                .Where(g => g.ChiTietDonMua.DonMuaHang.MaDonMua == madonmua.Value && g.LanGiaoHang.TrangThai)
+                .GroupBy(g => g.MaChiTietDon)
+                .Select(g => new { MaChiTietDon = g.Key, SoLuong = g.Sum(x => x.SoLuongNhan) })
+                .ToDictionaryAsync(x => x.MaChiTietDon, x => x.SoLuong);
 
             return View(donMua);
         }
@@ -506,10 +273,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             if (madonmua == null)
                 return NotFound();
 
-            var don = await _context.DonMuaHang
-                .AsNoTracking()
+            var don = await _context.DonMuaHang.AsNoTracking()
                 .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
-
             if (don == null)
                 return NotFound();
 
@@ -525,18 +290,12 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(
-            int? madonmua,
-            int maNhaCungCap,
-            DateTime? ngayGiaoDuKien,
-            string? ghiChu)
+        public async Task<IActionResult> Edit(int? madonmua, int maNhaCungCap, DateTime? ngayGiaoDuKien, string? ghiChu)
         {
             if (madonmua == null)
                 return NotFound();
 
-            var don = await _context.DonMuaHang
-                .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
-
+            var don = await _context.DonMuaHang.FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
             if (don == null)
                 return NotFound();
 
@@ -546,40 +305,21 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 return RedirectToAction(nameof(Details), new { madonmua });
             }
 
-            var coGiao = await _context.LanGiaoHang
-                .AnyAsync(l => l.MaDonMua == don.MaDonMua);
+            var coGiao = await _context.LanGiaoHang.AnyAsync(l => l.MaDonMua == don.MaDonMua);
+            var choDoiNcc = (don.TrangThai == "Nhap" || don.TrangThai == "DaDat") && !coGiao;
 
-            var choDoiNcc =
-                (don.TrangThai == "Nhap" || don.TrangThai == "DaDat") &&
-                !coGiao;
-
-            if (ngayGiaoDuKien.HasValue &&
-                ngayGiaoDuKien.Value.Date < don.NgayDat.Date)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Ngày giao dự kiến không được trước ngày đặt.");
-            }
+            if (ngayGiaoDuKien.HasValue && ngayGiaoDuKien.Value.Date < don.NgayDat.Date)
+                ModelState.AddModelError(string.Empty, "Ngày giao dự kiến không được trước ngày đặt.");
 
             if (ghiChu != null && ghiChu.Length > 500)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Ghi chú tối đa 500 ký tự.");
-            }
+                ModelState.AddModelError(string.Empty, "Ghi chú tối đa 500 ký tự.");
 
             if (choDoiNcc && maNhaCungCap != don.MaNhaCungCap)
             {
-                var ncc = await _context.NhaCungCap
-                    .AsNoTracking()
+                var ncc = await _context.NhaCungCap.AsNoTracking()
                     .FirstOrDefaultAsync(n => n.MaNhaCungCap == maNhaCungCap);
-
                 if (ncc == null || !ncc.TrangThai)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Nhà cung cấp không tồn tại hoặc đã ngừng hoạt động.");
-                }
+                    ModelState.AddModelError(string.Empty, "Nhà cung cấp không tồn tại hoặc đã ngừng hoạt động.");
             }
 
             if (!ModelState.IsValid)
@@ -588,7 +328,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 don.GhiChu = ghiChu;
                 if (choDoiNcc)
                     don.MaNhaCungCap = maNhaCungCap;
-
                 await NapNhaCungCapSua(don);
                 return View(don);
             }
@@ -597,7 +336,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             don.GhiChu = ghiChu;
             if (choDoiNcc)
                 don.MaNhaCungCap = maNhaCungCap;
-
             await _context.SaveChangesAsync();
 
             TempData["ThanhCong"] = "Đã cập nhật đơn mua.";
@@ -611,9 +349,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             if (madonmua == null)
                 return NotFound();
 
-            var don = await _context.DonMuaHang
-                .FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
-
+            var don = await _context.DonMuaHang.FirstOrDefaultAsync(d => d.MaDonMua == madonmua.Value);
             if (don == null)
                 return NotFound();
 
@@ -636,122 +372,60 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             return RedirectToAction(nameof(Details), new { madonmua });
         }
 
+        private async Task<Dictionary<int, int>> LayDaDat(List<int> maChiTietYeuCau)
+        {
+            return await _context.ChiTietDonMua
+                .Where(c => maChiTietYeuCau.Contains(c.MaChiTietYeuCau) && c.DonMuaHang.TrangThai != "DaHuy")
+                .GroupBy(c => c.MaChiTietYeuCau)
+                .Select(g => new { g.Key, SoLuong = g.Sum(x => x.SoLuongDat) })
+                .ToDictionaryAsync(x => x.Key, x => x.SoLuong);
+        }
+
         private async Task NapNhaCungCapSua(DonMuaHang don)
         {
-            var coGiao = await _context.LanGiaoHang
-                .AnyAsync(l => l.MaDonMua == don.MaDonMua);
-
-            ViewBag.ChoDoiNcc =
-                (don.TrangThai == "Nhap" || don.TrangThai == "DaDat") &&
-                !coGiao;
-
-            ViewBag.NhaCungCaps =
-                await _context.NhaCungCap
-                    .AsNoTracking()
-                    .Where(x =>
-                        x.TrangThai ||
-                        x.MaNhaCungCap == don.MaNhaCungCap)
-                    .OrderBy(x => x.TenNhaCungCap)
-                    .ToListAsync();
+            var coGiao = await _context.LanGiaoHang.AnyAsync(l => l.MaDonMua == don.MaDonMua);
+            ViewBag.ChoDoiNcc = (don.TrangThai == "Nhap" || don.TrangThai == "DaDat") && !coGiao;
+            ViewBag.NhaCungCaps = await _context.NhaCungCap
+                .AsNoTracking()
+                .Where(x => x.TrangThai || x.MaNhaCungCap == don.MaNhaCungCap)
+                .OrderBy(x => x.TenNhaCungCap)
+                .ToListAsync();
         }
 
         private async Task LoadCreateSelectLists()
         {
-            ViewBag.NhaCungCaps =
-                await _context.NhaCungCap
-                    .AsNoTracking()
-                    .Where(x =>
-                        x.TrangThai)
-                    .OrderBy(x =>
-                        x.TenNhaCungCap)
-                    .ToListAsync();
-
-            ViewBag.TaiKhoans =
-                await _context.TaiKhoan
-                    .AsNoTracking()
-                    .Where(x =>
-                        x.TrangThai)
-                    .OrderBy(x =>
-                        x.HoTen)
-                    .ToListAsync();
+            ViewBag.NhaCungCaps = await _context.NhaCungCap
+                .AsNoTracking().Where(x => x.TrangThai).OrderBy(x => x.TenNhaCungCap).ToListAsync();
+            ViewBag.TaiKhoans = await _context.TaiKhoan
+                .AsNoTracking().Where(x => x.TrangThai).OrderBy(x => x.HoTen).ToListAsync();
         }
 
-        private async Task ReloadCreateQuantities(
-            DonMuaHangCreateViewModel vm)
+        private async Task ReloadCreateQuantities(DonMuaHangCreateViewModel vm)
         {
-            var ids =
-                (vm.ChiTiet ??
-                    new List<DonMuaHangItemViewModel>())
-                .Select(x =>
-                    x.MaChiTietYeuCau)
-                .ToList();
-
+            var ids = (vm.ChiTiet ?? new List<DonMuaHangItemViewModel>())
+                .Select(x => x.MaChiTietYeuCau).ToList();
             if (ids.Count == 0)
                 return;
 
-            var details =
-                await _context.ChiTietYeuCau
-                    .AsNoTracking()
-                    .Include(x =>
-                        x.HangHoa)
-                    .Where(x =>
-                        ids.Contains(
-                            x.MaChiTietYeuCau))
-                    .ToListAsync();
-
-            var daDat =
-                await _context.ChiTietDonMua
-                    .Where(c =>
-                        ids.Contains(
-                            c.MaChiTietYeuCau) &&
-                        c.DonMuaHang.TrangThai !=
-                            "DaHuy")
-                    .GroupBy(
-                        c =>
-                            c.MaChiTietYeuCau)
-                    .Select(g => new
-                    {
-                        g.Key,
-                        SoLuong =
-                            g.Sum(x =>
-                                x.SoLuongDat)
-                    })
-                    .ToDictionaryAsync(
-                        x => x.Key,
-                        x => x.SoLuong);
+            var details = await _context.ChiTietYeuCau
+                .AsNoTracking()
+                .Include(x => x.HangHoa)
+                .Where(x => ids.Contains(x.MaChiTietYeuCau))
+                .ToListAsync();
+            var daDat = await LayDaDat(ids);
 
             foreach (var item in vm.ChiTiet)
             {
-                var d =
-                    details.FirstOrDefault(
-                        x =>
-                            x.MaChiTietYeuCau ==
-                            item.MaChiTietYeuCau);
-
+                var d = details.FirstOrDefault(x => x.MaChiTietYeuCau == item.MaChiTietYeuCau);
                 if (d == null)
                     continue;
 
-                item.MaHang =
-                    d.MaHang;
-
-                item.TenHang =
-                    d.HangHoa.TenHang;
-
-                item.SoLuongYeuCau =
-                    d.SoLuongYeuCau;
-
-                item.SoLuongDuyet =
-                    d.SoLuongDuyet;
-
-                item.SoLuongDaDat =
-                    daDat.GetValueOrDefault(
-                        item.MaChiTietYeuCau);
-
-                item.SoLuongConDuocDat =
-                    Math.Max(
-                        0,
-                        d.SoLuongDuyet -
-                        item.SoLuongDaDat);
+                item.MaHang = d.MaHang;
+                item.TenHang = d.HangHoa.TenHang;
+                item.SoLuongYeuCau = d.SoLuongYeuCau;
+                item.SoLuongDuyet = d.SoLuongDuyet;
+                item.SoLuongDaDat = daDat.GetValueOrDefault(item.MaChiTietYeuCau);
+                item.SoLuongConDuocDat = Math.Max(0, d.SoLuongDuyet - item.SoLuongDaDat);
             }
         }
     }

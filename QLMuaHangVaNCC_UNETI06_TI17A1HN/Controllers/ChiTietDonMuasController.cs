@@ -13,8 +13,10 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int? madonmua)
+        public async Task<IActionResult> Index(int? madonmua, int page = 1)
         {
+            int pageSize = 10;
+
             var query = _context.ChiTietDonMua
                 .AsNoTracking()
                 .Include(x => x.DonMuaHang)
@@ -30,8 +32,16 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 ViewBag.MaDonMua = madonmua.Value;
             }
 
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+            page = totalPages > 0 ? Math.Min(page, totalPages) : 1;
+
             var danhSach = await query
                 .OrderByDescending(x => x.MaChiTietDon)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             var ids = danhSach.Select(x => x.MaChiTietDon).ToList();
@@ -47,6 +57,8 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 .ToDictionaryAsync(x => x.MaChiTietDon, x => x.SoLuong);
 
             ViewBag.DaNhan = daNhan;
+            ViewBag.Page = page;
+            ViewBag.TotalPages = totalPages;
 
             return View(danhSach);
         }
