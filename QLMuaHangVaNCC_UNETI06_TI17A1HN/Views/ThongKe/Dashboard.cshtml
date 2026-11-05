@@ -10,6 +10,25 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
         <h3 class="fw-bold text-primary"><i class="bi bi-speedometer"></i> BẢNG ĐIỀU KHIỂN & THỐNG KÊ (DASHBOARD)</h3>
+
+        <!-- TÍNH NĂNG CHỌN THÁNG/NĂM CHO DASHBOARD -->
+        <form method="get" class="d-flex gap-2">
+            <select name="thang" class="form-select form-select-sm" style="width: 120px;">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    if (ViewBag.ThangHienTai == i)
+                    {
+                        <option value="@i" selected>Tháng @i</option>
+                    }
+                    else
+                    {
+                        <option value="@i">Tháng @i</option>
+                    }
+                }
+            </select>
+            <input type="number" name="nam" value="@ViewBag.NamHienTai" class="form-control form-control-sm" style="width: 100px;" min="2020" max="2100" />
+            <button type="submit" class="btn btn-primary btn-sm px-3">Lọc</button>
+        </form>
     </div>
 
     <!-- TỔNG QUAN TÀI CHÍNH & HOẠT ĐỘNG -->
@@ -25,7 +44,8 @@
         <div class="col-md-3">
             <div class="card border-success h-100 shadow-sm">
                 <div class="card-body text-center bg-light">
-                    <h6 class="text-muted text-uppercase fw-bold">Mua Trong Tháng @DateTime.Now.Month</h6>
+                    <!-- Hiển thị đúng tháng/năm đang được chọn -->
+                    <h6 class="text-muted text-uppercase fw-bold">Mua Trong Tháng @ViewBag.ThangHienTai/@ViewBag.NamHienTai</h6>
                     <h4 class="fw-bold text-success mt-3">@Model.TongGiaTriMuaTrongThang.ToString("N0") đ</h4>
                 </div>
             </div>
@@ -98,45 +118,77 @@
     </div>
 
     <!-- HÀCÁC YÊU CẦU MỨC ƯU TIÊN CAO -->
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-danger text-white fw-bold">
             <i class="bi bi-exclamation-triangle"></i> Danh Sách Yêu Cầu Mức Ưu Tiên Cao Đang Chờ Xử Lý
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>Mã YC</th>
-                        <th>Bộ phận đề nghị</th>
-                        <th>Ngày yêu cầu</th>
-                        <th>Ngày cần hàng</th>
-                        <th>Mức ưu tiên</th>
-                        <th>Trạng thái</th>
-                        <th>Lý do mua</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if(Model.YeuCauUuTienCao != null && Model.YeuCauUuTienCao.Any())
-                    {
-                        foreach (var yc in Model.YeuCauUuTienCao)
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="bangYeuCau" class="table table-hover align-middle mb-0 w-100">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>Mã YC</th>
+                            <th>Bộ phận đề nghị</th>
+                            <th>Ngày yêu cầu</th>
+                            <th>Ngày cần hàng</th>
+                            <th>Mức ưu tiên</th>
+                            <th>Trạng thái</th>
+                            <th>Lý do mua</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.YeuCauUuTienCao != null && Model.YeuCauUuTienCao.Any())
                         {
-                            <tr>
-                                <td class="text-center fw-bold">#@yc.MaYeuCau</td>
-                                <td>@yc.BoPhanDeNghi?.TenBoPhan</td>
-                                <td class="text-center">@yc.NgayYeuCau.ToString("dd/MM/yyyy")</td>
-                                <td class="text-center text-danger fw-bold">@yc.NgayCanHang.ToString("dd/MM/yyyy")</td>
-                                <td class="text-center"><span class="badge bg-danger">@yc.MucDoUuTien</span></td>
-                                <td class="text-center"><span class="badge bg-secondary">@yc.TrangThai</span></td>
-                                <td>@yc.LyDoMua</td>
-                            </tr>
+                            foreach (var yc in Model.YeuCauUuTienCao)
+                            {
+                                <tr>
+                                    <td class="text-center fw-bold">#@yc.MaYeuCau</td>
+                                    <td>@yc.BoPhanDeNghi?.TenBoPhan</td>
+                                    <td class="text-center">@yc.NgayYeuCau.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center text-danger fw-bold">@yc.NgayCanHang.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center"><span class="badge bg-danger">@yc.MucDoUuTien</span></td>
+                                    <td class="text-center"><span class="badge bg-secondary">@yc.TrangThai</span></td>
+                                    <td>@yc.LyDoMua</td>
+                                </tr>
+                            }
                         }
-                    }
-                    else
-                    {
-                        <tr><td colspan="7" class="text-center text-muted py-4">Tuyệt vời! Hiện không có yêu cầu ưu tiên cao nào bị tồn đọng.</td></tr>
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- ================== SCRIPT PHÂN TRANG BẰNG DATATABLES ================== -->
+@section Scripts {
+    <!-- CSS cho DataTables Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <!-- JS cho DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#bangYeuCau').DataTable({
+                "language": {
+                    "lengthMenu": "Hiển thị _MENU_ dòng",
+                    "search": "Tìm nhanh:",
+                    "zeroRecords": "Không có yêu cầu ưu tiên cao nào",
+                    "info": "Trang _PAGE_ / _PAGES_",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ dòng)",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Tiếp",
+                        "previous": "Trước"
+                    }
+                },
+                "pageLength": 5, // Số dòng hiển thị mặc định
+                "lengthMenu": [5, 10, 15],
+                "ordering": false // Giữ nguyên thứ tự sắp xếp từ Controller (NgayYeuCau giảm dần)
+            });
+        });
+    </script>
+}

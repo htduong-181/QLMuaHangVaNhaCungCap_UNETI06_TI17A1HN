@@ -139,7 +139,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
 
             vm.TongNCCDangHoatDong = _context.NhaCungCap.Count(n => n.TrangThai == true);
 
-            // Gom các trạng thái có thể lưu trùng lặp vào chung 1 điều kiện
             vm.SoYeuCauChoDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "ChoDuyet" || y.TrangThai == "Chờ duyệt");
             vm.SoYeuCauDaDuyet = _context.YeuCauMuaHang.Count(y => y.TrangThai == "DaDuyet" || y.TrangThai == "Đã duyệt");
             vm.SoYeuCauTuChoi = _context.YeuCauMuaHang.Count(y => y.TrangThai == "TuChoi" || y.TrangThai == "Từ chối");
@@ -179,7 +178,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                 .Where(y => (y.MucDoUuTien == "Cao" || y.MucDoUuTien == "Khẩn cấp")
                          && y.TrangThai != "Hoàn thành" && y.TrangThai != "Đã hủy")
                 .OrderByDescending(y => y.NgayYeuCau)
-                .Take(10)
                 .ToList();
 
             ViewBag.ThangHienTai = currentMonth;

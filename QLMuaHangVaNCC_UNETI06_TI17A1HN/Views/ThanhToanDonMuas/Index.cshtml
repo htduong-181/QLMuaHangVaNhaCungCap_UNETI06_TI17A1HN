@@ -23,7 +23,7 @@
         </div>
     }
 
-    <!-- BỘ LỌC TÌM KIẾM -->
+    <!-- BỘ LỌC TÌM KIẾM TỪ BACKEND -->
     <form method="get" class="card card-body bg-light mb-4 shadow-sm border-0">
         <div class="row g-2">
             <div class="col-md-3">
@@ -67,126 +67,164 @@
         <div class="card-header bg-dark text-white fw-bold">
             1. Tình Trạng Thanh Toán & Công Nợ Theo Đơn Mua
         </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover mb-0">
-                <thead class="table-secondary align-middle text-center">
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Nhà cung cấp</th>
-                        <th>Ngày đặt</th>
-                        <th>Tổng tiền đơn</th>
-                        <th>Đã thanh toán</th>
-                        <th>Còn lại (Nợ)</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody class="align-middle">
-                    @if (danhSachDon != null && danhSachDon.Any())
-                    {
-                        foreach (var d in danhSachDon)
-                        {
-                            <tr>
-                                <td class="text-center">
-                                    <a asp-controller="DonMuaHangs" asp-action="Details" asp-route-id="@d.MaDonMua" class="fw-bold">
-                                        #@d.MaDonMua
-                                    </a>
-                                </td>
-                                <td>@d.TenNhaCungCap</td>
-                                <td class="text-center">@d.NgayDat.ToString("dd/MM/yyyy")</td>
-                                <td class="text-end fw-bold">@d.TongTienDon.ToString("N0") đ</td>
-                                <td class="text-end text-success">@d.TongDaThanhToan.ToString("N0") đ</td>
-                                <td class="text-end text-danger fw-bold">@d.SoTienConLai.ToString("N0") đ</td>
-                                <td class="text-center">
-                                    @if (d.TrangThaiThanhToan == "Đã thanh toán")
-                                    {
-                                        <span class="badge bg-success">Đã thanh toán</span>
-                                    }
-                                    else if (d.TrangThaiThanhToan == "Thanh toán một phần")
-                                    {
-                                        <span class="badge bg-warning text-dark">Thanh toán một phần</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">Chưa thanh toán</span>
-                                    }
-                                </td>
-                                <td class="text-center">
-                                    @if (d.SoTienConLai > 0)
-                                    {
-                                        <a asp-action="Create" asp-route-maDonMua="@d.MaDonMua" class="btn btn-sm btn-primary">Thanh toán</a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small"><i class="bi bi-check-circle-fill"></i> Đã tất toán</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="bangCongNo" class="table table-bordered table-hover mb-0 w-100">
+                    <thead class="table-secondary align-middle text-center">
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-3">Không có đơn mua nào phù hợp với điều kiện lọc.</td>
+                            <th>Mã đơn</th>
+                            <th>Nhà cung cấp</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền đơn</th>
+                            <th>Đã thanh toán</th>
+                            <th>Còn lại (Nợ)</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="align-middle">
+                        @if (danhSachDon != null && danhSachDon.Any())
+                        {
+                            foreach (var d in danhSachDon)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <a asp-controller="DonMuaHangs" asp-action="Details" asp-route-id="@d.MaDonMua" class="fw-bold">
+                                            #@d.MaDonMua
+                                        </a>
+                                    </td>
+                                    <td>@d.TenNhaCungCap</td>
+                                    <td class="text-center">@d.NgayDat.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end fw-bold">@d.TongTienDon.ToString("N0") đ</td>
+                                    <td class="text-end text-success">@d.TongDaThanhToan.ToString("N0") đ</td>
+                                    <td class="text-end text-danger fw-bold">@d.SoTienConLai.ToString("N0") đ</td>
+                                    <td class="text-center">
+                                        @if (d.TrangThaiThanhToan == "Đã thanh toán")
+                                        {
+                                            <span class="badge bg-success">Đã thanh toán</span>
+                                        }
+                                        else if (d.TrangThaiThanhToan == "Thanh toán một phần")
+                                        {
+                                            <span class="badge bg-warning text-dark">Thanh toán một phần</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Chưa thanh toán</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (d.SoTienConLai > 0)
+                                        {
+                                            <a asp-action="Create" asp-route-maDonMua="@d.MaDonMua" class="btn btn-sm btn-primary">Thanh toán</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small"><i class="bi bi-check-circle-fill"></i> Đã tất toán</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- BẢNG 2: LỊCH SỬ CÁC LẦN THANH TOÁN CHI TIẾT -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
         <div class="card-header bg-info text-white fw-bold">
             2. Nhật Ký Chi Tiết Các Lần Đã Thanh Toán
         </div>
-        <div class="table-responsive">
-            <table class="table table-striped mb-0">
-                <thead class="align-middle text-center">
-                    <tr>
-                        <th>Mã TT</th>
-                        <th>Đơn mua</th>
-                        <th>Nhà cung cấp</th>
-                        <th>Ngày thanh toán</th>
-                        <th>Số tiền thanh toán</th>
-                        <th>Phương thức</th>
-                        <th>Người thực hiện</th>
-                        <th>Ghi chú</th>
-                        <th>Chi tiết</th>
-                    </tr>
-                </thead>
-                <tbody class="align-middle">
-                    @if (Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="text-center">#@item.MaThanhToan</td>
-                                <td class="text-center fw-bold">#@item.MaDonMua</td>
-                                <td>@item.DonMuaHang?.NhaCungCap?.TenNhaCungCap</td>
-                                <td class="text-center">@item.NgayThanhToan.ToString("dd/MM/yyyy")</td>
-                                <td class="text-end fw-bold text-success">@item.SoTienThanhToan.ToString("N0") đ</td>
-                                <td class="text-center">
-                                    @(item.PhuongThuc == "ChuyenKhoan" ? "Chuyển khoản" :
-                                      item.PhuongThuc == "TienMat" ? "Tiền mặt" :
-                                      item.PhuongThuc == "UyNhiemChi" ? "Ủy nhiệm chi" : item.PhuongThuc)
-                                </td>
-                                <td>@(item.NguoiThucHienNavigation?.HoTen ?? $"Mã TK: {item.NguoiThucHien}")</td>
-                                <td>@item.GhiChu</td>
-                                <td class="text-center">
-                                    <a asp-action="Details" asp-route-id="@item.MaThanhToan" class="btn btn-sm btn-outline-dark">Xem</a>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="bangNhatKy" class="table table-striped mb-0 w-100">
+                    <thead class="align-middle text-center">
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-3">Chưa có giao dịch thanh toán nào được ghi nhận.</td>
+                            <th>Mã TT</th>
+                            <th>Đơn mua</th>
+                            <th>Nhà cung cấp</th>
+                            <th>Ngày thanh toán</th>
+                            <th>Số tiền thanh toán</th>
+                            <th>Phương thức</th>
+                            <th>Người thực hiện</th>
+                            <th>Ghi chú</th>
+                            <th>Chi tiết</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="align-middle">
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">#@item.MaThanhToan</td>
+                                    <td class="text-center fw-bold">#@item.MaDonMua</td>
+                                    <td>@item.DonMuaHang?.NhaCungCap?.TenNhaCungCap</td>
+                                    <td class="text-center">@item.NgayThanhToan.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end fw-bold text-success">@item.SoTienThanhToan.ToString("N0") đ</td>
+                                    <td class="text-center">
+                                        @(item.PhuongThuc == "ChuyenKhoan" ? "Chuyển khoản" :
+                                          item.PhuongThuc == "TienMat" ? "Tiền mặt" :
+                                          item.PhuongThuc == "UyNhiemChi" ? "Ủy nhiệm chi" : item.PhuongThuc)
+                                    </td>
+                                    <td>@(item.NguoiThucHienNavigation?.HoTen ?? $"Mã TK: {item.NguoiThucHien}")</td>
+                                    <td>@item.GhiChu</td>
+                                    <td class="text-center">
+                                        <a asp-action="Details" asp-route-id="@item.MaThanhToan" class="btn btn-sm btn-outline-dark">Xem</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- ================== SCRIPT PHÂN TRANG BẰNG DATATABLES ================== -->
+@section Scripts {
+    <!-- CSS cho DataTables Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <!-- JS cho DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Cấu hình ngôn ngữ tiếng Việt
+            var languageVN = {
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "search": "Tìm nhanh trong trang:",
+                "zeroRecords": "Không có dữ liệu phù hợp",
+                "info": "Trang _PAGE_ / _PAGES_",
+                "infoEmpty": "Không có dữ liệu",
+                "infoFiltered": "(lọc từ _MAX_ dòng)",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Tiếp",
+                    "previous": "Trước"
+                }
+            };
+
+            // Kích hoạt phân trang cho Bảng 1
+            $('#bangCongNo').DataTable({
+                "language": languageVN,
+                "pageLength": 5, // Số dòng trên 1 trang
+                "lengthMenu": [5, 10, 20, 50],
+                "ordering": false // Tắt sắp xếp mặc định để giữ nguyên Order by từ Controller
+            });
+
+            // Kích hoạt phân trang cho Bảng 2
+            $('#bangNhatKy').DataTable({
+                "language": languageVN,
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 20, 50],
+                "ordering": false
+            });
+        });
+    </script>
+}
