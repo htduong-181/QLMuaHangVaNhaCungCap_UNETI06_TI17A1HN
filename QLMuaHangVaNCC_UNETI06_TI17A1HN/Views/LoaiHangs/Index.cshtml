@@ -11,10 +11,10 @@
         <input name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tên loại hàng" />
         <button class="btn btn-outline-primary">Tìm</button>
     </form>
-    <a asp-action="Create" class="btn btn-success">+ Thêm loại hàng</a>
+    <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">+ Thêm loại hàng</a></div></div>
 </div>
 
-<table class="table table-bordered table-hover">
+<table id="tableLoaiHang" class="table table-bordered table-hover">
     <thead class="table-light">
         <tr>
             <th>@Html.DisplayNameFor(m => m.TenLoaiHang)</th>
@@ -33,17 +33,30 @@
                 @if (l.TrangThai) { <span class="badge bg-success">Hoạt động</span> }
                 else { <span class="badge bg-secondary">Ngừng</span> }
             </td>
-            <td class="d-flex gap-1">
-                <a asp-action="Edit" asp-route-id="@l.MaLoaiHang" class="btn btn-sm btn-primary">Sửa</a>
+            <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Edit" asp-route-id="@l.MaLoaiHang" class="dropdown-item">Sửa</a>
                 <form asp-action="DoiTrangThai" asp-route-id="@l.MaLoaiHang" method="post">
-                    <button class="btn btn-sm btn-warning">@(l.TrangThai ? "Ngừng" : "Kích hoạt")</button>
+                    <button class="dropdown-item">@(l.TrangThai ? "Ngừng" : "Kích hoạt")</button>
                 </form>
                 <form asp-action="Delete" asp-route-id="@l.MaLoaiHang" method="post"
                       onsubmit="return confirm('Xóa loại hàng này?')">
-                    <button class="btn btn-sm btn-danger">Xóa</button>
-                </form>
-            </td>
+                    <button class="dropdown-item">Xóa</button>
+                </form></div></div></td>
         </tr>
     }
     </tbody>
 </table>
+<!-- Vị trí hiển thị nút phân trang -->
+<div id="paginationLoaiHang"></div>
+
+<!-- Nhúng JavaScript dùng chung -->
+<script src="~/js/pagination.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initPagination({
+            table: "#tableLoaiHang",
+            pagination: "#paginationLoaiHang",
+            pageSize: 5
+        });
+    });
+</script>

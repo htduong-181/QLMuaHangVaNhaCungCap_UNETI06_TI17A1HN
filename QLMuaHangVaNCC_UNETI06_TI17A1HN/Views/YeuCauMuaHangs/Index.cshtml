@@ -1,4 +1,4 @@
-﻿@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.YeuCauMuaHang>
+@model IEnumerable<QLMuaHangVaNCC_UNETI06_TI17A1HN.Models.YeuCauMuaHang>
 @using QLMuaHangVaNCC_UNETI06_TI17A1HN.Models
 @{ ViewData["Title"] = "Yêu cầu mua hàng"; }
 
@@ -17,10 +17,10 @@
             }
         </select>
     </form>
-    <a asp-action="Create" class="btn btn-success">+ Tạo yêu cầu</a>
+    <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">+ Tạo yêu cầu</a></div></div>
 </div>
 
-<table class="table table-bordered table-hover">
+<table id="tableYeuCauMuaHang" class="table table-bordered table-hover">
     <thead class="table-light">
         <tr>
             <th>Mã</th><th>Bộ phận</th><th>Người lập</th><th>Ngày yêu cầu</th>
@@ -38,8 +38,23 @@
             <td>@y.NgayCanHang.ToString("dd/MM/yyyy")</td>
             <td>@MucDoUuTien.NhanTiengViet(y.MucDoUuTien)</td>
             <td><span class="badge bg-@TrangThaiYeuCau.MauBadge(y.TrangThai)">@TrangThaiYeuCau.NhanTiengViet(y.TrangThai)</span></td>
-            <td><a asp-action="Details" asp-route-id="@y.MaYeuCau" class="btn btn-sm btn-primary">Xem</a></td>
+            <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Details" asp-route-id="@y.MaYeuCau" class="dropdown-item">Xem</a></div></div></td>
         </tr>
     }
     </tbody>
 </table>
+<!-- Vị trí hiển thị nút phân trang -->
+<div id="paginationYeuCauMuaHang"></div>
+
+<!-- Nhúng JavaScript dùng chung -->
+<script src="~/js/pagination.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initPagination({
+            table: "#tableYeuCauMuaHang",
+            pagination: "#paginationYeuCauMuaHang",
+            pageSize: 5
+        });
+    });
+</script>

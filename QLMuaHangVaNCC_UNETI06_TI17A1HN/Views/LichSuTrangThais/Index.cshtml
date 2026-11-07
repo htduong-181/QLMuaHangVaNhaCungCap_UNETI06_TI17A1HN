@@ -7,9 +7,9 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create">Create New</a></div></div>
 </p>
-<table class="table">
+<table id="tableLichSuTrangThai" class="table">
     <thead>
         <tr>
             <th>
@@ -66,12 +66,25 @@
             <td>
                 @Html.DisplayFor(model => item.NguoiThucHienNavigation)
             </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+            <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
+                <a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">Chi tiết</a>
+                <a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id">Xóa</a></div></div></td>
         </tr>
 }
     </tbody>
 </table>
+<!-- Vị trí hiển thị nút phân trang -->
+<div id="paginationLichSuTrangThai"></div>
+
+<!-- Nhúng JavaScript dùng chung -->
+<script src="~/js/pagination.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initPagination({
+            table: "#tableLichSuTrangThai",
+            pagination: "#paginationLichSuTrangThai",
+            pageSize: 5
+        });
+    });
+</script>

@@ -13,12 +13,15 @@
         const tbody = table.querySelector("tbody");
         if (!tbody) return;
 
-        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const rows = Array.from(tbody.querySelectorAll("tr:not([data-pagination-empty])"));
+        const emptyRows = Array.from(tbody.querySelectorAll("tr[data-pagination-empty]"));
         const container = document.querySelector(options.pagination);
 
         if (!container) return;
 
         const pageSize = Math.max(1, Number(options.pageSize) || 5);
+        const showAlways = options.showAlways === true;
+        const showSummary = options.showSummary === true;
         const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
         let currentPage = 1;
 
@@ -33,6 +36,10 @@
                 row.hidden = index < start || index >= end;
                 row.style.display =
                     index >= start && index < end ? "" : "none";
+            });
+            emptyRows.forEach((row) => {
+                row.hidden = rows.length > 0;
+                row.style.display = rows.length > 0 ? "none" : "";
             });
 
             renderButtons();
@@ -61,7 +68,16 @@
                 "align-items-center", "flex-wrap", "mt-3"
             );
 
-            if (totalPages <= 1) return;
+            if (showSummary) {
+                const first = rows.length ? (currentPage - 1) * pageSize + 1 : 0;
+                const last = Math.min(currentPage * pageSize, rows.length);
+                const summary = document.createElement("span");
+                summary.className = "small text-muted me-2";
+                summary.textContent = `Hiển thị ${first}–${last} / ${rows.length} dòng`;
+                container.appendChild(summary);
+            }
+
+            if (totalPages <= 1 && !showAlways) return;
 
             container.appendChild(
                 createButton("«", 1, currentPage === 1)

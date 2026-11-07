@@ -26,9 +26,9 @@
         <button class="btn btn-outline-primary">Tìm</button>
     </form>
 
-    <a asp-action="Create" class="btn btn-success">
+    <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">
         + Thêm đơn vị tính
-    </a>
+    </a></div></div>
 </div>
 
 <table id="tableDonViTinh" class="table table-bordered table-hover">
@@ -57,18 +57,17 @@
                         <span class="badge bg-secondary">Ngừng</span>
                     }
                 </td>
-                <td>
-                    <div class="d-flex gap-1">
+                <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end">
                         <a asp-action="Edit"
                            asp-route-id="@l.MaDonViTinh"
-                           class="btn btn-sm btn-primary">
+                           class="dropdown-item">
                             Sửa
                         </a>
 
                         <form asp-action="DoiTrangThai"
                               asp-route-id="@l.MaDonViTinh"
                               method="post">
-                            <button class="btn btn-sm btn-warning">
+                            <button class="dropdown-item">
                                 @(l.TrangThai ? "Ngừng" : "Kích hoạt")
                             </button>
                         </form>
@@ -77,12 +76,11 @@
                               asp-route-id="@l.MaDonViTinh"
                               method="post"
                               onsubmit="return confirm('Xóa đơn vị tính này?')">
-                            <button class="btn btn-sm btn-danger">
+                            <button class="dropdown-item">
                                 Xóa
                             </button>
                         </form>
-                    </div>
-                </td>
+                    </div></div></td>
             </tr>
         }
     </tbody>

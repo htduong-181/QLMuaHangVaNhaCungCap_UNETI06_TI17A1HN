@@ -11,10 +11,10 @@
         <input name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tên đăng nhập / họ tên" />
         <button class="btn btn-outline-primary">Tìm</button>
     </form>
-    <a asp-action="Create" class="btn btn-success">+ Thêm tài khoản</a>
+    <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">+ Thêm tài khoản</a></div></div>
 </div>
 
-<table class="table table-bordered table-hover">
+<table id="tableTaiKhoan" class="table table-bordered table-hover">
     <thead class="table-light">
         <tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th></th></tr>
     </thead>
@@ -30,14 +30,27 @@
                 @if (t.TrangThai) { <span class="badge bg-success">Hoạt động</span> }
                 else { <span class="badge bg-secondary">Đã khóa</span> }
             </td>
-            <td class="d-flex gap-1">
-                <a asp-action="Edit" asp-route-id="@t.MaTaiKhoan" class="btn btn-sm btn-primary">Sửa</a>
+            <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Edit" asp-route-id="@t.MaTaiKhoan" class="dropdown-item">Sửa</a>
                 <form asp-action="DoiTrangThai" asp-route-id="@t.MaTaiKhoan" method="post"
                       onsubmit="return confirm('Đổi trạng thái tài khoản này?')">
-                    <button class="btn btn-sm btn-warning">@(t.TrangThai ? "Khóa" : "Mở khóa")</button>
-                </form>
-            </td>
+                    <button class="dropdown-item">@(t.TrangThai ? "Khóa" : "Mở khóa")</button>
+                </form></div></div></td>
         </tr>
     }
     </tbody>
 </table>
+<!-- Vị trí hiển thị nút phân trang -->
+<div id="paginationTaiKhoan"></div>
+
+<!-- Nhúng JavaScript dùng chung -->
+<script src="~/js/pagination.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initPagination({
+            table: "#tableTaiKhoan",
+            pagination: "#paginationTaiKhoan",
+            pageSize: 5
+        });
+    });
+</script>
