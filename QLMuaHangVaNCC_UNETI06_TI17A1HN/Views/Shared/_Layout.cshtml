@@ -1,10 +1,23 @@
-﻿<!DOCTYPE html>
+@{
+    var vaiTroHienTai = Context.Session.GetString("VaiTro");
+    var hoTenHienTai = Context.Session.GetString("HoTen");
+    var controllerHienTai = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    var menu = new[] {
+        new { Title="Tổng quan", Items=new[] { ("Home", "Trang chủ", "house-door-fill"), ("ThongKe", "Báo cáo thống kê", "bar-chart-line-fill") } },
+        new { Title="Danh mục", Items=new[] { ("HangHoas", "Hàng hóa", "box-seam"), ("LoaiHangs", "Loại hàng", "tags"), ("DonViTinhs", "Đơn vị tính", "rulers"), ("BoPhanDeNghis", "Bộ phận đề nghị", "building") } },
+        new { Title="Nhà cung cấp", Items=new[] { ("NhaCungCaps", "Danh sách NCC", "truck"), ("NhaCungCapHangHoas", "NCC - Hàng hóa", "boxes") } },
+        new { Title="Mua hàng", Items=new[] { ("YeuCauMuaHangs", "Yêu cầu mua hàng", "file-earmark-text"), ("ChiTietYeuCaus", "Chi tiết yêu cầu", "list-check"), ("DonMuaHangs", "Đơn mua hàng", "cart-check"), ("ChiTietDonMuas", "Chi tiết đơn mua", "receipt") } },
+        new { Title="Giao hàng & thanh toán", Items=new[] { ("LanGiaoHangs", "Lần giao hàng", "truck-flatbed"), ("ChiTietGiaoHangs", "Chi tiết giao hàng", "box-arrow-in-down"), ("ThanhToanDonMuas", "Thanh toán", "cash-coin") } },
+        new { Title="Hệ thống", Items=new[] { ("LichSuTrangThais", "Lịch sử trạng thái", "clock-history") } }
+    };
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>@ViewData["Title"] - Quản lý mua hàng</title>
+<<<<<<< main
 
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -356,14 +369,65 @@
 
     <!-- ================= JAVASCRIPT ================= -->
 
+=======
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/QLMuaHangVaNCC_UNETI06_TI17A1HN.styles.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+    <header class="admin-topbar">
+        <a class="admin-brand" asp-controller="Home" asp-action="Index"><i class="bi bi-cart-check-fill"></i><span>QUẢN LÝ MUA HÀNG</span></a>
+        <button class="admin-menu-toggle" id="sidebarToggle" type="button" aria-label="Mở hoặc đóng menu" aria-controls="adminSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
+        <div class="admin-top-title"><i class="bi bi-grid-1x2-fill me-2"></i>Hệ thống quản lý mua hàng và nhà cung cấp</div>
+        <div class="dropdown ms-auto">
+            <button type="button" class="admin-user dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-person-circle me-1"></i> @(hoTenHienTai ?? "Tài khoản")</button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                @if (vaiTroHienTai == "Admin") {
+                    <li><a class="dropdown-item" asp-controller="TaiKhoans" asp-action="Index"><i class="bi bi-people me-2"></i>Quản lý tài khoản</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                }
+                <li><a class="dropdown-item text-danger" asp-controller="TaiKhoans" asp-action="DangXuat"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+            </ul>
+        </div>
+    </header>
+    <div id="sidebarBackdrop" class="admin-backdrop"></div>
+    <aside id="adminSidebar" class="admin-sidebar" aria-label="Điều hướng chính">
+        <div class="admin-sidebar-heading"><i class="bi bi-grid me-2"></i>MENU QUẢN LÝ</div>
+        <nav>
+            @foreach(var group in menu) {
+                <div class="admin-nav-group-title">@group.Title</div>
+                @foreach(var item in group.Items) {
+                    <a class="admin-nav-link @(controllerHienTai == item.Item1 ? "active" : "")" asp-controller="@item.Item1" asp-action="Index"><i class="bi bi-@item.Item3"></i><span>@item.Item2</span></a>
+                }
+            }
+            @if(vaiTroHienTai == "Admin") {
+                <div class="admin-nav-group-title">Quản trị</div>
+                <a class="admin-nav-link @(controllerHienTai == "TaiKhoans" ? "active" : "")" asp-controller="TaiKhoans" asp-action="Index"><i class="bi bi-people"></i><span>Tài khoản</span></a>
+            }
+            <div class="admin-nav-group-title">Module 5</div>
+            <a class="admin-nav-link" asp-controller="ThongKe" asp-action="Dashboard"><i class="bi bi-speedometer2"></i><span>Dashboard nghiệp vụ</span></a>
+            <a class="admin-nav-link" asp-controller="ThongKe" asp-action="ThongKeGiaoHang"><i class="bi bi-truck"></i><span>Thống kê giao hàng</span></a>
+        </nav>
+    </aside>
+    <div class="admin-main">
+        <div class="admin-page-bar"><span><i class="bi bi-house-door me-1"></i> Hệ thống / <strong>@(ViewData["Title"] ?? "Trang chủ")</strong></span><span class="d-none d-md-inline"><i class="bi bi-calendar3 me-1"></i>@DateTime.Now.ToString("dd/MM/yyyy")</span></div>
+        <main class="main-content" role="main">@RenderBody()</main>
+        <footer class="main-footer"><span>© @DateTime.Now.Year - Hệ thống Quản lý Mua hàng và Nhà cung cấp</span><span>QLMuaHangVaNCC</span></footer>
+    </div>
+>>>>>>> local
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<<<<<<< main
 
     <script src="~/js/layout.js"
             asp-append-version="true"></script>
 
+=======
+    <script src="~/js/layout.js" asp-append-version="true"></script>
+    <script src="~/js/admin-ui.js" asp-append-version="true"></script>
+>>>>>>> local
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿@* Họ và tên: Trương Huy Đồng *@
+@* Họ và tên: Trương Huy Đồng *@
 @* Mã sinh viên: 23103100036 *@
 @* Nội dung thực hiện: Module 5 - Báo cáo thống kê tổng hợp bằng LINQ *@
 
@@ -7,7 +7,8 @@
     ViewData["Title"] = "Thống Kê Bằng LINQ";
 }
 
-<div class="container-fluid mt-4">
+<div class="mb-3 d-flex gap-2 flex-wrap"><a class="btn btn-outline-primary" asp-action="ThongKeGiaoHang"><i class="bi bi-truck me-1"></i> Thống kê giao hàng</a><a class="btn btn-outline-secondary" asp-action="Dashboard"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a></div>
+<div class="container-fluid mt-4 admin-stats-view">
     <h3 class="fw-bold text-primary mb-3"><i class="bi bi-bar-chart-line"></i> BÁO CÁO THỐNG KÊ HOẠT ĐỘNG MUA HÀNG</h3>
 
     <!-- BỘ LỌC THỜI GIAN -->
@@ -57,7 +58,11 @@
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-header bg-dark text-white fw-bold">1. Thống Kê Theo Nhà Cung Cấp</div>
         <div class="table-responsive">
+<<<<<<< main
             <table class="table table-bordered table-hover align-middle mb-0">
+=======
+            <table id="tableThongKeNCC" class="table table-bordered table-hover align-middle mb-0">
+>>>>>>> local
                 <thead class="table-light text-center">
                     <tr>
                         <th>Nhà cung cấp</th>
@@ -77,13 +82,18 @@
                 </tbody>
             </table>
         </div>
+        <div id="paginationThongKeNCC" class="pb-3"></div>
     </div>
 
     <!-- THỐNG KÊ THEO HÀNG HÓA -->
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-header bg-secondary text-white fw-bold">2. Thống Kê Theo Mặt Hàng</div>
         <div class="table-responsive">
+<<<<<<< main
             <table class="table table-bordered table-hover align-middle mb-0">
+=======
+            <table id="tableThongKeHangHoa" class="table table-bordered table-hover align-middle mb-0">
+>>>>>>> local
                 <thead class="table-light text-center">
                     <tr>
                         <th>Tên mặt hàng</th>
@@ -107,6 +117,7 @@
                 </tbody>
             </table>
         </div>
+        <div id="paginationThongKeHangHoa" class="pb-3"></div>
     </div>
 
     <!-- BÁO CÁO GROUP BY -->
@@ -114,6 +125,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm h-100 border-0">
                 <div class="card-header bg-light fw-bold text-center">3. Số Yêu Cầu Theo Bộ Phận</div>
+<<<<<<< main
                 <ul class="list-group list-group-flush">
                     @foreach (var bp in Model.SoYeuCauTheoBoPhan)
                     {
@@ -123,11 +135,26 @@
                         </li>
                     }
                 </ul>
+=======
+                <div class="table-responsive">
+                    <table id="tableThongKeBoPhan" class="table table-hover align-middle mb-0">
+                        <thead><tr><th>Bộ phận</th><th class="text-end">Số yêu cầu</th></tr></thead>
+                        <tbody>
+                        @foreach (var bp in Model.SoYeuCauTheoBoPhan)
+                        {
+                            <tr><td>@bp.Key</td><td class="text-end"><span class="badge bg-primary rounded-pill">@bp.Value</span></td></tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div id="paginationThongKeBoPhan" class="pb-3"></div>
+>>>>>>> local
             </div>
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm h-100 border-0">
                 <div class="card-header bg-light fw-bold text-center">4. Phân Bổ Đơn Mua Theo Trạng Thái</div>
+<<<<<<< main
                 <ul class="list-group list-group-flush">
                     @foreach (var tt in Model.SoDonTheoTrangThai)
                     {
@@ -137,12 +164,30 @@
                         </li>
                     }
                 </ul>
+=======
+                <div class="table-responsive">
+                    <table id="tableThongKeTrangThai" class="table table-hover align-middle mb-0">
+                        <thead><tr><th>Trạng thái</th><th class="text-end">Số đơn</th></tr></thead>
+                        <tbody>
+                        @foreach (var tt in Model.SoDonTheoTrangThai)
+                        {
+                            <tr><td>@tt.Key</td><td class="text-end"><span class="badge bg-dark rounded-pill">@tt.Value</span></td></tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div id="paginationThongKeTrangThai" class="pb-3"></div>
+>>>>>>> local
             </div>
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm h-100 border-0">
                 <div class="card-header bg-light fw-bold text-center">5. Giá Trị Mua Theo Thời Gian</div>
+<<<<<<< main
                 <table class="table table-hover align-middle mb-0">
+=======
+                <table id="tableThongKeThoiGian" class="table table-hover align-middle mb-0">
+>>>>>>> local
                     <thead class="text-center">
                         <tr>
                             <th>Tháng/Quý</th>
@@ -159,7 +204,32 @@
                         }
                     </tbody>
                 </table>
+<<<<<<< main
             </div>
         </div>
     </div>
 </div>
+=======
+                <div id="paginationThongKeThoiGian" class="pb-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pagination.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            ["NCC", "HangHoa", "BoPhan", "TrangThai", "ThoiGian"].forEach(function (name) {
+                initPagination({
+                    table: "#tableThongKe" + name,
+                    pagination: "#paginationThongKe" + name,
+                    pageSize: 5,
+                    showAlways: true,
+                    showSummary: true
+                });
+            });
+        });
+    </script>
+}
+>>>>>>> local

@@ -10,7 +10,7 @@
     <button class="btn btn-outline-primary">Tìm</button>
 </form>
 
-<table class="table table-bordered table-hover">
+<table id="tableChiTietYeuCau" class="table table-bordered table-hover">
     <thead class="table-light">
         <tr><th>Mã yêu cầu</th><th>Hàng hóa</th><th>Đơn vị tính</th><th>SL yêu cầu</th><th>SL duyệt</th><th>Ghi chú</th><th></th></tr>
     </thead>
@@ -24,7 +24,7 @@
             <td>@c.SoLuongYeuCau</td>
             <td>@c.SoLuongDuyet</td>
             <td>@c.GhiChu</td>
-            <td><a asp-controller="YeuCauMuaHangs" asp-action="Details" asp-route-id="@c.MaYeuCau" class="btn btn-sm btn-outline-secondary">Xem yêu cầu</a></td>
+            <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end"><a asp-controller="YeuCauMuaHangs" asp-action="Details" asp-route-id="@c.MaYeuCau" class="dropdown-item">Xem yêu cầu</a></div></div></td>
         </tr>
     }
     @if (!Model.Any())
@@ -33,3 +33,18 @@
     }
     </tbody>
 </table>
+<!-- Vị trí hiển thị nút phân trang -->
+<div id="paginationChiTietYeuCau"></div>
+
+<!-- Nhúng JavaScript dùng chung -->
+<script src="~/js/pagination.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initPagination({
+            table: "#tableChiTietYeuCau",
+            pagination: "#paginationChiTietYeuCau",
+            pageSize: 5
+        });
+    });
+</script>

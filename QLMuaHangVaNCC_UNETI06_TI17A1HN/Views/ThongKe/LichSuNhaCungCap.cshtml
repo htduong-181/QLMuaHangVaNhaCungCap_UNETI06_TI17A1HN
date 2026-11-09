@@ -1,0 +1,19 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers.LichSuNCCVM
+@{
+    ViewData["Title"] = "Lịch sử mua hàng theo nhà cung cấp";
+}
+<div class="container-fluid mt-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"><h3 class="fw-bold mb-0">Lịch sử mua hàng: @Model.NhaCungCap?.TenNhaCungCap</h3><a asp-controller="NhaCungCaps" asp-action="Index" class="btn btn-outline-secondary">Quay lại nhà cung cấp</a></div>
+    <div class="card border-0 shadow-sm"><div class="card-body table-responsive">
+        <table class="table table-hover align-middle" id="historyNcc"><thead class="table-light"><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Trạng thái giao hàng</th><th class="text-end">Giá trị đơn</th><th class="text-end">Đã thanh toán</th><th class="text-end">Còn phải trả</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var don in Model.DanhSachDonMua) {
+            var tong = Model.TongGiaTriDon.GetValueOrDefault(don.MaDonMua);
+            var daTra = Model.DaThanhToan.GetValueOrDefault(don.MaDonMua);
+            <tr><td>#@don.MaDonMua</td><td>@don.NgayDat.ToString("dd/MM/yyyy")</td><td>@don.TrangThai</td><td class="text-end">@tong.ToString("N0") đ</td><td class="text-end">@daTra.ToString("N0") đ</td><td class="text-end">@((tong - daTra).ToString("N0")) đ</td><td><a asp-controller="DonMuaHangs" asp-action="Details" asp-route-id="@don.MaDonMua" class="btn btn-sm btn-outline-primary">Chi tiết</a></td></tr>
+        }
+        @if (Model.DanhSachDonMua.Count == 0) { <tr data-pagination-empty="true"><td colspan="7" class="text-center text-muted">Chưa có đơn mua nào.</td></tr> }
+        </tbody></table><div id="historyNccPages"></div>
+    </div></div>
+</div>
+@section Scripts { <script src="~/js/pagination.js" asp-append-version="true"></script><script>initPagination({table:"#historyNcc",pagination:"#historyNccPages",pageSize:10,showSummary:true});</script> }

@@ -12,7 +12,7 @@
 <div class="container-fluid mt-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="text-primary fw-bold">Quản Lý Thanh Toán & Công Nợ</h3>
-        <a asp-action="Create" class="btn btn-success fw-bold">+ Ghi nhận thanh toán mới</a>
+        <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">+ Ghi nhận thanh toán mới</a></div></div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -68,7 +68,11 @@
             1. Tình Trạng Thanh Toán & Công Nợ Theo Đơn Mua
         </div>
         <div class="table-responsive">
+<<<<<<< main
             <table class="table table-bordered table-hover mb-0">
+=======
+            <table id="tableThanhToanDonMua" class="table table-bordered table-hover mb-0">
+>>>>>>> local
                 <thead class="table-secondary align-middle text-center">
                     <tr>
                         <th>Mã đơn</th>
@@ -141,7 +145,11 @@
             2. Nhật Ký Chi Tiết Các Lần Đã Thanh Toán
         </div>
         <div class="table-responsive">
+<<<<<<< main
             <table class="table table-striped mb-0">
+=======
+            <table id="tableLichSuThanhToan" class="table table-striped mb-0">
+>>>>>>> local
                 <thead class="align-middle text-center">
                     <tr>
                         <th>Mã TT</th>
@@ -190,3 +198,21 @@
         </div>
     </div>
 </div>
+<<<<<<< main
+=======
+<!-- Vị trí hiển thị nút phân trang -->
+<div id="paginationLichSuThanhToan"></div>
+
+<!-- Nhúng JavaScript dùng chung -->
+<script src="~/js/pagination.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        initPagination({
+            table: "#tableLichSuThanhToan",
+            pagination: "#paginationLichSuThanhToan",
+            pageSize: 5
+        });
+    });
+</script>
+>>>>>>> local

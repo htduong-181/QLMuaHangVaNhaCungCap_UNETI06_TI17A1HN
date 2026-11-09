@@ -1,40 +1,101 @@
 ﻿@model DangNhapViewModel
-@{ ViewData["Title"] = "Đăng nhập"; Layout = null; }
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null;
+}
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập - Quản lý mua hàng</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/login.css" />
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body p-4">
-                        <h3 class="text-center mb-4">Đăng nhập hệ thống</h3>
-                        <form asp-controller="TaiKhoans" asp-action="DangNhap" method="post">
-                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-                            <div class="mb-3">
-                                <label asp-for="TenDangNhap" class="form-label"></label>
-                                <input asp-for="TenDangNhap" class="form-control" autofocus />
-                                <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-container">
+
+            <!-- BÊN TRÁI: GIỚI THIỆU HỆ THỐNG -->
+            <div class="login-banner">
+                <div class="brand">
+                    <div class="brand-icon">📦</div>
+                    <div>
+                        <h2 class="brand-name">QL Mua Hàng</h2>
+                        <p class="brand-description">Quản lý mua hàng chuyên nghiệp</p>
+                    </div>
+                </div>
+
+                <div class="banner-content">
+                    <h1>Hệ thống<br />Quản lý Mua Hàng</h1>
+                    <p>Giải pháp quản lý mua hàng hiệu quả, hiện đại và dễ sử dụng.</p>
+
+                    <div class="banner-features">
+                        <div class="feature-item">✓ Hiệu quả</div>
+                        <div class="feature-item">✓ Chính xác</div>
+                        <div class="feature-item">✓ Bảo mật</div>
+                    </div>
+                </div>
+
+                <div class="illustration">
+                    <div class="illustration-card">
+                        <div class="illustration-icon">🛒</div>
+                        <div class="illustration-text">Quản lý mua hàng dễ dàng</div>
+                    </div>
+                </div>
+
+                <div class="banner-footer">
+                    © @DateTime.Now.Year - Hệ thống Quản lý Mua hàng
+                </div>
+            </div>
+
+            <!-- BÊN PHẢI: FORM ĐĂNG NHẬP -->
+            <div class="login-form-area">
+                <div class="login-form">
+                    <div class="login-logo">🔐</div>
+
+                    <h2 class="login-title">Đăng nhập hệ thống</h2>
+                    <p class="login-subtitle">Vui lòng nhập thông tin tài khoản để tiếp tục</p>
+
+                    <form asp-controller="TaiKhoans" asp-action="DangNhap" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="input-group-custom">
+                            <label asp-for="TenDangNhap" class="form-label">Tên đăng nhập</label>
+                            <input asp-for="TenDangNhap" class="input-custom" placeholder="Nhập tên đăng nhập" autocomplete="username" autofocus />
+                            <span asp-validation-for="TenDangNhap" class="text-danger validation-message"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label asp-for="MatKhau" class="form-label">Mật khẩu</label>
+                            <div class="input-with-icon">
+                                <input asp-for="MatKhau" type="password" id="MatKhau" class="input-custom" placeholder="Nhập mật khẩu" autocomplete="current-password" />
+                                <span class="input-icon" id="eyeIcon" title="Hiện hoặc ẩn mật khẩu">👁️</span>
                             </div>
-                            <div class="mb-3">
-                                <label asp-for="MatKhau" class="form-label"></label>
-                                <input asp-for="MatKhau" class="form-control" />
-                                <span asp-validation-for="MatKhau" class="text-danger"></span>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
-                        </form>
+                            <span asp-validation-for="MatKhau" class="text-danger validation-message"></span>
+                        </div>
+
+                        <button type="submit" class="login-button">🔑 &nbsp; Đăng nhập</button>
+                    </form>
+
+                    <div class="login-note">
+                        🛡️ &nbsp; Chỉ dành cho người dùng được ủy quyền
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/login.js"></script>
+
 </body>
 </html>

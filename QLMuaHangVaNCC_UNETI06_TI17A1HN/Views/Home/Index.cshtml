@@ -1,8 +1,40 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.ViewModels.HomeDashboardVm
+@{
+    ViewData["Title"] = "Tổng quan hệ thống";
+    var nhoms = Model.Bangs.GroupBy(x => x.Nhom);
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="dashboard-home py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div><div class="text-primary fw-semibold small mb-1">BẢNG ĐIỀU KHIỂN</div>
+            <h2 class="fw-bold mb-1">Tổng quan quản lý mua hàng</h2>
+            <p class="text-muted mb-0">Số liệu trực tiếp từ cơ sở dữ liệu. Bấm vào một thẻ để mở bảng tương ứng.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap"><a class="btn btn-primary" asp-controller="ThongKe" asp-action="Dashboard"><i class="bi bi-speedometer2 me-1"></i> Dashboard Module 5</a><a class="btn btn-outline-primary" asp-controller="ThongKe" asp-action="Index"><i class="bi bi-graph-up me-1"></i> Báo cáo chi tiết</a></div>
+    </div>
+    <div class="row g-3 mb-4 dashboard-kpi-row">
+        <div class="col-sm-6 col-xl-3"><a class="dashboard-kpi kpi-success" asp-controller="YeuCauMuaHangs" asp-action="Index" asp-route-trangThai="ChoDuyet"><span>Yêu cầu chờ duyệt</span><strong>@Model.ChoDuyet</strong><small>Xem yêu cầu <i class="bi bi-arrow-up-right"></i></small></a></div>
+        <div class="col-sm-6 col-xl-3"><a class="dashboard-kpi kpi-info" asp-controller="YeuCauMuaHangs" asp-action="Index" asp-route-trangThai="DaDuyet"><span>Yêu cầu đã duyệt</span><strong>@Model.DaDuyet</strong><small>Xem yêu cầu <i class="bi bi-arrow-up-right"></i></small></a></div>
+        <div class="col-sm-6 col-xl-3"><a class="dashboard-kpi kpi-danger" asp-controller="DonMuaHangs" asp-action="Index"><span>Đơn mua hàng</span><strong>@Model.TongDonMua</strong><small>Xem đơn mua <i class="bi bi-arrow-up-right"></i></small></a></div>
+        <div class="col-sm-6 col-xl-3"><a class="dashboard-kpi kpi-warning" asp-controller="NhaCungCaps" asp-action="Index" asp-route-status="true"><span>NCC đang hoạt động</span><strong>@Model.NhaCungCapDangHoatDong</strong><small>Xem nhà cung cấp <i class="bi bi-arrow-up-right"></i></small></a></div>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-6"><a class="dashboard-finance" asp-controller="DonMuaHangs" asp-action="Index"><i class="bi bi-cart-check"></i><span>Tổng giá trị đơn mua (không tính nháp/hủy)</span><strong>@Model.TongGiaTriDonMua.ToString("N0") đ</strong></a></div>
+        <div class="col-md-6"><a class="dashboard-finance" asp-controller="ThanhToanDonMuas" asp-action="Index"><i class="bi bi-cash-coin"></i><span>Tổng tiền đã thanh toán</span><strong>@Model.DaThanhToan.ToString("N0") đ</strong></a></div>
+    </div>
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-2"><h4 class="fw-bold mb-0">Thống kê theo bảng dữ liệu</h4><span class="badge text-bg-light">@Model.Bangs.Count bảng</span></div>
+    @foreach (var nhom in nhoms)
+    {
+        <h6 class="text-uppercase fw-semibold text-secondary mt-4 mb-3">@nhom.Key</h6>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3">
+        @foreach (var bang in nhom)
+        {
+            <div class="col">
+                <a class="dashboard-table-card" asp-controller="@bang.Controller" asp-action="Index" aria-label="Mở danh sách @bang.Ten">
+                    <div class="dashboard-icon"><i class="bi bi-@bang.Icon"></i></div>
+                    <div class="flex-grow-1"><div class="text-muted small">@bang.Ten</div><div class="fs-3 fw-bold text-dark">@bang.SoLuong.ToString("N0")</div><small class="text-primary">Mở danh sách <i class="bi bi-arrow-right"></i></small></div>
+                </a>
+            </div>
+        }
+        </div>
+    }
 </div>

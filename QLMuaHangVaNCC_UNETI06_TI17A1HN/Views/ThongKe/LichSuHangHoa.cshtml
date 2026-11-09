@@ -1,0 +1,20 @@
+@model QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers.LichSuHangHoaVM
+@{
+    ViewData["Title"] = "Lịch sử mua theo hàng hóa";
+}
+<div class="container-fluid mt-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"><h3 class="fw-bold mb-0">Lịch sử mua: @Model.HangHoa?.TenHang</h3><a asp-controller="HangHoas" asp-action="Index" class="btn btn-outline-secondary">Quay lại hàng hóa</a></div>
+    <div class="card border-0 shadow-sm mb-4"><div class="card-header fw-bold">Lịch sử yêu cầu mua</div><div class="card-body table-responsive">
+        <table class="table table-hover align-middle" id="historyRequest"><thead><tr><th>Mã yêu cầu</th><th>Ngày yêu cầu</th><th>Bộ phận</th><th>SL yêu cầu</th><th>SL duyệt</th><th>Trạng thái</th></tr></thead><tbody>
+        @foreach (var ct in Model.LichSuYeuCau) { <tr><td>#@ct.MaYeuCau</td><td>@ct.YeuCauMuaHang?.NgayYeuCau.ToString("dd/MM/yyyy")</td><td>@ct.YeuCauMuaHang?.BoPhanDeNghi?.TenBoPhan</td><td>@ct.SoLuongYeuCau</td><td>@ct.SoLuongDuyet</td><td>@ct.YeuCauMuaHang?.TrangThai</td></tr> }
+        @if (Model.LichSuYeuCau.Count == 0) { <tr data-pagination-empty="true"><td colspan="6" class="text-muted text-center">Chưa có yêu cầu.</td></tr> }
+        </tbody></table><div id="historyRequestPages"></div>
+    </div></div>
+    <div class="card border-0 shadow-sm"><div class="card-header fw-bold">Lịch sử đơn mua và giao nhận</div><div class="card-body table-responsive">
+        <table class="table table-hover align-middle" id="historyOrders"><thead><tr><th>Mã đơn</th><th>Nhà cung cấp</th><th>Ngày đặt</th><th>SL đặt</th><th>SL đã nhận</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>
+        @foreach (var ct in Model.LichSuDatMua) { <tr><td><a asp-controller="DonMuaHangs" asp-action="Details" asp-route-id="@ct.MaDonMua">#@ct.MaDonMua</a></td><td>@ct.DonMuaHang?.NhaCungCap?.TenNhaCungCap</td><td>@ct.DonMuaHang?.NgayDat.ToString("dd/MM/yyyy")</td><td>@ct.SoLuongDat</td><td>@Model.SoLuongDaNhan.GetValueOrDefault(ct.MaChiTietDon)</td><td>@ct.DonGiaMua.ToString("N0") đ</td><td>@((ct.SoLuongDat * ct.DonGiaMua).ToString("N0")) đ</td></tr> }
+        @if (Model.LichSuDatMua.Count == 0) { <tr data-pagination-empty="true"><td colspan="7" class="text-muted text-center">Chưa có đơn mua.</td></tr> }
+        </tbody></table><div id="historyOrderPages"></div>
+    </div></div>
+</div>
+@section Scripts { <script src="~/js/pagination.js" asp-append-version="true"></script><script>initPagination({table:"#historyRequest",pagination:"#historyRequestPages",pageSize:10,showSummary:true});initPagination({table:"#historyOrders",pagination:"#historyOrderPages",pageSize:10,showSummary:true});</script> }
