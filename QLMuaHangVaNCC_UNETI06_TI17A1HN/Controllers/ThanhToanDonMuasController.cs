@@ -98,7 +98,7 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
                         .Where(tt => tt.MaDonMua == d.MaDonMua)
                         .Sum(tt => (decimal?)tt.SoTienThanhToan) ?? 0
                 })
-                .ToList();
+                .OrderByDescending(t => t.NgayDat).ToList();
 
             if (!string.IsNullOrWhiteSpace(trangThaiTT))
             {

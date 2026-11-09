@@ -2,13 +2,15 @@
 @{ ViewData["Title"] = "Quan hệ cung ứng"; }
 
 <h2 class="mb-3">Quan hệ cung ứng</h2>
-
 @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
 @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
 
-<div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item"><i class="bi bi-plus-circle"></i> Thêm mới</a></div></div>
+<div class="dropdown d-inline-block mb-3">
+    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button>
+    <div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item"><i class="bi bi-plus-circle"></i> Thêm mới</a></div>
+</div>
 
-<form method="get" asp-action="Index" class="card card-body mb-3">
+<form method="get" asp-action="Index" class="card card-body mb-3 shadow-sm border-0">
     <div class="row g-2">
         <div class="col-md-3"><input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Tìm tên, mã và thông tin liên quan" /></div>
         <div class="col-md-3">
@@ -46,30 +48,144 @@
     </div>
 </form>
 
-<div class="table-responsive">
-    <table class="table table-hover table-bordered align-middle">
+<div class="table-responsive shadow-sm">
+    <table class="table table-hover table-bordered align-middle mb-0">
         <thead class="table-light">
-            <tr><th>ID</th><th>Nhà cung cấp</th><th>Hàng hóa</th><th>Đơn giá</th><th>Cập nhật</th><th>Ngày giao</th><th>Trạng thái</th><th>Thao tác</th></tr>
+            <tr>
+                <th>ID</th>
+                <th>Nhà cung cấp</th>
+                <th>Hàng hóa</th>
+                <th>Đơn giá</th>
+                <th>Cập nhật</th>
+                <th>Ngày giao</th>
+                <th>Trạng thái</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Items) {
+            @foreach (var item in Model.Items)
+            {
+                <!-- DÒNG THÔNG TIN CHÍNH -->
                 <tr>
-                    <td>@item.Id</td>
-                    <td>@item.NhaCungCap.TenNhaCungCap</td>
-                    <td>@item.HangHoa.TenHang</td>
-                    <td>@item.DonGiaBao</td>
-                    <td>@item.NgayCapNhatGia</td>
-                    <td>@item.ThoiGianGiaoDuKien</td>
-                    <td><span class="badge @(item.TrangThai ? "bg-success" : "bg-secondary")">@(item.TrangThai ? "Hoạt động" : "Ngừng")</span></td>
-                    <td class="text-nowrap"><div class="dropdown d-inline-block"><button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false"><i class="bi bi-three-dots-vertical me-1"></i>Thao tác</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">Chi tiết</a>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Sửa</a>
-                        <form method="post" asp-action="ChangeStatus" asp-route-id="@item.Id">
-                            <button type="submit" class="dropdown-item">Đổi trạng thái</button>
-                        </form></div></div></td>
+                    <td class="fw-bold text-center">@item.Id</td>
+                    <td class="text-primary">@item.NhaCungCap.TenNhaCungCap</td>
+                    <td class="fw-bold text-primary">@item.HangHoa.TenHang</td>
+                    <td class="text-danger fw-bold text-end">@item.DonGiaBao.ToString("N0") đ</td>
+                    <td class="text-center">@item.NgayCapNhatGia?.ToString("dd/MM/yyyy")</td>
+                    <td class="text-center">@item.ThoiGianGiaoDuKien ngày</td>
+                    <td class="text-center"><span class="badge @(item.TrangThai ? "bg-success" : "bg-secondary")">@(item.TrangThai ? "Hoạt động" : "Ngừng")</span></td>
+                    <td class="text-nowrap text-center">
+                        
+                        <!-- NÚT SỔ XUỐNG -->
+                        <button type="button" class="btn btn-sm btn-info text-white me-1 shadow-sm" data-bs-toggle="collapse" data-bs-target="#history-@item.Id" aria-expanded="false" title="Mở lịch sử">
+                            <i class="bi bi-chevron-down fw-bold"></i> Lịch sử
+                        </button>
+
+                        <!-- MENU THAO TÁC CÒN LẠI -->
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
+                                <i class="bi bi-gear"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">Chi tiết</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Sửa</a>
+                                <form method="post" asp-action="ChangeStatus" asp-route-id="@item.Id">
+                                    <button type="submit" class="dropdown-item">Đổi trạng thái</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+                
+                <!-- DÒNG COLLAPSE ẨN CHỨA BẢNG LỊCH SỬ -->
+                <tr id="history-@item.Id" class="collapse bg-light">
+                    <td colspan="8" class="p-0 border-bottom-0">
+                        <div class="p-3 m-2 border rounded bg-white shadow-sm">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-box-seam me-1"></i> Lịch sử biến động: @item.HangHoa.TenHang</h6>
+                            <div class="row">
+                                
+                                <!-- Lịch sử Yêu cầu -->
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-secondary small text-uppercase">1. Lịch Sử Yêu Cầu</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead class="table-secondary text-center">
+                                                <tr>
+                                                    <th>Ngày Yêu Cầu</th>
+                                                    <th>Bộ Phận</th>
+                                                    <th>SL Xin</th>
+                                                    <th>SL Duyệt</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (item.HangHoa.ChiTietYeuCaus != null && item.HangHoa.ChiTietYeuCaus.Any(ct => ct.YeuCauMuaHang?.TrangThai != "Nháp"))
+                                                {
+                                                    foreach (var yc in item.HangHoa.ChiTietYeuCaus.Where(ct => ct.YeuCauMuaHang?.TrangThai != "Nháp").OrderByDescending(ct => ct.YeuCauMuaHang?.NgayYeuCau))
+                                                    {
+                                                        <tr>
+                                                            <td class="text-center">@yc.YeuCauMuaHang?.NgayYeuCau.ToString("dd/MM/yyyy")</td>
+                                                            <td>@yc.YeuCauMuaHang?.BoPhanDeNghi?.TenBoPhan</td>
+                                                            <td class="text-center">@yc.SoLuongYeuCau</td>
+                                                            <td class="text-center fw-bold text-success">@yc.SoLuongDuyet</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td colspan="4" class="text-center text-muted">Chưa có yêu cầu nào.</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Lịch sử Đặt mua & Giao nhận -->
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold text-success small text-uppercase">2. Lịch Sử Đặt Mua & Giao Nhận</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead class="table-success text-center">
+                                                <tr>
+                                                    <th>Ngày Đặt</th>
+                                                    <th>Nhà Cung Cấp</th>
+                                                    <th>Giá Mua</th>
+                                                    <th>SL Đặt</th>
+                                                    <th>Đã Nhận</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (item.HangHoa.ChiTietDonMuas != null && item.HangHoa.ChiTietDonMuas.Any(ct => ct.DonMuaHang?.TrangThai != "Nháp"))
+                                                {
+                                                    foreach (var dm in item.HangHoa.ChiTietDonMuas.Where(ct => ct.DonMuaHang?.TrangThai != "Nháp").OrderByDescending(ct => ct.DonMuaHang?.NgayDat))
+                                                    {
+                                                        var daNhan = dm.ChiTietGiaoHangs?.Sum(g => g.SoLuongNhan) ?? 0;
+                                                        <tr>
+                                                            <td class="text-center">@dm.DonMuaHang?.NgayDat.ToString("dd/MM/yyyy")</td>
+                                                            <td>@dm.DonMuaHang?.NhaCungCap?.TenNhaCungCap</td>
+                                                            <td class="text-end text-danger">@dm.DonGiaMua.ToString("N0") đ</td>
+                                                            <td class="text-center fw-bold">@dm.SoLuongDat</td>
+                                                            <td class="text-center fw-bold text-primary">@daNhan</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td colspan="5" class="text-center text-muted">Chưa có đơn đặt mua nào.</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             }
-            @if (!Model.Items.Any()) {
-                <tr><td colspan="8" class="text-center text-muted">Không có dữ liệu phù hợp</td></tr>
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="8" class="text-center text-muted py-4">Không có dữ liệu phù hợp</td></tr>
             }
         </tbody>
     </table>
@@ -83,10 +199,10 @@
         startPage = Math.Max(1, endPage - maxPagesToShow + 1);
     }
 }
-
-<div class="d-flex justify-content-center mt-3">
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted fw-bold ms-2">Tổng: @Model.TotalItems bản ghi — Trang @Model.Page / @Model.TotalPages</div>
     <nav>
-        <ul class="pagination mb-0 gap-1">
+        <ul class="pagination mb-0 gap-1 shadow-sm me-2">
             <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
                 <a class="page-link rounded" asp-action="Index" asp-route-page="1" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="@Model.Sort" asp-route-maHang="@Model.MaHang" asp-route-maNhaCungCap="@Model.MaNhaCungCap" asp-route-maLoaiHang="@Model.MaLoaiHang" asp-route-maDonViTinh="@Model.MaDonViTinh" asp-route-giaTu="@Model.GiaTu" asp-route-giaDen="@Model.GiaDen" asp-route-coCungUng="@Model.CoCungUng">«</a>
             </li>
