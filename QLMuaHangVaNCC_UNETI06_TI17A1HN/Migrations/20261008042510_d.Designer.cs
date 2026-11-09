@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     [DbContext(typeof(QLMuaHangVaNCC_UNETI06_TI17A1HNContext))]
-    [Migration("20261008032704_IntilCreate")]
-    partial class IntilCreate
+    [Migration("20261008042510_d")]
+    partial class d
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -21,7 +21,7 @@
                     <label asp-for="MaDonMua" class="form-label fw-bold text-primary"></label>
                     <select asp-for="MaDonMua" class="form-select form-select-lg shadow-sm" asp-items="ViewBag.MaDonMua" onchange="this.form.submit()"></select>
                     <span asp-validation-for="MaDonMua" class="text-danger"></span>
-                    <small class="text-muted d-block mt-1">* Hệ thống chỉ hiển thị những đơn chưa thanh toán xong (Không ở trạng thái Nháp/Hủy).</small>
+                    <small class="text-muted d-block mt-1">Hệ thống chỉ hiển thị những đơn chưa thanh toán xong (Không ở trạng thái Nháp/Hủy).</small>
                 </div>
 
                 <!-- HIỂN THỊ SỐ TIỀN CÒN LẠI -->
@@ -42,18 +42,20 @@
                     <div class="col-md-6 mb-3">
                         <label asp-for="SoTienThanhToan" class="form-label fw-bold"></label>
                         <div class="input-group">
-                            <input asp-for="SoTienThanhToan" type="number" step="1" min="1" class="form-control text-end fw-bold text-success" placeholder="Nhập số tiền..." />
+                            <input asp-for="SoTienThanhToan" id="SoTienThanhToan" type="number" step="1" min="1" class="form-control text-end fw-bold text-success" placeholder="Nhập số tiền..." />
                             <span class="input-group-text fw-bold">VNĐ</span>
                         </div>
                         <span asp-validation-for="SoTienThanhToan" class="text-danger"></span>
+                        
+                        <!-- CHỖ HIỂN THỊ THÔNG BÁO SỐ TIỀN CÒN THIẾU / BÁO LỖI -->
+                        <small id="thongBaoSoTien" class="form-text d-block mt-1 fs-6"></small>
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label asp-for="PhuongThuc" class="form-label fw-bold"></label>
                         <select asp-for="PhuongThuc" class="form-select">
-                            <option value="ChuyenKhoan">Chuyển khoản qua ngân hàng</option>
-                            <option value="TienMat">Thanh toán bằng Tiền mặt</option>
-                            <option value="UyNhiemChi">Thanh toán qua Ủy nhiệm chi</option>
+                            <option value="ChuyenKhoan">Chuyển khoản</option>
+                            <option value="TienMat">Tiền mặt</option>
                         </select>
                         <span asp-validation-for="PhuongThuc" class="text-danger"></span>
                     </div>
@@ -72,7 +74,8 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a asp-action="Index" class="btn btn-secondary px-4"><i class="bi bi-arrow-left"></i> Quay lại</a>
-                    <button type="submit" class="btn btn-success px-5 fw-bold"><i class="bi bi-save"></i> Xác Nhận Thanh Toán</button>
+                    <!-- Bổ sung id="btnSubmit" cho nút xác nhận -->
+                    <button type="submit" id="btnSubmit" class="btn btn-success px-5 fw-bold"><i class="bi bi-save"></i> Xác Nhận Thanh Toán</button>
                 </div>
             </form>
         </div>
@@ -83,4 +86,53 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- SCRIPT TÍNH TOÁN VÀ KIỂM TRA SỐ TIỀN TRỰC TIẾP -->
+    <script>
+        $(document).ready(function () {
+            // Lấy giới hạn nợ tối đa từ Backend, chuyển về định dạng chuẩn cho JS (không có dấu phẩy)
+            var maxAmount = @(ViewBag.SoTienConLai != null ? ((decimal)ViewBag.SoTienConLai).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) : "0");
+            maxAmount = parseFloat(maxAmount);
+
+            var $inputTien = $('#SoTienThanhToan');
+            var $thongBao = $('#thongBaoSoTien');
+            var $btnSubmit = $('#btnSubmit');
+
+            // Hàm format tiền tệ (vd: 1.000.000 VNĐ)
+            function formatCurrency(number) {
+                return new Intl.NumberFormat('vi-VN').format(number) + ' VNĐ';
+            }
+
+            // Bắt sự kiện mỗi khi người dùng gõ phím hoặc thay đổi số tiền
+            $inputTien.on('input', function () {
+                var currentVal = parseFloat($(this).val()) || 0;
+                var remaining = maxAmount - currentVal;
+
+                if (currentVal <= 0) {
+                    $thongBao.text(''); // Chưa nhập gì thì không hiện
+                    $btnSubmit.prop('disabled', false);
+                } 
+                else if (currentVal > maxAmount) {
+                    // Nếu NHẬP QUÁ giới hạn nợ
+                    $thongBao.removeClass('text-primary text-success').addClass('text-danger fw-bold');
+                    $thongBao.html('<i class="bi bi-x-circle-fill"></i> Vượt quá công nợ ' + formatCurrency(currentVal - maxAmount) + '!');
+                    $btnSubmit.prop('disabled', true); // Khóa nút Submit
+                } 
+                else {
+                    // Nếu NHẬP HỢP LỆ
+                    $thongBao.removeClass('text-danger text-success').addClass('text-primary fw-bold');
+                    if (remaining === 0) {
+                        $thongBao.removeClass('text-primary').addClass('text-success fw-bold');
+                        $thongBao.html('<i class="bi bi-check-circle-fill"></i> Sẽ tất toán hết nợ của đơn này.');
+                    } else {
+                        $thongBao.html('<i class="bi bi-info-circle-fill"></i> Sau thanh toán còn nợ: ' + formatCurrency(remaining));
+                    }
+                    $btnSubmit.prop('disabled', false); 
+                }
+            });
+
+            
+            $inputTien.trigger('input');
+        });
+    </script>
 }

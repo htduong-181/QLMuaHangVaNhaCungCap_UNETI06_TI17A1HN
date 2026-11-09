@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Migrations
 {
     /// <inheritdoc />
-    public partial class IntilCreate : Migration
+    public partial class d : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

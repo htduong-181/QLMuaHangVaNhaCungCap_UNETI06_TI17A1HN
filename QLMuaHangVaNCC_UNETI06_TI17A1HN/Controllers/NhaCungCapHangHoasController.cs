@@ -10,20 +10,23 @@ public class NhaCungCapHangHoasController : Controller
 
     // Index
     public async Task<IActionResult> Index(string? search, int? maHang, int? maNhaCungCap,
-        bool? status, string? sort, int page = 1)
+      bool? status, string? sort, int page = 1)
     {
         const int pageSize = 10;
         page = Math.Max(1, page);
         var query = _context.NhaCungCapHangHoa.AsNoTracking().AsQueryable();
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             search = search.Trim();
             query = query.Where(x => x.HangHoa.TenHang.Contains(search)
                 || x.NhaCungCap.TenNhaCungCap.Contains(search));
         }
+
         if (maHang.HasValue) query = query.Where(x => x.MaHang == maHang.Value);
         if (maNhaCungCap.HasValue) query = query.Where(x => x.MaNhaCungCap == maNhaCungCap.Value);
         if (status.HasValue) query = query.Where(x => x.TrangThai == status.Value);
+
         query = sort switch
         {
             "date_asc" => query.OrderBy(x => x.NgayCapNhatGia).ThenBy(x => x.Id),
@@ -32,15 +35,40 @@ public class NhaCungCapHangHoasController : Controller
             "price_desc" => query.OrderByDescending(x => x.DonGiaBao).ThenBy(x => x.Id),
             _ => query.OrderBy(x => x.NhaCungCap.TenNhaCungCap).ThenBy(x => x.Id)
         };
+
         var total = await query.CountAsync();
         var pages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
         page = Math.Min(page, pages);
+
         return View(new PagedListVm<NhaCungCapHangHoa>
         {
-            Items = await query.Include(x => x.NhaCungCap).Include(x => x.HangHoa)
-                .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(),
-            Page = page, PageSize = pageSize, TotalItems = total, Search = search,
-            MaHang = maHang, MaNhaCungCap = maNhaCungCap, Status = status, Sort = sort,
+            // Bổ sung Include để kéo dữ liệu cho phần Sổ xuống (Lịch sử mua hàng)
+            Items = await query
+                .Include(x => x.NhaCungCap)
+                .Include(x => x.HangHoa)
+                    .ThenInclude(h => h.ChiTietYeuCaus)
+                        .ThenInclude(ct => ct.YeuCauMuaHang)
+                            .ThenInclude(y => y.BoPhanDeNghi)
+                .Include(x => x.HangHoa)
+                    .ThenInclude(h => h.ChiTietDonMuas)
+                        .ThenInclude(ct => ct.DonMuaHang)
+                            .ThenInclude(d => d.NhaCungCap)
+                .Include(x => x.HangHoa)
+                    .ThenInclude(h => h.ChiTietDonMuas)
+                        .ThenInclude(ct => ct.ChiTietGiaoHangs)
+                // Sửa lỗi page1 thành (page - 1)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(),
+
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = total,
+            Search = search,
+            MaHang = maHang,
+            MaNhaCungCap = maNhaCungCap,
+            Status = status,
+            Sort = sort,
             HangHoas = await _context.HangHoa.AsNoTracking().OrderBy(x => x.TenHang).ToListAsync(),
             NhaCungCaps = await _context.NhaCungCap.AsNoTracking().OrderBy(x => x.TenNhaCungCap).ToListAsync()
         });

@@ -56,56 +56,60 @@
     <!-- THỐNG KÊ THEO NHÀ CUNG CẤP -->
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-header bg-dark text-white fw-bold">1. Thống Kê Theo Nhà Cung Cấp</div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle mb-0">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>Nhà cung cấp</th>
-                        <th>Tổng số đơn mua</th>
-                        <th>Tổng giá trị mua</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ThongKeTheoNCC)
-                    {
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="bangThongKeNCC" class="table table-bordered table-hover align-middle mb-0 w-100">
+                    <thead class="table-light text-center">
                         <tr>
-                            <td class="fw-bold">@item.TenNhaCungCap</td>
-                            <td class="text-center">@item.SoLuongDon</td>
-                            <td class="text-end fw-bold text-success">@item.TongGiaTriMua.ToString("N0") đ</td>
+                            <th>Nhà cung cấp</th>
+                            <th>Tổng số đơn mua</th>
+                            <th>Tổng giá trị mua</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ThongKeTheoNCC)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.TenNhaCungCap</td>
+                                <td class="text-center">@item.SoLuongDon</td>
+                                <td class="text-end fw-bold text-success">@item.TongGiaTriMua.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- THỐNG KÊ THEO HÀNG HÓA -->
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-header bg-secondary text-white fw-bold">2. Thống Kê Theo Mặt Hàng</div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle mb-0">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>Tên mặt hàng</th>
-                        <th>Tổng SL Yêu cầu</th>
-                        <th>Tổng SL Đặt mua</th>
-                        <th>Giá mua trung bình</th>
-                        <th>Tổng thành tiền</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var h in Model.ThongKeTheoHangHoa)
-                    {
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="bangThongKeHangHoa" class="table table-bordered table-hover align-middle mb-0 w-100">
+                    <thead class="table-light text-center">
                         <tr>
-                            <td class="fw-bold">@h.TenHang</td>
-                            <td class="text-center">@h.TongSoLuongYeuCau</td>
-                            <td class="text-center fw-bold">@h.TongSoLuongMua</td>
-                            <td class="text-end text-primary">@h.GiaMuaTrungBinh.ToString("N0") đ</td>
-                            <td class="text-end fw-bold text-danger">@h.TongThanhTien.ToString("N0") đ</td>
+                            <th>Tên mặt hàng</th>
+                            <th>Tổng SL Yêu cầu</th>
+                            <th>Tổng SL Đặt mua</th>
+                            <th>Giá mua trung bình</th>
+                            <th>Tổng thành tiền</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.ThongKeTheoHangHoa)
+                        {
+                            <tr>
+                                <td class="fw-bold">@h.TenHang</td>
+                                <td class="text-center">@h.TongSoLuongYeuCau</td>
+                                <td class="text-center fw-bold">@h.TongSoLuongMua</td>
+                                <td class="text-end text-primary">@h.GiaMuaTrungBinh.ToString("N0") đ</td>
+                                <td class="text-end fw-bold text-danger">@h.TongThanhTien.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -114,52 +118,115 @@
         <div class="col-md-4">
             <div class="card shadow-sm h-100 border-0">
                 <div class="card-header bg-light fw-bold text-center">3. Số Yêu Cầu Theo Bộ Phận</div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var bp in Model.SoYeuCauTheoBoPhan)
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @bp.Key
-                            <span class="badge bg-primary rounded-pill">@bp.Value</span>
-                        </li>
-                    }
-                </ul>
+                <div class="card-body p-0" style="max-height: 250px; overflow-y: auto;">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var bp in Model.SoYeuCauTheoBoPhan)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @bp.Key
+                                <span class="badge bg-primary rounded-pill">@bp.Value</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm h-100 border-0">
                 <div class="card-header bg-light fw-bold text-center">4. Phân Bổ Đơn Mua Theo Trạng Thái</div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var tt in Model.SoDonTheoTrangThai)
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @tt.Key
-                            <span class="badge bg-dark rounded-pill">@tt.Value</span>
-                        </li>
-                    }
-                </ul>
+                <div class="card-body p-0" style="max-height: 250px; overflow-y: auto;">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var tt in Model.SoDonTheoTrangThai)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @tt.Key
+                                <span class="badge bg-dark rounded-pill">@tt.Value</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm h-100 border-0">
                 <div class="card-header bg-light fw-bold text-center">5. Giá Trị Mua Theo Thời Gian</div>
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="text-center">
-                        <tr>
-                            <th>Tháng/Quý</th>
-                            <th>Tổng giá trị</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var tg in Model.GiaTriTheoThangQuyNam)
-                        {
-                            <tr>
-                                <td>Tháng @tg.Thang/@tg.Nam <br/><small class="text-muted">(Quý @tg.Quy)</small></td>
-                                <td class="text-end fw-bold text-success">@tg.TongGiaTriMua.ToString("N0") đ</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="bangGiaTriThoiGian" class="table table-hover align-middle mb-0 w-100">
+                            <thead class="text-center">
+                                <tr>
+                                    <th>Tháng/Quý</th>
+                                    <th>Tổng giá trị</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tg in Model.GiaTriTheoThangQuyNam)
+                                {
+                                    <tr>
+                                        <td>Tháng @tg.Thang/@tg.Nam <br /><small class="text-muted">(Quý @tg.Quy)</small></td>
+                                        <td class="text-end fw-bold text-success">@tg.TongGiaTriMua.ToString("N0") đ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ================== SCRIPT PHÂN TRANG BẰNG DATATABLES ================== -->
+@section Scripts {
+    <!-- CSS cho DataTables Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <!-- JS cho DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var languageVN = {
+                "lengthMenu": "Hiển thị _MENU_ dòng",
+                "search": "Tìm nhanh:",
+                "zeroRecords": "Không có dữ liệu phù hợp",
+                "info": "Trang _PAGE_ / _PAGES_",
+                "infoEmpty": "Không có dữ liệu",
+                "infoFiltered": "(lọc từ _MAX_ dòng)",
+                "paginate": {
+                    "first": "Đầu",
+                    "last": "Cuối",
+                    "next": "Tiếp",
+                    "previous": "Trước"
+                }
+            };
+
+            // Kích hoạt DataTables cho bảng Thống kê Nhà cung cấp
+            $('#bangThongKeNCC').DataTable({
+                "language": languageVN,
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 25],
+                "ordering": false 
+            });
+
+            // Kích hoạt DataTables cho bảng Thống kê Hàng hóa
+            $('#bangThongKeHangHoa').DataTable({
+                "language": languageVN,
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 25],
+                "ordering": false
+            });
+            
+            // Kích hoạt DataTables cho bảng Giá trị theo thời gian
+            $('#bangGiaTriThoiGian').DataTable({
+                "language": languageVN,
+                "pageLength": 3,
+                "lengthMenu": [3, 6, 12],
+                "ordering": false,
+                "searching": false, 
+                "lengthChange": false 
+            });
+        });
+    </script>
+}
