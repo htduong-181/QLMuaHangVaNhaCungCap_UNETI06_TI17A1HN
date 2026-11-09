@@ -38,7 +38,6 @@ namespace QLMuaHangVaNCC_UNETI06_TI17A1HN.Controllers
         // Kiểm tra phân quyền tại Controller
         private bool KiemTraQuyen()
         {
-            // ĐÃ TẮT ĐOẠN GỌI SESSION ĐỂ KHÔNG BỊ LỖI VIEW TRÊN TRÌNH DUYỆT
             /*
             var vaiTro = HttpContext.Session.GetString("VaiTro");
             if (string.IsNullOrEmpty(vaiTro)) return true;

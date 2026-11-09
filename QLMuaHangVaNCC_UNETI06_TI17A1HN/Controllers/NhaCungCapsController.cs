@@ -10,11 +10,19 @@ public class NhaCungCapsController : Controller
 
     // Index
     public async Task<IActionResult> Index(string? search, bool? status, int? maHang,
-        bool? coCungUng, string? sort, int page = 1)
+     bool? coCungUng, string? sort, int page = 1)
     {
         page = Math.Max(1, page);
         const int pageSize = 10;
-        var query = _context.NhaCungCap.AsNoTracking().AsQueryable();
+        //Thêm Include để kéo dữ liệu Đơn mua, Chi tiết đơn và Thanh toán
+        var query = _context.NhaCungCap
+            .Include(n => n.DonMuaHangs)
+                .ThenInclude(d => d.ChiTietDonMuas)
+            .Include(n => n.DonMuaHangs)
+                .ThenInclude(d => d.ThanhToanDonMuas)
+            .AsNoTracking()
+            .AsQueryable();
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             search = search.Trim();
@@ -23,24 +31,35 @@ public class NhaCungCapsController : Controller
                 || (x.MaSoThue != null && x.MaSoThue.Contains(search))
                 || (x.NguoiLienHe != null && x.NguoiLienHe.Contains(search)));
         }
+
         if (status.HasValue) query = query.Where(x => x.TrangThai == status.Value);
+
         if (maHang.HasValue && coCungUng.HasValue)
         {
             query = coCungUng.Value
                 ? query.Where(x => x.NhaCungCapHangHoas.Any(y => y.MaHang == maHang.Value))
                 : query.Where(x => !x.NhaCungCapHangHoas.Any(y => y.MaHang == maHang.Value));
         }
+
         query = sort == "name_desc"
             ? query.OrderByDescending(x => x.TenNhaCungCap).ThenBy(x => x.MaNhaCungCap)
             : query.OrderBy(x => x.TenNhaCungCap).ThenBy(x => x.MaNhaCungCap);
+
         var total = await query.CountAsync();
         var pages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
         page = Math.Min(page, pages);
+
         return View(new PagedListVm<NhaCungCap>
         {
             Items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(),
-            Page = page, PageSize = pageSize, TotalItems = total,
-            Search = search, Status = status, MaHang = maHang, CoCungUng = coCungUng, Sort = sort,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = total,
+            Search = search,
+            Status = status,
+            MaHang = maHang,
+            CoCungUng = coCungUng,
+            Sort = sort,
             HangHoas = await _context.HangHoa.AsNoTracking().OrderBy(x => x.TenHang).ToListAsync()
         });
     }
