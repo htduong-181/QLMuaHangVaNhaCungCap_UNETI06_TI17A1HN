@@ -16,6 +16,32 @@
                 <option value="@tt" selected="@(ViewBag.TrangThai == tt)">@TrangThaiYeuCau.NhanTiengViet(tt)</option>
             }
         </select>
+
+        <select name="mucDoUuTien" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Tất cả mức độ --</option>
+            @foreach (var tt in MucDoUuTien.TatCa)
+            {
+                <option value="@tt" selected="@(ViewBag.MucDoUuTien == tt)">@MucDoUuTien.NhanTiengViet(tt)</option>
+            }
+        </select>
+
+        <input type="date"
+               name="tuNgay"
+               class="form-control"
+               value="@ViewBag.TuNgay"
+               title="Từ ngày"
+               lang="vi" />
+
+        <input type="date"
+               name="denNgay"
+               class="form-control"
+               value="@ViewBag.DenNgay"
+               title="Đến ngày"
+               lang="vi" />
+
+        <button type="submit" class="btn btn-primary">
+            Lọc
+        </button>
     </form>
     <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">+ Tạo yêu cầu</a></div></div>
 </div>

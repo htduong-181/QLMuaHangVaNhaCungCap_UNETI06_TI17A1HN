@@ -24,7 +24,7 @@ public class YeuCauMuaHangsController : Controller
     // ---------- Danh sách ----------
     // NhanVienDeNghi: chỉ thấy yêu cầu do chính mình lập (đúng yêu cầu "phạm vi được phép").
     // Các vai trò còn lại (Admin, NguoiDuyet, NhanVienMuaHang, KeToan, NhanVienKho): thấy toàn bộ.
-    public async Task<IActionResult> Index(string? trangThai)
+    public async Task<IActionResult> Index(string? trangThai, string? mucDoUuTien, DateTime? tuNgay, DateTime? denNgay)
     {
         var q = _context.YeuCauMuaHang
             .Include(y => y.BoPhanDeNghi)
@@ -34,10 +34,24 @@ public class YeuCauMuaHangsController : Controller
         if (VaiTroHienTai == VaiTroHeThong.NhanVienDeNghi)
             q = q.Where(y => y.NguoiLap == MaTaiKhoanHienTai);
 
+        // Lọc theo trạng thái
         if (!string.IsNullOrWhiteSpace(trangThai))
             q = q.Where(y => y.TrangThai == trangThai);
 
+        // Lọc theo mức độ ưu tiên
+        if (!string.IsNullOrWhiteSpace (mucDoUuTien))
+            q = q.Where (y => y.MucDoUuTien == mucDoUuTien);
+
+        // Lọc theo ngày cần hàng
+        if (tuNgay.HasValue)
+            q = q.Where(y => y.NgayCanHang >= tuNgay.Value.Date);
+        if (denNgay.HasValue)
+            q = q.Where(y => y.NgayCanHang < denNgay.Value.Date.AddDays(1));
+
         ViewBag.TrangThai = trangThai;
+        ViewBag.MucDoUuTien = mucDoUuTien;
+        ViewBag.TuNgay = tuNgay?.ToString("dd/MM/yyyy");
+        ViewBag.DenNgay = denNgay?.ToString("dd/MM/yyyy");
         return View(await q.OrderByDescending(y => y.MaYeuCau).ToListAsync());
     }
 
