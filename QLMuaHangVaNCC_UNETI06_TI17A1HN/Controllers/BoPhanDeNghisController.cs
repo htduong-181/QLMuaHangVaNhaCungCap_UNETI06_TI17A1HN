@@ -13,12 +13,17 @@ public class BoPhanDeNghisController : Controller
     private readonly QLMuaHangVaNCC_UNETI06_TI17A1HNContext _context;
     public BoPhanDeNghisController(QLMuaHangVaNCC_UNETI06_TI17A1HNContext context) => _context = context;
 
-    public async Task<IActionResult> Index(string? tuKhoa)
+    public async Task<IActionResult> Index(string? tuKhoa, bool? trangThai)
     {
         var q = _context.BoPhanDeNghi.AsQueryable();
         if (!string.IsNullOrWhiteSpace(tuKhoa))
             q = q.Where(b => b.TenBoPhan.Contains(tuKhoa));
+
+        if (trangThai.HasValue)
+            q = q.Where(b => b.TrangThai == trangThai.Value);
+
         ViewBag.TuKhoa = tuKhoa;
+        ViewBag.TrangThai = trangThai;
         return View(await q.OrderBy(b => b.TenBoPhan).ToListAsync());
     }
 

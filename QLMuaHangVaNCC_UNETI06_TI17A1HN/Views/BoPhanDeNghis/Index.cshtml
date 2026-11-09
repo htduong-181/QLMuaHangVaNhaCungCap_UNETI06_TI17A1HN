@@ -8,9 +8,39 @@
 
 <div class="d-flex justify-content-between mb-3">
     <form method="get" class="d-flex gap-2">
-        <input name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tên bộ phận" />
-        <button class="btn btn-outline-primary">Tìm</button>
-    </form>
+
+    <!-- Tìm kiếm tên bộ phận -->
+    <input name="tuKhoa"
+           value="@ViewBag.TuKhoa"
+           class="form-control"
+           placeholder="Tên bộ phận" />
+
+    <!-- Lọc theo trạng thái -->
+    <select name="trangThai" class="form-select">
+
+        <option value="">-- Tất cả trạng thái --</option>
+
+        <option value="true"
+                selected="@(ViewBag.TrangThai?.ToString().ToLower() == "true")">
+            Hoạt động
+        </option>
+
+        <option value="false"
+                selected="@(ViewBag.TrangThai?.ToString().ToLower() == "false")">
+            Ngừng hoạt động
+        </option>
+
+    </select>
+
+    <button type="submit" class="btn btn-outline-primary">
+        Tìm
+    </button>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Xóa
+    </a>
+
+</form>
     <div class="dropdown d-inline-block mb-3"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-plus-circle me-1"></i> Thêm / Tạo mới</button><div class="dropdown-menu dropdown-menu-end"><a asp-action="Create" class="dropdown-item">+ Thêm bộ phận</a></div></div>
 </div>
 
